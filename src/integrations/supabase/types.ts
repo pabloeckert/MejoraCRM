@@ -14,16 +14,273 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          assigned_to: string | null
+          channel: string | null
+          company: string | null
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          first_contact_date: string | null
+          id: string
+          location: string | null
+          name: string
+          notes: string | null
+          segment: string | null
+          status: Database["public"]["Enums"]["client_status"]
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          channel?: string | null
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          first_contact_date?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          notes?: string | null
+          segment?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          channel?: string | null
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          first_contact_date?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          notes?: string | null
+          segment?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      interactions: {
+        Row: {
+          client_id: string
+          created_at: string
+          follow_up_date: string | null
+          id: string
+          interaction_date: string
+          medium: Database["public"]["Enums"]["interaction_medium"]
+          next_step: string | null
+          notes: string | null
+          product_id: string | null
+          result: Database["public"]["Enums"]["interaction_result"] | null
+          type: Database["public"]["Enums"]["interaction_type"]
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          follow_up_date?: string | null
+          id?: string
+          interaction_date?: string
+          medium: Database["public"]["Enums"]["interaction_medium"]
+          next_step?: string | null
+          notes?: string | null
+          product_id?: string | null
+          result?: Database["public"]["Enums"]["interaction_result"] | null
+          type: Database["public"]["Enums"]["interaction_type"]
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          follow_up_date?: string | null
+          id?: string
+          interaction_date?: string
+          medium?: Database["public"]["Enums"]["interaction_medium"]
+          next_step?: string | null
+          notes?: string | null
+          product_id?: string | null
+          result?: Database["public"]["Enums"]["interaction_result"] | null
+          type?: Database["public"]["Enums"]["interaction_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          assigned_to: string
+          client_id: string
+          created_at: string
+          estimated_amount: number | null
+          id: string
+          loss_reason: string | null
+          product_id: string | null
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to: string
+          client_id: string
+          created_at?: string
+          estimated_amount?: number | null
+          id?: string
+          loss_reason?: string | null
+          product_id?: string | null
+          stage?: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string
+          client_id?: string
+          created_at?: string
+          estimated_amount?: number | null
+          id?: string
+          loss_reason?: string | null
+          product_id?: string | null
+          stage?: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          id: string
+          name: string
+          price: number | null
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          price?: number | null
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "supervisor" | "vendedor"
+      client_status: "lead" | "cliente" | "inactivo"
+      interaction_medium: "whatsapp" | "email" | "llamada" | "redes" | "reunion"
+      interaction_result: "interes" | "venta" | "sin_respuesta" | "rechazo"
+      interaction_type: "consulta" | "cotizacion" | "seguimiento" | "cierre"
+      opportunity_stage:
+        | "prospecto"
+        | "contactado"
+        | "cotizacion"
+        | "negociacion"
+        | "cerrado_ganado"
+        | "cerrado_perdido"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +407,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "supervisor", "vendedor"],
+      client_status: ["lead", "cliente", "inactivo"],
+      interaction_medium: ["whatsapp", "email", "llamada", "redes", "reunion"],
+      interaction_result: ["interes", "venta", "sin_respuesta", "rechazo"],
+      interaction_type: ["consulta", "cotizacion", "seguimiento", "cierre"],
+      opportunity_stage: [
+        "prospecto",
+        "contactado",
+        "cotizacion",
+        "negociacion",
+        "cerrado_ganado",
+        "cerrado_perdido",
+      ],
+    },
   },
 } as const
