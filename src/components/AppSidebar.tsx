@@ -31,13 +31,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <div className={`flex items-center gap-2 px-3 py-4 ${collapsed ? "justify-center" : ""}`}>
-            <img src={logoImg} alt="Mejora Continua" className="h-8 object-contain shrink-0" />
+          <div className={`flex flex-col items-center px-3 py-4 ${collapsed ? "" : "gap-1"}`}>
+            <img src={logoImg} alt="Mejora Continua" className={`object-contain shrink-0 ${collapsed ? "h-7" : "h-10"}`} />
             {!collapsed && (
-              <div>
-                <h2 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">Mejora Continua</h2>
-                <p className="text-[10px] text-sidebar-foreground/60 uppercase tracking-widest">CRM Forestal</p>
-              </div>
+              <p className="text-[11px] font-bold text-sidebar-accent-foreground tracking-[0.25em] uppercase" style={{ fontFamily: "'League Spartan', sans-serif" }}>CRM</p>
             )}
           </div>
           <SidebarGroupContent>
