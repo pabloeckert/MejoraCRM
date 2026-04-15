@@ -1,7 +1,7 @@
 import { LayoutDashboard, Users, MessageSquare, Kanban, BarChart3, LogOut, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import logoImg from "@/assets/logo-mejora-continua.png";
+import logoImg from "@/assets/logo-white.png";
 import {
   Sidebar,
   SidebarContent,
@@ -32,7 +32,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <div className={`flex items-center gap-2 px-3 py-4 ${collapsed ? "justify-center" : ""}`}>
-            <img src={logoImg} alt="Mejora Continua" className="w-9 h-9 rounded-lg object-contain shrink-0" />
+            <img src={logoImg} alt="Mejora Continua" className="h-8 object-contain shrink-0" />
             {!collapsed && (
               <div>
                 <h2 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">Mejora Continua</h2>
