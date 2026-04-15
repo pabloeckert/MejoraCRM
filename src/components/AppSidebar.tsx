@@ -1,7 +1,7 @@
-import { LayoutDashboard, Users, MessageSquare, Kanban, BarChart3, LogOut, TreePine } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquare, Kanban, BarChart3, LogOut, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import logoImg from "@/assets/logo-mejora-continua.png";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +13,6 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -27,22 +26,13 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile, role } = useAuth();
-
-  const ROLE_LABELS: Record<string, string> = {
-    admin: "Administrador",
-    supervisor: "Supervisor",
-    vendedor: "Vendedor",
-  };
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <div className={`flex items-center gap-2 px-3 py-4 ${collapsed ? "justify-center" : ""}`}>
-            <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
-              <TreePine className="h-4 w-4 text-sidebar-primary-foreground" />
-            </div>
+            <img src={logoImg} alt="Mejora Continua" className="w-9 h-9 rounded-lg object-contain shrink-0" />
             {!collapsed && (
               <div>
                 <h2 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">Mejora Continua</h2>
@@ -79,23 +69,9 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-3 border-t border-sidebar-border">
-        {!collapsed && (
-          <div className="mb-2 px-1">
-            <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
-              {profile?.full_name || "Usuario"}
-            </p>
-            <p className="text-xs text-sidebar-foreground/60">{ROLE_LABELS[role || ""] || role || "..."}</p>
-          </div>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start text-sidebar-foreground/60 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50"
-          onClick={signOut}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          {!collapsed && "Cerrar sesión"}
-        </Button>
+        <div className={`text-xs text-sidebar-foreground/40 ${collapsed ? "text-center" : "px-1"}`}>
+          {collapsed ? "MC" : "Mejora Continua CRM v1.0"}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
