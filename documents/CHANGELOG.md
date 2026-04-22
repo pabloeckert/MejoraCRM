@@ -7,7 +7,7 @@
 - Documentación de arquitectura, base de datos y despliegue
 
 ### 2026-04-14 — v0.1.0 (Estado actual)
-- Proyecto creado con Lovable.dev
+- Proyecto creado por Mejora Continua®
 - Stack: React + TypeScript + Vite + Tailwind + shadcn/ui
 
 **Base de datos (Supabase):**
@@ -33,7 +33,7 @@
 
 **Commits relevantes:**
 - `636e50b` — Fix tailwind config brace
-- `c9a455d` — Changes (Lovable)
+- `c9a455d` — Changes (Mejora Continua®)
 - `1d3af6a` — Integrated brand fonts
 - `74e6a7e` — Adjusted branding en sidebar
 - `3689cc5` — Updated logos Mejora Continua

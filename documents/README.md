@@ -16,7 +16,7 @@
 | Backend | Supabase (PostgreSQL + Auth + RLS) |
 | Gráficos | Recharts |
 | Deploy | FTP/SSH a Hostinger (185.212.70.250) |
-| AI Builder | Lovable (GPT-Engineer) |
+| Desarrollo | Mejora Continua® |
 
 ## Estructura de archivos
 

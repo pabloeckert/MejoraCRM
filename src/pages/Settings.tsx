@@ -182,7 +182,7 @@ export default function Settings() {
             <span className="text-muted-foreground">Versión</span>
             <span className="font-medium">2.0</span>
             <span className="text-muted-foreground">Plataforma</span>
-            <span className="font-medium">Lovable + Supabase</span>
+            <span className="font-medium">Mejora Continua® + Supabase</span>
             <span className="text-muted-foreground">Empresa</span>
             <span className="font-medium">Mejora Continua</span>
             <span className="text-muted-foreground">Dominio</span>

@@ -1,7 +1,7 @@
 # Análisis de Brechas — MejoraCRM
 
 **Fecha:** 2026-04-22
-**Estado actual:** v0.1.0 (MVP funcional con Lovable)
+**Estado actual:** v0.1.0 (MVP funcional — Mejora Continua®)
 **Fuentes:** Requerimientos Base + Ajustes Solicitados + Manual de Tono
 
 ---
