@@ -42,8 +42,8 @@ const MEDIUM_LABELS: Record<string, string> = {
   visita_campo: "Visita campo",
 };
 const RESULT_LABELS: Record<string, string> = {
-  presupuesto: "Presupuesto", venta: "Venta", seguimiento: "Seguimiento",
-  sin_respuesta: "Sin respuesta", no_interesado: "No interesado",
+  presupuesto: "Envié un presupuesto", venta: "Cerré una venta", seguimiento: "Hice un seguimiento",
+  sin_respuesta: "Sin respuesta", no_interesado: "No le interesó",
 };
 const RESULT_STYLES: Record<string, string> = {
   presupuesto: "bg-primary/10 text-primary border-primary/20",
@@ -296,25 +296,16 @@ export default function Clients() {
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <Label>Nombre *</Label>
+              <Label>Nombre y Apellido *</Label>
               <Input
                 value={form.name || ""}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Nombre del cliente o empresa"
+                placeholder="Nombre y apellido del cliente"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Empresa</Label>
-                <Input value={form.company || ""} onChange={(e) => setForm({ ...form, company: e.target.value })} />
-              </div>
-              <div>
-                <Label>Persona de contacto</Label>
-                <Input
-                  value={form.contact_name || ""}
-                  onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
-                />
-              </div>
+            <div>
+              <Label>Empresa</Label>
+              <Input value={form.company || ""} onChange={(e) => setForm({ ...form, company: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -347,7 +338,7 @@ export default function Clients() {
                 </Select>
               </div>
               <div>
-                <Label>Canal de origen</Label>
+                <Label>Canal de Ingreso</Label>
                 <Select value={form.channel || ""} onValueChange={(v) => setForm({ ...form, channel: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar" />

@@ -53,11 +53,11 @@ const MEDIUM_ICONS: Record<string, any> = {
 };
 
 const RESULT_LABELS: Record<Result, string> = {
-  presupuesto: "Presupuesto",
-  venta: "Venta",
-  seguimiento: "Seguimiento",
+  presupuesto: "Envié un presupuesto",
+  venta: "Cerré una venta",
+  seguimiento: "Hice un seguimiento",
   sin_respuesta: "Sin respuesta",
-  no_interesado: "No interesado",
+  no_interesado: "No le interesó",
 };
 
 const RESULT_STYLES: Record<Result, string> = {
@@ -297,8 +297,8 @@ export default function Interactions() {
           />
         </div>
         <Select value={resultFilter} onValueChange={setResultFilter}>
-          <SelectTrigger className="w-44 h-9">
-            <SelectValue placeholder="Resultado" />
+            <SelectTrigger className="w-48 h-9">
+            <SelectValue placeholder="Resultados" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos los resultados</SelectItem>
@@ -422,7 +422,7 @@ export default function Interactions() {
                 </Select>
               </div>
               <div>
-                <Label>Medio *</Label>
+                <Label>Medio de Contacto *</Label>
                 <Select value={form.medium || ""} onValueChange={(v) => setForm({ ...form, medium: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar" />
@@ -438,9 +438,8 @@ export default function Interactions() {
               </div>
             </div>
 
-            {/* Step 2: Resultado */}
             <div>
-              <Label>Resultado *</Label>
+              <Label>¿Qué pasó? *</Label>
               <div className="grid grid-cols-5 gap-2 mt-1">
                 {(Constants.public.Enums.interaction_result as readonly Result[]).map((r) => {
                   const Icon = RESULT_ICONS[r];
@@ -686,13 +685,21 @@ export default function Interactions() {
             {form.result === "no_interesado" && (
               <div className="space-y-3 p-3 bg-destructive/5 rounded-lg border border-destructive/10">
                 <div>
-                  <Label>Motivo de pérdida *</Label>
-                  <Textarea
-                    value={form.loss_reason || ""}
-                    onChange={(e) => setForm({ ...form, loss_reason: e.target.value })}
-                    placeholder="Precio, competencia, timing..."
-                    rows={2}
-                  />
+                  <Label>Motivo de rechazo *</Label>
+                  <Select value={form.loss_reason || ""} onValueChange={(v) => setForm({ ...form, loss_reason: v })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar motivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Precio">Precio</SelectItem>
+                      <SelectItem value="Falta de financiación">Falta de financiación</SelectItem>
+                      <SelectItem value="Tiempo de entrega">Tiempo de entrega</SelectItem>
+                      <SelectItem value="Logística">Logística</SelectItem>
+                      <SelectItem value="Compró a la competencia">Compró a la competencia</SelectItem>
+                      <SelectItem value="Necesidad no confirmada">Necesidad no confirmada</SelectItem>
+                      <SelectItem value="Otro">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -785,7 +792,7 @@ function ProductLines({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-sm">Productos</Label>
+        <Label className="text-sm">Producto (múltiple)</Label>
         <Select value={currency} onValueChange={onCurrencyChange}>
           <SelectTrigger className="h-7 w-24 text-xs">
             <SelectValue />

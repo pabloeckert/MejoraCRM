@@ -33,7 +33,8 @@
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
+    /* Fondo general: #F2F2F2 según v2 */
+    --background: 0 0% 95%;
     --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
@@ -42,44 +43,47 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 5%;
 
-    /* Mejora CRM v2 brand: #2C5CA5 */
+    /* Mejora CRM brand: #2C5CA5 */
     --primary: 214 58% 41%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 25% 95%;
+    --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 10%;
 
-    --muted: 40 15% 94%;
+    --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
 
-    --accent: 45 74% 60%;
+    --accent: 45 87% 54%;
     --accent-foreground: 0 0% 5%;
 
-    --destructive: 2 52% 53%;
+    --destructive: 354 63% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
     --ring: 214 58% 41%;
 
     --radius: 0.625rem;
 
-    --sidebar-background: 214 58% 14%;
-    --sidebar-foreground: 220 15% 85%;
-    --sidebar-primary: 45 74% 60%;
+    /* Sidebar: #2C5CA5 azul primario según v2 */
+    --sidebar-background: 214 58% 41%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 45 87% 54%;
     --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 214 58% 22%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 214 58% 24%;
-    --sidebar-ring: 45 74% 60%;
+    /* Ítem activo: #1C4D8C */
+    --sidebar-accent: 214 60% 33%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 214 58% 35%;
+    --sidebar-ring: 45 87% 54%;
 
-    --success: 142 60% 40%;
+    /* Indicadores v2 */
+    --success: 142 50% 30%;
     --success-foreground: 0 0% 100%;
-    --warning: 45 74% 60%;
-    --warning-foreground: 0 0% 5%;
+    --warning: 30 89% 54%;
+    --warning-foreground: 0 0% 100%;
 
-    --brand-gold: 45 74% 60%;
-    --brand-red: 2 52% 53%;
+    --brand-gold: 45 87% 54%;
+    --brand-red: 354 63% 47%;
     --brand-blue: 214 58% 41%;
     --brand-gray: 0 0% 40%;
     --brand-black: 0 0% 0%;

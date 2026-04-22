@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import {
   TrendingUp, DollarSign, FileText, Clock, Users, Trophy, AlertCircle,
-  ChevronRight, Target, Calendar, ShoppingCart,
+  ChevronRight, Target, Calendar, ShoppingCart, Plus,
 } from "lucide-react";
 import { isBefore, isToday, differenceInDays, startOfMonth, format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -26,11 +26,11 @@ const COLORS = [
 ];
 
 const RESULT_LABELS: Record<string, string> = {
-  presupuesto: "Presupuesto",
-  venta: "Venta",
-  seguimiento: "Seguimiento",
+  presupuesto: "Envié un presupuesto",
+  venta: "Cerré una venta",
+  seguimiento: "Hice un seguimiento",
   sin_respuesta: "Sin respuesta",
-  no_interesado: "No interesado",
+  no_interesado: "No le interesó",
 };
 
 export default function Dashboard() {
@@ -143,7 +143,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
 
   const kpis = [
     {
-      label: "Ventas del mes",
+      label: "Ventas logradas",
       value: `$${totalVentas.toLocaleString()}`,
       sub: `${ventas.length} ventas`,
       icon: DollarSign,
@@ -152,16 +152,16 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
       onClick: () => navigate("/interactions"),
     },
     {
-      label: "Presupuestos",
+      label: "Ventas en curso",
       value: `$${totalPresup.toLocaleString()}`,
       sub: `${presupuestos.length} presupuestos`,
       icon: FileText,
-      color: "text-primary",
-      bg: "bg-primary/10",
+      color: "text-warning",
+      bg: "bg-warning/10",
       onClick: () => navigate("/interactions"),
     },
     {
-      label: "Conversión",
+      label: "Éxito de ventas",
       value: `${conversion}%`,
       sub: `${ventas.length} de ${presupuestos.length}`,
       icon: TrendingUp,
@@ -170,7 +170,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
       onClick: () => navigate("/interactions"),
     },
     {
-      label: "Seguimientos vencidos",
+      label: "Contactos sin seguimiento",
       value: overdue.length.toString(),
       sub: lostAmount > 0 ? `$${lostAmount.toLocaleString()} perdidos` : "todo al día",
       icon: AlertCircle,
@@ -383,9 +383,24 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
 
   const recentActivity = interactions.slice(0, 6);
 
+  // Mensaje motivacional según actividad del día (v2)
+  const todayInteractions = interactions.filter((i: any) => isToday(new Date(i.interaction_date)));
+  let motivationalMsg = "";
+  if (todayInteractions.length === 0 && today.length > 0) {
+    motivationalMsg = `Tenés ${today.length} seguimiento${today.length > 1 ? "s" : ""} para hoy. ¡Empecemos!`;
+  } else if (todayInteractions.length > 0 && today.length === 0) {
+    motivationalMsg = "Ya registraste tus interacciones del día 👏";
+  } else if (overdue.length > 0) {
+    motivationalMsg = `Hay ${overdue.length} seguimiento${overdue.length > 1 ? "s" : ""} vencido${overdue.length > 1 ? "s" : ""}. ¿Los revisamos?`;
+  } else if (ventas.some((v: any) => isToday(new Date(v.interaction_date)))) {
+    motivationalMsg = "¡Venta registrada hoy! Buen trabajo 💪";
+  } else if (monthInts.length > 10) {
+    motivationalMsg = "Buen ritmo este mes. ¡Seguí así! 👍";
+  }
+
   const kpis = [
     {
-      label: "Mis ventas",
+      label: "Ventas logradas",
       value: `$${totalVentas.toLocaleString()}`,
       sub: `${ventas.length} este mes`,
       icon: ShoppingCart,
@@ -393,12 +408,12 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
       bg: "bg-success/10",
     },
     {
-      label: "Presupuestos",
+      label: "Ventas en curso",
       value: `$${totalPresup.toLocaleString()}`,
-      sub: `${presupuestos.length} este mes`,
+      sub: `${presupuestos.length} presupuestos`,
       icon: FileText,
-      color: "text-primary",
-      bg: "bg-primary/10",
+      color: "text-warning",
+      bg: "bg-warning/10",
     },
     {
       label: "Seguimientos hoy",
@@ -420,11 +435,17 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-xl font-bold">Hola {sellerName.split(" ")[0]} 👋</h1>
-        <p className="text-sm text-muted-foreground">
-          Tu actividad de {format(monthStart, "MMMM yyyy", { locale: es })}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Hola {sellerName.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-muted-foreground">
+            Tu actividad de {format(monthStart, "MMMM yyyy", { locale: es })}
+          </p>
+        </div>
+        <Button onClick={() => navigate("/interactions")} className="h-10 px-5 text-sm font-semibold shadow-md">
+          <Plus className="h-4 w-4 mr-1.5" />
+          Registrar interacción
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -571,6 +592,15 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
           </CardContent>
         </Card>
       </div>
+
+      {motivationalMsg && (
+        <Card className="border-border/50 bg-primary/5 border-primary/10">
+          <CardContent className="py-4 px-5 flex items-center gap-3">
+            <Target className="h-5 w-5 text-primary shrink-0" />
+            <p className="text-sm font-medium text-primary">{motivationalMsg}</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
