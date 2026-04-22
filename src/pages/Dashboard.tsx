@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,7 +43,7 @@ export default function Dashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from("interactions")
-        .select("*, clients(name)")
+        .select("*, clients(name), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))")
         .order("interaction_date", { ascending: false });
       return data || [];
     },
@@ -84,14 +85,44 @@ export default function Dashboard() {
  * ============================================================ */
 
 function OwnerView({ interactions, clients, profiles, navigate }: any) {
+  const [period, setPeriod] = useState("mes");
   const profileMap = Object.fromEntries(profiles.map((p: any) => [p.user_id, p.full_name || "Sin nombre"]));
-  const monthStart = startOfMonth(new Date());
 
-  const monthInts = interactions.filter((i: any) => new Date(i.interaction_date) >= monthStart);
-  const ventas = monthInts.filter((i: any) => i.result === "venta");
-  const presupuestos = monthInts.filter((i: any) => i.result === "presupuesto");
-  const seguimientos = monthInts.filter((i: any) => i.result === "seguimiento");
-  const noInteresado = monthInts.filter((i: any) => i.result === "no_interesado");
+  // Calcular fecha de inicio según período seleccionado
+  const now = new Date();
+  let periodStart: Date;
+  let periodLabel: string;
+  switch (period) {
+    case "hoy":
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      periodLabel = "Hoy";
+      break;
+    case "semana":
+      periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      periodLabel = "Últimos 7 días";
+      break;
+    case "trimestre":
+      periodStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      periodLabel = "Último trimestre";
+      break;
+    case "semestre":
+      periodStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+      periodLabel = "Último semestre";
+      break;
+    case "año":
+      periodStart = new Date(now.getFullYear(), 0, 1);
+      periodLabel = format(now, "yyyy");
+      break;
+    default: // mes
+      periodStart = startOfMonth(now);
+      periodLabel = format(startOfMonth(now), "MMMM yyyy", { locale: es });
+  }
+
+  const periodInts = interactions.filter((i: any) => new Date(i.interaction_date) >= periodStart);
+  const ventas = periodInts.filter((i: any) => i.result === "venta");
+  const presupuestos = periodInts.filter((i: any) => i.result === "presupuesto");
+  const seguimientos = periodInts.filter((i: any) => i.result === "seguimiento");
+  const noInteresado = periodInts.filter((i: any) => i.result === "no_interesado");
 
   const totalVentas = ventas.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
   const totalPresup = presupuestos.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
@@ -103,7 +134,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
 
   // Result distribution
   const resultData = Object.entries(
-    monthInts.reduce((acc: Record<string, number>, i: any) => {
+    periodInts.reduce((acc: Record<string, number>, i: any) => {
       acc[i.result] = (acc[i.result] || 0) + 1;
       return acc;
     }, {})
@@ -111,7 +142,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
 
   // Seller ranking (this month)
   const sellerStats: Record<string, { ventas: number; presup: number; segs: number; ingresos: number }> = {};
-  monthInts.forEach((i: any) => {
+  periodInts.forEach((i: any) => {
     const key = i.user_id;
     if (!sellerStats[key]) sellerStats[key] = { ventas: 0, presup: 0, segs: 0, ingresos: 0 };
     if (i.result === "venta") {
@@ -141,6 +172,9 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
   // Lost amount (no_interesado month)
   const lostAmount = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
 
+  // Ventas no concretadas
+  const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
+
   const kpis = [
     {
       label: "Ventas logradas",
@@ -161,6 +195,15 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
       onClick: () => navigate("/interactions"),
     },
     {
+      label: "Ventas no concretadas",
+      value: `$${totalPerdido.toLocaleString()}`,
+      sub: `${noInteresado.length} rechazos`,
+      icon: AlertCircle,
+      color: "text-destructive",
+      bg: "bg-destructive/10",
+      onClick: () => navigate("/interactions"),
+    },
+    {
       label: "Éxito de ventas",
       value: `${conversion}%`,
       sub: `${ventas.length} de ${presupuestos.length}`,
@@ -173,7 +216,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
       label: "Contactos sin seguimiento",
       value: overdue.length.toString(),
       sub: lostAmount > 0 ? `$${lostAmount.toLocaleString()} perdidos` : "todo al día",
-      icon: AlertCircle,
+      icon: Clock,
       color: overdue.length > 0 ? "text-destructive" : "text-success",
       bg: overdue.length > 0 ? "bg-destructive/10" : "bg-success/10",
       onClick: () => navigate("/interactions"),
@@ -182,14 +225,36 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-xl font-bold">Vista General · Dueño</h1>
-        <p className="text-sm text-muted-foreground">
-          Resumen de {format(monthStart, "MMMM yyyy", { locale: es })}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Vista General · Dueño</h1>
+          <p className="text-sm text-muted-foreground">
+            Resumen de {periodLabel}
+          </p>
+        </div>
+        <div className="flex gap-1 flex-wrap">
+          {[
+            { key: "hoy", label: "Hoy" },
+            { key: "semana", label: "Semana" },
+            { key: "mes", label: "Mes" },
+            { key: "trimestre", label: "Trimestre" },
+            { key: "semestre", label: "Semestre" },
+            { key: "año", label: "Año" },
+          ].map((p) => (
+            <Button
+              key={p.key}
+              variant={period === p.key ? "default" : "outline"}
+              size="sm"
+              className="h-8 text-xs px-3"
+              onClick={() => setPeriod(p.key)}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {kpis.map((kpi, i) => (
           <Card
             key={kpi.label}
@@ -217,7 +282,7 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Trophy className="h-4 w-4 text-accent" />
-              Ranking de vendedores · {format(monthStart, "MMMM", { locale: es })}
+              Ranking de vendedores · {periodLabel}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -353,13 +418,161 @@ function OwnerView({ interactions, clients, profiles, navigate }: any) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bloque 3: Análisis y Estrategia */}
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          Análisis y Estrategia
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Motivos de pérdida */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Motivos de pérdida</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {(() => {
+                const lossData = Object.entries(
+                  noInteresado.reduce((acc: Record<string, number>, i: any) => {
+                    const reason = i.loss_reason || "Sin especificar";
+                    acc[reason] = (acc[reason] || 0) + 1;
+                    return acc;
+                  }, {})
+                ).map(([name, value]) => ({ name, value: value as number }));
+                return lossData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={lossData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>
+                        {lossData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <RTooltip />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    Sin rechazos en el período
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Ventas por producto */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Ventas por producto</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {(() => {
+                const productSales: Record<string, number> = {};
+                ventas.forEach((v: any) => {
+                  if (v.interaction_lines) {
+                    v.interaction_lines.forEach((l: any) => {
+                      const name = l.products?.name || "Sin nombre";
+                      productSales[name] = (productSales[name] || 0) + (l.line_total || l.quantity * l.unit_price || 0);
+                    });
+                  }
+                });
+                const productData = Object.entries(productSales)
+                  .map(([name, value]) => ({ name, value }))
+                  .sort((a, b) => b.value - a.value)
+                  .slice(0, 6);
+                return productData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={productData} layout="vertical" margin={{ left: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} />
+                      <YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} />
+                      <RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} />
+                      <Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    Sin ventas con productos en el período
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Ventas por zona */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Ventas por zona</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {(() => {
+                const clientMap = Object.fromEntries(clients.map((c: any) => [c.id, c]));
+                const zoneSales: Record<string, number> = {};
+                ventas.forEach((v: any) => {
+                  const prov = clientMap[v.client_id]?.province || "Sin provincia";
+                  zoneSales[prov] = (zoneSales[prov] || 0) + (Number(v.total_amount) || 0);
+                });
+                const zoneData = Object.entries(zoneSales)
+                  .map(([name, value]) => ({ name, value }))
+                  .sort((a, b) => b.value - a.value)
+                  .slice(0, 6);
+                return zoneData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={zoneData} layout="vertical" margin={{ left: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} />
+                      <YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} />
+                      <RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} />
+                      <Bar dataKey="value" fill="hsl(142,60%,40%)" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    Sin ventas por zona en el período
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Distribución por rubro */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Distribución por rubro</CardTitle>
+            </CardHeader>
+            <CardContent className="h-64">
+              {(() => {
+                const clientMap = Object.fromEntries(clients.map((c: any) => [c.id, c]));
+                const rubroSales: Record<string, number> = {};
+                ventas.forEach((v: any) => {
+                  const rubro = clientMap[v.client_id]?.segment || "Sin rubro";
+                  rubroSales[rubro] = (rubroSales[rubro] || 0) + (Number(v.total_amount) || 0);
+                });
+                const rubroData = Object.entries(rubroSales)
+                  .map(([name, value]) => ({ name, value }))
+                  .sort((a, b) => b.value - a.value);
+                return rubroData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={rubroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>
+                        {rubroData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    Sin ventas por rubro en el período
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
     </div>
   );
 }
-
-/* ============================================================
- *                    SELLER VIEW (Vendedor)
- * ============================================================ */
 
 function SellerView({ interactions, myClients, sellerName, navigate }: any) {
   const monthStart = startOfMonth(new Date());
@@ -368,9 +581,11 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
   const ventas = monthInts.filter((i: any) => i.result === "venta");
   const presupuestos = monthInts.filter((i: any) => i.result === "presupuesto");
   const seguimientos = monthInts.filter((i: any) => i.result === "seguimiento");
+  const noInteresado = monthInts.filter((i: any) => i.result === "no_interesado");
 
   const totalVentas = ventas.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
   const totalPresup = presupuestos.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
+  const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
 
   const today = interactions.filter((i: any) => i.follow_up_date && isToday(new Date(i.follow_up_date)));
   const overdue = interactions.filter(
@@ -416,20 +631,20 @@ function SellerView({ interactions, myClients, sellerName, navigate }: any) {
       bg: "bg-warning/10",
     },
     {
+      label: "Ventas no concretadas",
+      value: `$${totalPerdido.toLocaleString()}`,
+      sub: `${noInteresado.length} rechazos`,
+      icon: AlertCircle,
+      color: "text-destructive",
+      bg: "bg-destructive/10",
+    },
+    {
       label: "Seguimientos hoy",
       value: today.length.toString(),
       sub: `${overdue.length} vencidos`,
       icon: Calendar,
       color: today.length > 0 ? "text-accent" : "text-muted-foreground",
       bg: today.length > 0 ? "bg-accent/20" : "bg-muted",
-    },
-    {
-      label: "Mis clientes",
-      value: myClients.length.toString(),
-      sub: `${myClients.filter((c: any) => c.status === "activo").length} activos`,
-      icon: Users,
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
   ];
 
