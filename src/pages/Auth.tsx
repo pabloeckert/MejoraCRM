@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { TreePine } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -51,11 +51,13 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4">
       <div className="w-full max-w-md animate-scale-in">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-            <TreePine className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Mejora Continua</h1>
-          <p className="text-sm text-muted-foreground mt-1">CRM Forestal & Agropecuario</p>
+          <img src={logoImg} alt="Mejora Continua" className="h-16 object-contain mb-3" />
+          <p
+            className="text-xs font-bold tracking-[0.3em] text-primary uppercase"
+            style={{ fontFamily: "'League Spartan', sans-serif" }}
+          >
+            CRM
+          </p>
         </div>
 
         <Card className="border-border/50 shadow-xl shadow-primary/5">

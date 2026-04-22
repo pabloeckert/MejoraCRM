@@ -42,7 +42,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 5%;
 
-    --primary: 222 33% 43%;
+    /* Mejora CRM v2 brand: #2C5CA5 */
+    --primary: 214 58% 41%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 40 25% 95%;
@@ -59,17 +60,17 @@
 
     --border: 40 15% 88%;
     --input: 40 15% 88%;
-    --ring: 222 33% 43%;
+    --ring: 214 58% 41%;
 
     --radius: 0.625rem;
 
-    --sidebar-background: 222 33% 13%;
+    --sidebar-background: 214 58% 14%;
     --sidebar-foreground: 220 15% 85%;
     --sidebar-primary: 45 74% 60%;
     --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 222 33% 20%;
+    --sidebar-accent: 214 58% 22%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 222 33% 22%;
+    --sidebar-border: 214 58% 24%;
     --sidebar-ring: 45 74% 60%;
 
     --success: 142 60% 40%;
@@ -79,38 +80,38 @@
 
     --brand-gold: 45 74% 60%;
     --brand-red: 2 52% 53%;
-    --brand-blue: 222 33% 43%;
+    --brand-blue: 214 58% 41%;
     --brand-gray: 0 0% 40%;
     --brand-black: 0 0% 0%;
   }
 
   .dark {
-    --background: 222 33% 6%;
+    --background: 214 58% 6%;
     --foreground: 220 15% 92%;
-    --card: 222 33% 10%;
+    --card: 214 58% 10%;
     --card-foreground: 220 15% 92%;
-    --popover: 222 33% 10%;
+    --popover: 214 58% 10%;
     --popover-foreground: 220 15% 92%;
-    --primary: 222 33% 55%;
+    --primary: 214 58% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 25% 16%;
+    --secondary: 214 30% 16%;
     --secondary-foreground: 220 15% 92%;
-    --muted: 222 25% 16%;
+    --muted: 214 30% 16%;
     --muted-foreground: 220 10% 55%;
     --accent: 45 74% 55%;
     --accent-foreground: 0 0% 5%;
     --destructive: 2 52% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 222 33% 55%;
-    --sidebar-background: 222 33% 8%;
+    --border: 214 30% 18%;
+    --input: 214 30% 18%;
+    --ring: 214 58% 55%;
+    --sidebar-background: 214 58% 8%;
     --sidebar-foreground: 220 15% 85%;
     --sidebar-primary: 45 74% 60%;
     --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 222 33% 18%;
+    --sidebar-accent: 214 58% 18%;
     --sidebar-accent-foreground: 220 15% 92%;
-    --sidebar-border: 222 33% 18%;
+    --sidebar-border: 214 58% 18%;
     --sidebar-ring: 45 74% 60%;
   }
 }
