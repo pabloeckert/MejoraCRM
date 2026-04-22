@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       clients: {
         Row: {
+          address: string | null
           assigned_to: string | null
           channel: string | null
           company: string | null
@@ -27,12 +28,14 @@ export type Database = {
           location: string | null
           name: string
           notes: string | null
+          province: string | null
           segment: string | null
           status: Database["public"]["Enums"]["client_status"]
           updated_at: string
           whatsapp: string | null
         }
         Insert: {
+          address?: string | null
           assigned_to?: string | null
           channel?: string | null
           company?: string | null
@@ -44,12 +47,14 @@ export type Database = {
           location?: string | null
           name: string
           notes?: string | null
+          province?: string | null
           segment?: string | null
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string
           whatsapp?: string | null
         }
         Update: {
+          address?: string | null
           assigned_to?: string | null
           channel?: string | null
           company?: string | null
@@ -61,6 +66,7 @@ export type Database = {
           location?: string | null
           name?: string
           notes?: string | null
+          province?: string | null
           segment?: string | null
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string
@@ -68,47 +74,137 @@ export type Database = {
         }
         Relationships: []
       }
+      interaction_lines: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_id: string
+          line_total: number
+          product_id: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_id: string
+          line_total?: number
+          product_id: string
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_id?: string
+          line_total?: number
+          product_id?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interaction_lines_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interaction_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interactions: {
         Row: {
+          attachment_url: string | null
           client_id: string
           created_at: string
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          estimated_loss: number | null
           follow_up_date: string | null
+          followup_motive: string | null
+          followup_scenario:
+            | Database["public"]["Enums"]["followup_scenario"]
+            | null
+          historic_quote_amount: number | null
+          historic_quote_date: string | null
           id: string
           interaction_date: string
+          loss_reason: string | null
           medium: Database["public"]["Enums"]["interaction_medium"]
+          negotiation_state:
+            | Database["public"]["Enums"]["negotiation_state"]
+            | null
           next_step: string | null
           notes: string | null
-          product_id: string | null
-          result: Database["public"]["Enums"]["interaction_result"] | null
-          type: Database["public"]["Enums"]["interaction_type"]
+          quote_path: Database["public"]["Enums"]["quote_path"] | null
+          reference_quote_id: string | null
+          result: Database["public"]["Enums"]["interaction_result"]
+          total_amount: number | null
+          updated_at: string
           user_id: string
         }
         Insert: {
+          attachment_url?: string | null
           client_id: string
           created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          estimated_loss?: number | null
           follow_up_date?: string | null
+          followup_motive?: string | null
+          followup_scenario?:
+            | Database["public"]["Enums"]["followup_scenario"]
+            | null
+          historic_quote_amount?: number | null
+          historic_quote_date?: string | null
           id?: string
           interaction_date?: string
+          loss_reason?: string | null
           medium: Database["public"]["Enums"]["interaction_medium"]
+          negotiation_state?:
+            | Database["public"]["Enums"]["negotiation_state"]
+            | null
           next_step?: string | null
           notes?: string | null
-          product_id?: string | null
-          result?: Database["public"]["Enums"]["interaction_result"] | null
-          type: Database["public"]["Enums"]["interaction_type"]
+          quote_path?: Database["public"]["Enums"]["quote_path"] | null
+          reference_quote_id?: string | null
+          result: Database["public"]["Enums"]["interaction_result"]
+          total_amount?: number | null
+          updated_at?: string
           user_id: string
         }
         Update: {
+          attachment_url?: string | null
           client_id?: string
           created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          estimated_loss?: number | null
           follow_up_date?: string | null
+          followup_motive?: string | null
+          followup_scenario?:
+            | Database["public"]["Enums"]["followup_scenario"]
+            | null
+          historic_quote_amount?: number | null
+          historic_quote_date?: string | null
           id?: string
           interaction_date?: string
+          loss_reason?: string | null
           medium?: Database["public"]["Enums"]["interaction_medium"]
+          negotiation_state?:
+            | Database["public"]["Enums"]["negotiation_state"]
+            | null
           next_step?: string | null
           notes?: string | null
-          product_id?: string | null
-          result?: Database["public"]["Enums"]["interaction_result"] | null
-          type?: Database["public"]["Enums"]["interaction_type"]
+          quote_path?: Database["public"]["Enums"]["quote_path"] | null
+          reference_quote_id?: string | null
+          result?: Database["public"]["Enums"]["interaction_result"]
+          total_amount?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -120,61 +216,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "interactions_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "interactions_reference_quote_id_fkey"
+            columns: ["reference_quote_id"]
             isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      opportunities: {
-        Row: {
-          assigned_to: string
-          client_id: string
-          created_at: string
-          estimated_amount: number | null
-          id: string
-          loss_reason: string | null
-          product_id: string | null
-          stage: Database["public"]["Enums"]["opportunity_stage"]
-          updated_at: string
-        }
-        Insert: {
-          assigned_to: string
-          client_id: string
-          created_at?: string
-          estimated_amount?: number | null
-          id?: string
-          loss_reason?: string | null
-          product_id?: string | null
-          stage?: Database["public"]["Enums"]["opportunity_stage"]
-          updated_at?: string
-        }
-        Update: {
-          assigned_to?: string
-          client_id?: string
-          created_at?: string
-          estimated_amount?: number | null
-          id?: string
-          loss_reason?: string | null
-          product_id?: string | null
-          stage?: Database["public"]["Enums"]["opportunity_stage"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "opportunities_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "opportunities_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
+            referencedRelation: "interactions"
             referencedColumns: ["id"]
           },
         ]
@@ -184,25 +229,37 @@ export type Database = {
           active: boolean
           category: string | null
           created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          description: string | null
           id: string
           name: string
           price: number | null
+          unit: string
+          unit_label: string
         }
         Insert: {
           active?: boolean
           category?: string | null
           created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          description?: string | null
           id?: string
           name: string
           price?: number | null
+          unit?: string
+          unit_label?: string
         }
         Update: {
           active?: boolean
           category?: string | null
           created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          description?: string | null
           id?: string
           name?: string
           price?: number | null
+          unit?: string
+          unit_label?: string
         }
         Relationships: []
       }
@@ -256,6 +313,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_client_status: {
+        Args: { _client_id: string }
+        Returns: Database["public"]["Enums"]["client_status"]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -270,17 +331,31 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "supervisor" | "vendedor"
-      client_status: "lead" | "cliente" | "inactivo"
-      interaction_medium: "whatsapp" | "email" | "llamada" | "redes" | "reunion"
-      interaction_result: "interes" | "venta" | "sin_respuesta" | "rechazo"
-      interaction_type: "consulta" | "cotizacion" | "seguimiento" | "cierre"
-      opportunity_stage:
-        | "prospecto"
-        | "contactado"
-        | "cotizacion"
-        | "negociacion"
-        | "cerrado_ganado"
-        | "cerrado_perdido"
+      client_status: "activo" | "potencial" | "inactivo"
+      currency_code: "ARS" | "USD" | "EUR"
+      followup_scenario: "vinculado" | "independiente" | "historico"
+      interaction_medium:
+        | "whatsapp"
+        | "llamada"
+        | "email"
+        | "reunion_presencial"
+        | "reunion_virtual"
+        | "md_instagram"
+        | "md_facebook"
+        | "md_linkedin"
+        | "visita_campo"
+      interaction_result:
+        | "presupuesto"
+        | "venta"
+        | "seguimiento"
+        | "sin_respuesta"
+        | "no_interesado"
+      negotiation_state:
+        | "con_interes"
+        | "sin_respuesta"
+        | "revisando"
+        | "pidio_cambios"
+      quote_path: "catalogo" | "adjunto"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -409,18 +484,34 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "supervisor", "vendedor"],
-      client_status: ["lead", "cliente", "inactivo"],
-      interaction_medium: ["whatsapp", "email", "llamada", "redes", "reunion"],
-      interaction_result: ["interes", "venta", "sin_respuesta", "rechazo"],
-      interaction_type: ["consulta", "cotizacion", "seguimiento", "cierre"],
-      opportunity_stage: [
-        "prospecto",
-        "contactado",
-        "cotizacion",
-        "negociacion",
-        "cerrado_ganado",
-        "cerrado_perdido",
+      client_status: ["activo", "potencial", "inactivo"],
+      currency_code: ["ARS", "USD", "EUR"],
+      followup_scenario: ["vinculado", "independiente", "historico"],
+      interaction_medium: [
+        "whatsapp",
+        "llamada",
+        "email",
+        "reunion_presencial",
+        "reunion_virtual",
+        "md_instagram",
+        "md_facebook",
+        "md_linkedin",
+        "visita_campo",
       ],
+      interaction_result: [
+        "presupuesto",
+        "venta",
+        "seguimiento",
+        "sin_respuesta",
+        "no_interesado",
+      ],
+      negotiation_state: [
+        "con_interes",
+        "sin_respuesta",
+        "revisando",
+        "pidio_cambios",
+      ],
+      quote_path: ["catalogo", "adjunto"],
     },
   },
 } as const
