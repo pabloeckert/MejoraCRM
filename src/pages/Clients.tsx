@@ -166,6 +166,46 @@ export default function Clients() {
     toast.success(`Exportados ${filtered.length} clientes`);
   };
 
+  // Exportar contactos a PDF (abre ventana imprimible)
+  const handleExportPDF = () => {
+    const rows = filtered.map((c) => `
+      <tr>
+        <td>${c.name}</td>
+        <td>${c.company || "—"}</td>
+        <td>${c.whatsapp || "—"}</td>
+        <td>${c.segment || "—"}</td>
+        <td>${c.province || "—"}</td>
+        <td>${c.status}</td>
+      </tr>`).join("");
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Clientes - MejoraCRM</title>
+<style>
+  body{font-family:Arial,sans-serif;padding:20px;color:#1a1a1a}
+  h1{color:#2C5CA5;font-size:18px;margin-bottom:4px}
+  p.sub{color:#656565;font-size:12px;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{background:#2C5CA5;color:#fff;padding:8px;text-align:left}
+  td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
+  tr:nth-child(even){background:#f9f9f9}
+  .badge{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}
+  .activo{background:#e8f5e9;color:#2e7d32}
+  .potencial{background:#e3f2fd;color:#1565c0}
+  .inactivo{background:#f5f5f5;color:#616161}
+  @media print{body{padding:0}}
+</style></head><body>
+<h1>Clientes — MejoraCRM</h1>
+<p class="sub">Exportado: ${new Date().toLocaleDateString("es-AR")} · ${filtered.length} registros</p>
+<table><thead><tr><th>Nombre</th><th>Empresa</th><th>WhatsApp</th><th>Rubro</th><th>Provincia</th><th>Estado</th></tr></thead>
+<tbody>${rows}</tbody></table>
+</body></html>`;
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+      w.print();
+    }
+  };
+
   // Importar contactos desde CSV
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -271,7 +311,11 @@ export default function Clients() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-9" onClick={handleExport}>
             <Download className="h-4 w-4 mr-1" />
-            Exportar
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
+            <Download className="h-4 w-4 mr-1" />
+            PDF
           </Button>
           <label>
             <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>

@@ -9,6 +9,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/clients": "Clientes",
   "/interactions": "Interacciones",
   "/products": "Productos",
+  "/settings": "Configuración",
 };
 
 export function AppLayout({ children }: { children: ReactNode }) {
