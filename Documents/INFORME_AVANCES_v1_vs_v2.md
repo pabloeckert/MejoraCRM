@@ -11,7 +11,7 @@
 
 El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos críticos de v1 ya están implementados. La v2 agrega un rediseño del flujo de interacciones orientado al resultado, un módulo de productos completo, y lógica de valor de negociación automático. Muchos de estos cambios ya existen en el código.
 
-**Estado general:** ~75% de los requerimientos de v2 implementados. Los gaps restantes son principalmente de nomenclatura, colores, validaciones y detalles de UX.
+**Estado general:** ~85% de los requerimientos de v2 implementados. Los gaps restantes son principalmente de nomenclatura, colores, validaciones y detalles de UX.
 
 ---
 
@@ -121,14 +121,14 @@ El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos
 | Categoría | Total v2 | Implementado | Falta |
 |---|---|---|---|
 | Módulo Productos | 8 | 6 | 2 |
-| Flujo Interacciones | 12 | 10 | 2 |
+| Flujo Interacciones | 12 | 11 | 1 |
 | Módulo Clientes | 11 | 8 | 3 |
-| Nomenclatura/Labels | 8 | 3 | 5 |
-| Colores/Visual | 6 | 2 | 4 |
-| Vista Dueño | 10 | 6 | 4 |
-| Vista Vendedor | 8 | 4 | 4 |
+| Nomenclatura/Labels | 8 | 7 | 1 |
+| Colores/Visual | 6 | 6 | 0 |
+| Vista Dueño | 10 | 9 | 1 |
+| Vista Vendedor | 8 | 7 | 1 |
 | Seguridad/Roles | 5 | 5 | 0 |
-| **TOTAL** | **68** | **44 (65%)** | **24 (35%)** |
+| **TOTAL** | **68** | **59 (87%)** | **9 (13%)** |
 
 ---
 
