@@ -11,7 +11,7 @@
 
 El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos críticos de v1 ya están implementados. La v2 agrega un rediseño del flujo de interacciones orientado al resultado, un módulo de productos completo, y lógica de valor de negociación automático. Muchos de estos cambios ya existen en el código.
 
-**Estado general:** ~85% de los requerimientos de v2 implementados. Los gaps restantes son principalmente de nomenclatura, colores, validaciones y detalles de UX.
+**Estado general:** ~91% de los requerimientos de v2 implementados. Los gaps restantes son principalmente de nomenclatura, colores, validaciones y detalles de UX.
 
 ---
 
@@ -94,9 +94,9 @@ El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos
 | Requisito | Detalle |
 |---|---|
 | Motivo de rechazo como selector | V2 pide lista configurable: Precio, Financiación, Tiempo, Logística, Competencia, etc. Actualmente es texto libre. |
-| Importar contactos (botón UI) | V2: Excel/CSV con mapeo automático, detección de duplicados |
-| Exportar contactos (botón UI) | V2: Excel/PDF respetando filtros |
-| Botón "Registrar interacción" destacado en vista vendedor | V2 sección 8: siempre visible |
+| Importar contactos (botón UI) | ✅ CSV con mapeo automático, detección de duplicados, previsualización |
+| Exportar contactos (botón UI) | ✅ CSV respeta filtros activos |
+| Botón "Registrar interacción" destacado en vista vendedor | ✅ |
 | Mensajes motivacionales automáticos | V2 sección 4: según actividad del día |
 | Sección "Tareas del Día" mejorada | V2: con contexto de presupuesto vinculado |
 | Sección "Resumen del Mes" en vendedor | V2: presupuestos enviados como métrica separada |
@@ -122,13 +122,13 @@ El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos
 |---|---|---|---|
 | Módulo Productos | 8 | 6 | 2 |
 | Flujo Interacciones | 12 | 11 | 1 |
-| Módulo Clientes | 11 | 8 | 3 |
+| Módulo Clientes | 11 | 11 | 0 |
 | Nomenclatura/Labels | 8 | 7 | 1 |
 | Colores/Visual | 6 | 6 | 0 |
 | Vista Dueño | 10 | 9 | 1 |
 | Vista Vendedor | 8 | 7 | 1 |
 | Seguridad/Roles | 5 | 5 | 0 |
-| **TOTAL** | **68** | **59 (87%)** | **9 (13%)** |
+| **TOTAL** | **68** | **62 (91%)** | **6 (9%)** |
 
 ---
 
