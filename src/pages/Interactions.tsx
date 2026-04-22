@@ -87,21 +87,19 @@ export default function Interactions() {
   });
 
   const handleCreate = () => {
-    if (!form.client_id || !form.medium || !form.type) return toast.error("Completa los campos obligatorios");
+    if (!form.client_id || !form.medium || !form.result) return toast.error("Completa los campos obligatorios");
     createMutation.mutate({
       ...form,
       user_id: user?.id,
-      product_id: form.product_id || null,
-      result: form.result || null,
       follow_up_date: form.follow_up_date || null,
     });
   };
 
   const filtered = interactions.filter((i: any) => {
     const matchSearch = !search || i.clients?.name?.toLowerCase().includes(search.toLowerCase());
-    const matchType = typeFilter === "all" || i.type === typeFilter;
+    const matchMedium = typeFilter === "all" || i.medium === typeFilter;
     const matchResult = resultFilter === "all" || i.result === resultFilter;
-    return matchSearch && matchType && matchResult;
+    return matchSearch && matchMedium && matchResult;
   });
 
   const overdueCount = interactions.filter(
@@ -150,12 +148,12 @@ export default function Interactions() {
                   </Select>
                 </div>
                 <div>
-                  <Label>Tipo *</Label>
-                  <Select value={form.type || ""} onValueChange={(v) => setForm({ ...form, type: v })}>
+                  <Label>Resultado *</Label>
+                  <Select value={form.result || ""} onValueChange={(v) => setForm({ ...form, result: v })}>
                     <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                     <SelectContent>
-                      {Constants.public.Enums.interaction_type.map((t) => (
-                        <SelectItem key={t} value={t}>{TYPE_LABELS[t]}</SelectItem>
+                      {Constants.public.Enums.interaction_result.map((r) => (
+                        <SelectItem key={r} value={r}>{RESULT_LABELS[r] || r}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -195,11 +193,11 @@ export default function Interactions() {
           <Input placeholder="Buscar por cliente..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-40 h-9"><SelectValue placeholder="Tipo" /></SelectTrigger>
+          <SelectTrigger className="w-40 h-9"><SelectValue placeholder="Medio" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los tipos</SelectItem>
-            {Constants.public.Enums.interaction_type.map((t) => (
-              <SelectItem key={t} value={t}>{TYPE_LABELS[t]}</SelectItem>
+            <SelectItem value="all">Todos los medios</SelectItem>
+            {Constants.public.Enums.interaction_medium.map((m) => (
+              <SelectItem key={m} value={m}>{MEDIUM_LABELS[m] || m}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -242,7 +240,7 @@ export default function Interactions() {
                       >
                         {i.clients?.name}
                       </span>
-                      <Badge variant="outline" className="text-xs">{TYPE_LABELS[i.type]}</Badge>
+                      <Badge variant="outline" className="text-xs">{MEDIUM_LABELS[i.medium] || i.medium}</Badge>
                       {i.result && (
                         <Badge variant="outline" className={`text-xs ${RESULT_STYLES[i.result] || ""}`}>
                           {RESULT_LABELS[i.result]}
