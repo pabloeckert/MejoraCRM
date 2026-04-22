@@ -11,7 +11,7 @@
 
 El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos críticos de v1 ya están implementados. La v2 agrega un rediseño del flujo de interacciones orientado al resultado, un módulo de productos completo, y lógica de valor de negociación automático. Muchos de estos cambios ya existen en el código.
 
-**Estado general:** ~93% de los requerimientos de v2 implementados. Los gaps restantes requieren APIs externas (Google Calendar, Google Contacts, OCR) o son mejoras menores. Los gaps restantes son principalmente de nomenclatura, colores, validaciones y detalles de UX.
+**Estado general:** ~93% implementado (65/70 requerimientos). Los 5 gaps restantes requieren APIs externas (Google Calendar, Google Contacts, OCR) o son de baja prioridad.
 
 ---
 
@@ -128,7 +128,8 @@ El CRM tiene una **base sólida y funcional**. La mayoría de los requerimientos
 | Vista Dueño | 10 | 9 | 1 |
 | Vista Vendedor | 8 | 7 | 1 |
 | Seguridad/Roles | 5 | 5 | 0 |
-| **TOTAL** | **68** | **63 (93%)** | **5 (7%)** |
+| Configuración | 2 | 2 | 0 |
+| **TOTAL** | **70** | **65 (93%)** | **5 (7%)** |
 
 ---
 
