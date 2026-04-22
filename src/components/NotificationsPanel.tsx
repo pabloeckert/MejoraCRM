@@ -42,7 +42,7 @@ export function NotificationsPanel() {
 
   // Leads without recent contact (>5 days)
   const leadsNoContact = clients.filter((c: any) => {
-    if (c.status !== "lead") return false;
+    if (c.status !== "potencial") return false;
     const clientInts = interactions.filter((i: any) => i.client_id === c.id);
     if (clientInts.length === 0) return true;
     const lastInt = clientInts.sort(
