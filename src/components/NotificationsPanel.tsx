@@ -40,8 +40,8 @@ export function NotificationsPanel() {
     (i: any) => i.follow_up_date && new Date(i.follow_up_date) < new Date()
   );
 
-  // Leads without recent contact (>5 days)
-  const leadsNoContact = clients.filter((c: any) => {
+  // Contactos sin seguimiento (>5 días)
+  const contactosSinSeguimiento = clients.filter((c: any) => {
     if (c.status !== "potencial") return false;
     const clientInts = interactions.filter((i: any) => i.client_id === c.id);
     if (clientInts.length === 0) return true;
@@ -65,7 +65,7 @@ export function NotificationsPanel() {
     return differenceInDays(new Date(), lastActivity) > 3;
   });
 
-  const totalAlerts = overdueFollowups.length + leadsNoContact.length + inactiveSellers.length;
+  const totalAlerts = overdueFollowups.length + contactosSinSeguimiento.length + inactiveSellers.length;
 
   return (
     <Popover>
@@ -114,13 +114,13 @@ export function NotificationsPanel() {
             </div>
           )}
 
-          {/* Leads without contact */}
-          {leadsNoContact.length > 0 && (
+          {/* Contactos sin seguimiento */}
+          {contactosSinSeguimiento.length > 0 && (
             <div className="p-2">
               <p className="text-[10px] font-semibold text-accent uppercase tracking-wider px-2 mb-1 flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3" /> Leads sin contacto ({leadsNoContact.length})
+                <AlertTriangle className="h-3 w-3" /> Contactos sin seguimiento ({contactosSinSeguimiento.length})
               </p>
-              {leadsNoContact.slice(0, 4).map((c: any) => (
+              {contactosSinSeguimiento.slice(0, 4).map((c: any) => (
                 <button
                   key={c.id}
                   className="w-full text-left p-2 rounded-md hover:bg-accent/10 transition-colors flex items-center justify-between"
