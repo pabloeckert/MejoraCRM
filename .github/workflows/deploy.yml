@@ -30,5 +30,5 @@ jobs:
           username: u846064658.mejoraok.com
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: /home/u846064658/domains/mejoraok.com/public_html/crm/
+          server-dir: /home/u846064658/domains/crm.mejoraok.com/public_html/
           port: 21
