@@ -36,13 +36,7 @@ const STAGE_LABELS: Record<string, string> = {
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const { data: opportunities = [] } = useQuery({
-    queryKey: ["opportunities"],
-    queryFn: async () => {
-      const { data } = await supabase.from("opportunities").select("*, clients(name, segment, location), products(name)");
-      return data || [];
-    },
-  });
+  const opportunities: any[] = [];
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -89,7 +83,7 @@ export default function Dashboard() {
   const lossData = Object.entries(lossReasons).map(([name, value]) => ({ name, value }));
 
   const leadsNoContact = clients.filter((c: any) => {
-    if (c.status !== "lead") return false;
+    if (c.status !== "potencial") return false;
     const clientInts = interactions.filter((i: any) => i.client_id === c.id);
     if (clientInts.length === 0) return true;
     const lastInt = clientInts.sort((a: any, b: any) => new Date(b.interaction_date).getTime() - new Date(a.interaction_date).getTime())[0];
