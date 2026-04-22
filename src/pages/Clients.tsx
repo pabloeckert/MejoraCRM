@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2 } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -65,6 +65,10 @@ export default function Clients() {
   const [form, setForm] = useState<Partial<ClientInsert>>({});
 
   const canDelete = role === "admin";
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<any[]>([]);
+  const [importDuplicates, setImportDuplicates] = useState<number>(0);
+  const fileInputRef = useState<HTMLInputElement | null>(null);
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
@@ -120,8 +124,12 @@ export default function Clients() {
     setDialogOpen(true);
   };
 
+  // Validación WhatsApp: acepta formato internacional (+XX XXXXXXXXX o similar)
+  const whatsappValid = !form.whatsapp || /^\+?\d[\d\s\-()]{6,20}$/.test(form.whatsapp);
+
   const handleSave = () => {
     if (!form.name?.trim()) return toast.error("El nombre es obligatorio");
+    if (form.whatsapp && !whatsappValid) return toast.error("Formato de WhatsApp inválido. Usá: +54 376 4000000");
     upsertMutation.mutate({
       ...(editing ? { id: editing.id } : {}),
       name: form.name.trim(),
@@ -138,6 +146,100 @@ export default function Clients() {
       assigned_to: form.assigned_to || user?.id,
     } as ClientInsert);
   };
+
+  // Exportar contactos a CSV (respeta filtros activos)
+  const handleExport = () => {
+    const headers = ["Nombre", "Empresa", "WhatsApp", "Email", "Rubro", "Canal de Ingreso", "Provincia", "Localidad", "Dirección", "Estado", "Observaciones"];
+    const rows = filtered.map((c) => [
+      c.name, c.company || "", c.whatsapp || "", c.email || "",
+      c.segment || "", c.channel || "", c.province || "", c.location || "",
+      c.address || "", c.status, c.notes || "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `clientes_mejoracrm_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exportados ${filtered.length} clientes`);
+  };
+
+  // Importar contactos desde CSV
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split("\n").filter((l) => l.trim());
+      if (lines.length < 2) return toast.error("El archivo está vacío");
+      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+      const nameIdx = headers.findIndex((h) => h.includes("nombre") || h.includes("name"));
+      if (nameIdx === -1) return toast.error("No se encontró columna 'Nombre'");
+
+      const waIdx = headers.findIndex((h) => h.includes("whatsapp") || h.includes("teléfono") || h.includes("telefono") || h.includes("phone"));
+      const emailIdx = headers.findIndex((h) => h.includes("email") || h.includes("correo"));
+      const companyIdx = headers.findIndex((h) => h.includes("empresa") || h.includes("company"));
+      const segmentIdx = headers.findIndex((h) => h.includes("rubro") || h.includes("segmento") || h.includes("rubro"));
+      const provinceIdx = headers.findIndex((h) => h.includes("provincia") || h.includes("province"));
+      const channelIdx = headers.findIndex((h) => h.includes("canal") || h.includes("channel"));
+      const locationIdx = headers.findIndex((h) => h.includes("localidad") || h.includes("ciudad") || h.includes("location"));
+      const addressIdx = headers.findIndex((h) => h.includes("dirección") || h.includes("direccion") || h.includes("address"));
+      const notesIdx = headers.findIndex((h) => h.includes("observaciones") || h.includes("notas") || h.includes("notes"));
+
+      const parsed: any[] = [];
+      const existingNames = new Set(clients.map((c) => c.name.toLowerCase()));
+      const existingWhatsapps = new Set(clients.map((c) => c.whatsapp?.toLowerCase()).filter(Boolean));
+      let dupes = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+        const name = cols[nameIdx]?.trim();
+        if (!name) continue;
+        const whatsapp = waIdx >= 0 ? cols[waIdx]?.trim() : "";
+        const isDupe = existingNames.has(name.toLowerCase()) || (whatsapp && existingWhatsapps.has(whatsapp.toLowerCase()));
+        if (isDupe) dupes++;
+        parsed.push({
+          name,
+          company: companyIdx >= 0 ? cols[companyIdx]?.trim() || null : null,
+          whatsapp: whatsapp || null,
+          email: emailIdx >= 0 ? cols[emailIdx]?.trim() || null : null,
+          segment: segmentIdx >= 0 ? cols[segmentIdx]?.trim() || null : null,
+          channel: channelIdx >= 0 ? cols[channelIdx]?.trim() || null : null,
+          province: provinceIdx >= 0 ? cols[provinceIdx]?.trim() || null : null,
+          location: locationIdx >= 0 ? cols[locationIdx]?.trim() || null : null,
+          address: addressIdx >= 0 ? cols[addressIdx]?.trim() || null : null,
+          notes: notesIdx >= 0 ? cols[notesIdx]?.trim() || null : null,
+          isDuplicate: isDupe,
+          assigned_to: user?.id,
+          status: "potencial" as const,
+        });
+      }
+      setImportPreview(parsed);
+      setImportDuplicates(dupes);
+      setImportDialogOpen(true);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const importMutation = useMutation({
+    mutationFn: async (items: any[]) => {
+      const toInsert = items.filter((i) => !i.isDuplicate).map(({ isDuplicate, ...rest }) => rest);
+      if (toInsert.length === 0) return;
+      const { error } = await supabase.from("clients").insert(toInsert);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      setImportDialogOpen(false);
+      setImportPreview([]);
+      toast.success(`${importPreview.filter((i) => !i.isDuplicate).length} clientes importados`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const filtered = clients.filter((c) => {
     const matchSearch =
@@ -166,10 +268,25 @@ export default function Clients() {
           <h1 className="text-xl font-bold">Clientes</h1>
           <p className="text-sm text-muted-foreground">{clients.length} registros</p>
         </div>
-        <Button onClick={openNew} className="h-9">
-          <Plus className="h-4 w-4 mr-1" />
-          Nuevo cliente
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-9" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-1" />
+            Exportar
+          </Button>
+          <label>
+            <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
+              <span>
+                <Upload className="h-4 w-4 mr-1" />
+                Importar
+              </span>
+            </Button>
+            <input type="file" accept=".csv,.xlsx" className="hidden" onChange={handleFileUpload} />
+          </label>
+          <Button onClick={openNew} className="h-9">
+            <Plus className="h-4 w-4 mr-1" />
+            Nuevo cliente
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -313,8 +430,12 @@ export default function Clients() {
                 <Input
                   value={form.whatsapp || ""}
                   onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                  placeholder="+54..."
+                  placeholder="+54 376 4000000"
+                  className={form.whatsapp && !whatsappValid ? "border-destructive" : ""}
                 />
+                {form.whatsapp && !whatsappValid && (
+                  <p className="text-xs text-destructive mt-1">Formato: +54 376 4000000</p>
+                )}
               </div>
               <div>
                 <Label>Email</Label>
@@ -490,6 +611,74 @@ export default function Clients() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Import preview dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Previsualizar importación</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex gap-3 text-sm">
+              <Badge variant="outline" className="bg-success/10 text-success">
+                {importPreview.filter((i) => !i.isDuplicate).length} nuevos
+              </Badge>
+              {importDuplicates > 0 && (
+                <Badge variant="outline" className="bg-warning/10 text-warning">
+                  {importDuplicates} posibles duplicados
+                </Badge>
+              )}
+            </div>
+            {importDuplicates > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Los duplicados (mismo nombre o WhatsApp) se marcarán y no se importarán.
+              </p>
+            )}
+            <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="text-xs">Nombre</TableHead>
+                    <TableHead className="text-xs">WhatsApp</TableHead>
+                    <TableHead className="text-xs">Rubro</TableHead>
+                    <TableHead className="text-xs">Provincia</TableHead>
+                    <TableHead className="text-xs w-20">Estado</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {importPreview.map((item, i) => (
+                    <TableRow key={i} className={item.isDuplicate ? "opacity-40 bg-warning/5" : ""}>
+                      <TableCell className="text-sm">{item.name}</TableCell>
+                      <TableCell className="text-sm">{item.whatsapp || "—"}</TableCell>
+                      <TableCell className="text-sm">{item.segment || "—"}</TableCell>
+                      <TableCell className="text-sm">{item.province || "—"}</TableCell>
+                      <TableCell>
+                        {item.isDuplicate ? (
+                          <Badge variant="outline" className="text-xs text-warning">Dup</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-success">OK</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => importMutation.mutate(importPreview)}
+              disabled={importMutation.isPending || importPreview.filter((i) => !i.isDuplicate).length === 0}
+            >
+              <Upload className="h-4 w-4 mr-1" />
+              Importar {importPreview.filter((i) => !i.isDuplicate).length} clientes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
