@@ -19,10 +19,10 @@ import type { Database } from "@/integrations/supabase/types";
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
 
-const STATUS_LABELS: Record<string, string> = { lead: "Lead", cliente: "Cliente", inactivo: "Inactivo" };
+const STATUS_LABELS: Record<string, string> = { activo: "Activo", potencial: "Potencial", inactivo: "Inactivo" };
 const STATUS_STYLES: Record<string, string> = {
-  lead: "bg-primary/10 text-primary border-primary/20",
-  cliente: "bg-success/10 text-success border-success/20",
+  activo: "bg-success/10 text-success border-success/20",
+  potencial: "bg-primary/10 text-primary border-primary/20",
   inactivo: "bg-muted text-muted-foreground border-border",
 };
 const CHANNELS = ["WhatsApp", "Email", "Redes sociales", "Referido", "Teléfono", "Feria/Evento", "Sitio web"];
@@ -59,18 +59,7 @@ export default function Clients() {
     },
   });
 
-  const { data: clientOpportunities = [] } = useQuery({
-    queryKey: ["client-opportunities", detailClient?.id],
-    enabled: !!detailClient,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("opportunities")
-        .select("*, products(name)")
-        .eq("client_id", detailClient!.id)
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-  });
+  const clientOpportunities: any[] = [];
 
   const createMutation = useMutation({
     mutationFn: async (client: ClientInsert) => {
@@ -103,10 +92,10 @@ export default function Clients() {
   const RESULT_LABELS: Record<string, string> = { interes: "Interés", venta: "Venta", sin_respuesta: "Sin respuesta", rechazo: "Rechazo" };
   const STAGE_LABELS: Record<string, string> = { prospecto: "Prospecto", contactado: "Contactado", cotizacion: "Cotización", negociacion: "Negociación", cerrado_ganado: "Ganado", cerrado_perdido: "Perdido" };
 
-  const statusCounts = {
+  const statusCounts: Record<string, number> = {
     all: clients.length,
-    lead: clients.filter((c) => c.status === "lead").length,
-    cliente: clients.filter((c) => c.status === "cliente").length,
+    activo: clients.filter((c) => c.status === "activo").length,
+    potencial: clients.filter((c) => c.status === "potencial").length,
     inactivo: clients.filter((c) => c.status === "inactivo").length,
   };
 
@@ -165,7 +154,7 @@ export default function Clients() {
           <Input placeholder="Buscar por nombre o empresa..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-1.5">
-          {(["all", "lead", "cliente", "inactivo"] as const).map((s) => (
+          {(["all", "activo", "potencial", "inactivo"] as const).map((s) => (
             <Button
               key={s}
               variant={statusFilter === s ? "default" : "outline"}
