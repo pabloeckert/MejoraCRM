@@ -1,21 +1,53 @@
-# Deploy - CRM Mejora (crmejoraok.com)
+# Deploy — MejoraCRM
 
-## Build
+## Producción
+- **URL:** https://crm.mejoraok.com
+- **Servidor:** Hostinger compartido
+- **IP:** 185.212.70.250
+- **Directorio:** `/home/u846064658/domains/mejoraok.com/public_html/crm`
+
+## Pasos
+
+### 1. Build
 ```bash
-cd mejoracrm
-npm run build
+cd mejoracrm-repo
+npm install
+npx vite build
 ```
 
-## Deploy por FTP
-- Host: 185.212.70.250:21
-- Usuario: u846064658.mejoraok.com
-- Directorio: crm.mejoraok.com
-- Ruta absoluta: /home/u846064658/domains/mejoraok.com/public_html/crm
+### 2. Subir archivos
+**Por SSH (recomendado):**
+```bash
+python3 -c "
+import paramiko, os
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect('185.212.70.250', 65002, 'u846064658', 'PASSWORD')
+sftp = ssh.open_sftp()
+for root, dirs, files in os.walk('dist'):
+    for f in files:
+        lp = os.path.join(root, f)
+        rp = '/home/u846064658/domains/mejoraok.com/public_html/crm/' + lp.replace('dist/','')
+        ssh.exec_command('mkdir -p ' + os.path.dirname(rp))
+        sftp.put(lp, rp)
+        print(f'↑ {lp}')
+sftp.close(); ssh.close()
+"
+```
 
-## Subir contenido de `dist/` al directorio FTP
-El archivo .htaccess ya está incluido en `public/` para SPA routing.
+**Por FTP (no recomendado, timeouts):**
+FTP en este servidor tiene problemas con conexiones de datos activas/pasivas. Usar SSH.
 
-## Verificar
-- Abrir https://crm.mejoraok.com
-- Verificar que el login funcione
-- Probar navegación entre páginas
+### 3. Verificar
+Entrar a https://crm.mejoraok.com y verificar que carga.
+
+### 4. Supabase
+Agregar en Authentication → URL Configuration:
+- Site URL: `https://crm.mejoraok.com`
+- Redirect URLs: `https://crm.mejoraok.com`
+
+## Dependencia crítica
+- `react-is` es necesaria para `recharts` en producción. Está en `package.json`.
+
+## .htaccess
+El archivo `.htaccess` en `dist/` habilita SPA routing (todas las rutas redirigen a `index.html`).
