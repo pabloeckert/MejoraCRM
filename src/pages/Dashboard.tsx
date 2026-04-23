@@ -39,7 +39,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const { data: interactions = [] } = useQuery({
-    queryKey: ["dashboard-interactions"],
+    queryKey: ["interactions", "dashboard"],
     queryFn: async () => {
       const { data } = await supabase
         .from("interactions")
@@ -50,7 +50,7 @@ export default function Dashboard() {
   });
 
   const { data: clients = [] } = useQuery({
-    queryKey: ["dashboard-clients"],
+    queryKey: ["clients", "dashboard"],
     queryFn: async () => {
       const { data } = await supabase.from("clients").select("*");
       return data || [];

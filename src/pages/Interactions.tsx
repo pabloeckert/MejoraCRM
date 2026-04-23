@@ -218,7 +218,8 @@ export default function Interactions() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["interactions"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
       setDialogOpen(false);
       setForm({});
       setLines([]);

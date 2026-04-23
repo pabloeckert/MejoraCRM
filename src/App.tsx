@@ -13,7 +13,15 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ReactNode } from "react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000, // 30s — evita refetch innecesario al cambiar de pestaña
+      refetchOnWindowFocus: false, // no refetch al volver al tab
+      retry: 1, // un solo reintento en caso de error
+    },
+  },
+});
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
