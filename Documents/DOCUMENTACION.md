@@ -35,7 +35,7 @@
 |------|-----------|---------|
 | Framework | React | 18.3 |
 | Language | TypeScript | 5.8 |
-| Bundler | Vite | 5.4 |
+| Bundler | Vite | 6.4 |
 | UI | Tailwind CSS + shadcn/ui | 3.4 |
 | Backend | Supabase (Auth + PostgreSQL) | Cloud |
 | State | TanStack React Query | 5.x |
@@ -43,8 +43,8 @@
 | Routing | React Router DOM | 6.x |
 | Icons | Lucide React | 0.462 |
 | Toasts | Sonner | 1.7 |
-| Forms | React Hook Form + Zod | 7.x / 3.x |
 | Testing | Vitest + Testing Library | 3.x / 16.x |
+| Package Manager | Bun | latest |
 
 ---
 
@@ -577,5 +577,60 @@ El archivo `.env` se configura localmente. En producción, las variables se inye
 - **Asset eliminado:** `logo-mejora-continua.png` (91KB, no se usaba)
 
 **Verificado:** `vite build` exitoso en 5.3s
+
+### 2026-04-23 — Resumen de sesión completa
+
+Sesión integral de depuración, optimización y documentación del proyecto.
+
+#### Cambios realizados (total: 10 commits)
+
+**Repositorio:**
+- `.env` eliminado del tracking, `.env.example` creado
+- 28 componentes UI sin uso eliminados, 17 dependencias @radix-ui removidas
+- 3 lockfiles consolidados en `bun.lock`
+- `Documents/` + `documents/` unificados en `Documents/`
+- Versión: `0.0.0` → `1.0.0`
+- `packageManager: "bun@latest"` agregado
+
+**Backend (4 migraciones SQL):**
+- 5 índices de performance
+- 3 funciones RPC (dashboard, notificaciones, ranking)
+- 2 vistas materializadas (seller ranking, client summary)
+- 5 políticas RLS endurecidas
+- `types.ts` sincronizado con nuevo schema
+
+**Frontend:**
+- QueryClient: staleTime 30s, sin refetch on focus, retry 1
+- Query keys corregidos para invalidación post-mutación
+- Code splitting: 1.1MB → 6 chunks (máx 384KB)
+
+**Seguridad:**
+- 5 vulnerabilidades npm → 0
+- FTP credentials → GitHub Secrets
+- CI/CD: npm → bun
+
+**Documentación:**
+- 18 archivos desactualizados → `Documents/DOCUMENTACION.md` (documento vivo)
+
+#### Pendiente
+
+| Item | Acción requerida |
+|------|-----------------|
+| Migraciones SQL | Ejecutar las 4 migraciones en Supabase Dashboard (SQL Editor) |
+| FTP Secrets | Configurar `FTP_HOST` y `FTP_USERNAME` en GitHub Secrets |
+| Refresco de vistas | Configurar cron/trigger para `refresh_materialized_views()` |
+
+#### Métricas
+
+| Métrica | Antes | Después |
+|---------|-------|---------|
+| Archivos en repo | ~120 | ~80 |
+| Dependencias npm | 42 | 22 |
+| Vulnerabilidades | 5 | 0 |
+| Mayor chunk JS | 1.1MB | 384KB |
+| Componentes UI | 43 | 15 |
+| Documentos | 18 archivos | 1 archivo |
+| Queries Dashboard | 3 separadas | 1 RPC disponible |
+| Políticas RLS | 12 | 17 (más granulares) |
 
 ---
