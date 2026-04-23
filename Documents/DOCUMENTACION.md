@@ -546,4 +546,22 @@ El archivo `.env` se configura localmente. En producción, las variables se inye
 
 **Impacto en frontend:** Nulo. Solo se agregaron objetos nuevos, no se modificaron existentes.
 
+### 2026-04-23 — Optimización frontend + actualización de dependencias
+
+**Realizado:**
+- **QueryClient:** configurado `staleTime: 30s`, `refetchOnWindowFocus: false`, `retry: 1`
+  - Reduce requests innecesarios al cambiar de pestaña
+- **Dashboard:** query keys incluyen contexto del componente para invalidación correcta
+- **Interactions mutation:** ahora invalida `["clients"]` y `["profiles"]` (antes no)
+- **Dependencias actualizadas:**
+  - vite: 5.4 → 6.4 (corrige vulnerabilidad esbuild)
+  - @vitejs/plugin-react-swc: 3.11 → 4.3 (compatibilidad con vite 6)
+  - jsdom: 20 → 26 (corrige vulnerabilidad http-proxy-agent)
+  - Resultado: **0 vulnerabilidades** (antes 5)
+- **Restaurados:** skeleton.tsx y sheet.tsx (necesarios por sidebar.tsx)
+
+**Verificado:**
+- `tsc --noEmit`: pasa sin errores
+- `vite build`: exitoso (5.2s, 3259 módulos)
+
 ---
