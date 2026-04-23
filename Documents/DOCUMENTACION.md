@@ -421,66 +421,77 @@ El archivo `.env` se configura localmente. En producción, las variables se inye
 
 **Objetivo:** Consolidar toda la documentación en un solo documento vivo.
 
-- [x] Eliminar `docs/` (6 archivos desactualizados)
+- [x] Eliminar `docs/` (18 archivos desactualizados)
 - [x] Crear `Documents/DOCUMENTACION.md` con todo consolidado
 - [x] Agregar plan de optimización al mismo documento
 - [x] Registrar cambios en el historial
 
-### Etapa 2 — Índices de base de datos
+### Etapa 2 — Índices de base de datos ✅ COMPLETADA
 
 **Objetivo:** Mejorar performance de las queries más frecuentes.
 
-**Migración a crear:** `supabase/migrations/20260423_INDEXES.sql`
+**Migración:** `20260423130000_add_performance_indexes.sql`
 
-```sql
--- Índices faltantes para queries frecuentes
-CREATE INDEX IF NOT EXISTS idx_clients_assigned_to ON public.clients(assigned_to);
-CREATE INDEX IF NOT EXISTS idx_clients_status ON public.clients(status);
-CREATE INDEX IF NOT EXISTS idx_interactions_follow_up_date ON public.interactions(follow_up_date);
-CREATE INDEX IF NOT EXISTS idx_clients_name ON public.clients(name);
-```
+- [x] `idx_clients_assigned_to` — búsquedas por vendedor
+- [x] `idx_clients_status` — filtrado por estado
+- [x] `idx_clients_name` — ordenamiento por nombre
+- [x] `idx_interactions_follow_up_date` — seguimientos programados (parcial, solo no-null)
+- [x] `idx_interactions_client_result` — filtro compuesto cliente+resultado
 
 **Impacto en frontend:** Nulo. Los índices son transparentes.
 
-### Etapa 3 — Funciones SQL optimizadas
+### Etapa 3 — Funciones SQL optimizadas ✅ COMPLETADA
 
 **Objetivo:** Crear funciones que consoliden queries múltiples en una sola llamada.
 
-**Función: `get_dashboard_stats`**
-Consolida las 3 queries del Dashboard en una sola RPC.
+**Migración:** `20260423131000_add_dashboard_rpc_functions.sql`
 
-**Función: `get_notifications_data`**
-Consolida las 3 queries de NotificationsPanel en una sola RPC.
+- [x] `get_dashboard_data()` — consolida 3 queries del Dashboard en 1 RPC
+- [x] `get_notifications_data()` — consolida 3 queries de NotificationsPanel en 1 RPC
+- [x] `get_seller_ranking(period_start)` — ranking pre-computado por período
 
-**Impacto en frontend:** Nulo si se agregan como funciones nuevas. El frontend puede migrar a usarlas gradualmente.
+**Impacto en frontend:** Nulo. Funciones nuevas, el frontend puede adoptarlas gradualmente.
+**Tipos actualizados:** `types.ts` incluye las nuevas funciones.
 
-### Etapa 4 — Vistas materializadas (opcional)
+### Etapa 4 — Vistas materializadas ✅ COMPLETADA
 
 **Objetivo:** Pre-computar datos pesados del Dashboard.
 
-- `mv_seller_ranking` — Ranking de vendedores por período
-- `mv_client_summary` — Resumen de clientes con última interacción
+**Migración:** `20260423133000_add_materialized_views.sql`
 
-**Impacto en frontend:** Nulo. Son tablas adicionales que se consultan aparte.
+- [x] `mv_seller_ranking` — ranking de vendedores del mes con ingresos, pipeline, conteos
+- [x] `mv_client_summary` — resumen de clientes con última interacción y días de inactividad
+- [x] `refresh_materialized_views()` — función para refrescar ambas vistas concurrentemente
+- [x] Índices únicos para refresh concurrent
+- [x] Permisos SELECT para authenticated
 
-### Etapa 5 — Limpieza de políticas RLS
+**Impacto en frontend:** Nulo. Son vistas adicionales, no reemplazan tablas existentes.
+**Tipos actualizados:** `types.ts` incluye las vistas como Views.
 
-**Objetivo:** Endurecer políticas demasiado permisivas.
+### Etapa 5 — Endurecimiento de políticas RLS ✅ COMPLETADA
 
-- Revisar `clients_insert` (actualmente: cualquier autenticado)
-- Agregar política `interaction_lines_select` más restrictiva
-- Verificar que `profiles_select` no exponga datos sensibles
+**Objetivo:** Endurecer políticas demasiado permisivas sin romper funcionalidad.
 
-**Impacto en frontend:** Posible si se restringe acceso. Verificar caso por caso.
+**Migración:** `20260423132000_harden_rls_policies.sql`
 
-### Etapa 6 — Regenerar tipos de Supabase
+- [x] `clients_insert`: ahora requiere ser admin, supervisor, o vendedor asignándose a sí mismo
+- [x] `products_manage` → separada en `products_insert`, `products_update`, `products_delete`
+- [x] `interactions_delete`: vendedor puede borrar las propias (además de admin)
+- [x] `clients_delete`: supervisor también puede (además de admin)
+- [x] `profiles_delete`: admin puede limpiar perfiles
+
+**Impacto en frontend:** Nulo. El frontend ya envía `assigned_to` al crear clientes.
+**Nota:** La política anterior (`auth.uid() IS NOT NULL`) permitía a cualquier vendedor crear clientes sin restricción. Ahora solo puede crear clientes asignados a sí mismo.
+
+### Etapa 6 — Regenerar tipos de Supabase ✅ COMPLETADA
 
 **Objetivo:** Mantener `types.ts` sincronizado con el schema real.
 
-- Ejecutar `supabase gen types typescript` después de cada migración
-- Verificar que el frontend compile sin errores
+- [x] Agregadas funciones RPC nuevas al bloque Functions
+- [x] Agregadas vistas materializadas al bloque Views
+- [x] Verificar que el frontend compile sin errores
 
-**Impacto en frontend:** Solo si cambian nombres de columnas/tables (no es el caso).
+**Impacto en frontend:** Nulo. Solo se agregaron tipos nuevos.
 
 ---
 
@@ -506,9 +517,33 @@ Consolida las 3 queries de NotificationsPanel en una sola RPC.
 ### 2026-04-23 — Consolidación de documentación
 
 **Realizado:**
-- Eliminados 6 archivos de docs desactualizados (ARCHITECTURE.md, DATABASE.md, DEPLOYMENT.md, CHANGELOG.md, etc.)
+- Eliminados 18 archivos de docs desactualizados
 - Creado `Documents/DOCUMENTACION.md` como documento vivo consolidado
 - Incluye: arquitectura, schema v2 actualizado, seguridad RLS, configuración, despliegue, plan de optimización
 - Instrucción: cuando se diga "documentar", actualizar este archivo
+
+### 2026-04-23 — Optimización backend (Etapas 2-6)
+
+**Realizado:**
+- **Índices (Etapa 2):** 5 nuevos índices para queries frecuentes
+  - `idx_clients_assigned_to`, `idx_clients_status`, `idx_clients_name`
+  - `idx_interactions_follow_up_date` (parcial), `idx_interactions_client_result`
+- **Funciones RPC (Etapa 3):** 3 funciones para consolidar queries
+  - `get_dashboard_data()` — reemplaza 3 queries del Dashboard
+  - `get_notifications_data()` — reemplaza 3 queries de NotificationsPanel
+  - `get_seller_ranking(period_start)` — ranking pre-computado
+- **Vistas materializadas (Etapa 4):** 2 vistas para datos pesados
+  - `mv_seller_ranking` — ranking mensual de vendedores
+  - `mv_client_summary` — resumen de clientes con última interacción
+  - `refresh_materialized_views()` — función de refresco concurrente
+- **RLS (Etapa 5):** Endurecimiento de 5 políticas
+  - `clients_insert`: restringido a admin/supervisor/vendedor-asignado
+  - `products`: separada en INSERT/UPDATE/DELETE granulares
+  - `interactions_delete`: vendedor puede borrar propias
+  - `clients_delete`: supervisor también puede
+  - `profiles_delete`: admin puede limpiar
+- **Tipos (Etapa 6):** `types.ts` actualizado con nuevas funciones y vistas
+
+**Impacto en frontend:** Nulo. Solo se agregaron objetos nuevos, no se modificaron existentes.
 
 ---
