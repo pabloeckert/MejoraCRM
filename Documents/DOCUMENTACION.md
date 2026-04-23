@@ -1,0 +1,514 @@
+# MejoraCRM — Documentación Técnica Consolidada
+
+> **Documento vivo.** Cuando el agente reciba la instrucción "documentar", actualizará este archivo con los trabajos realizados, decisiones tomadas y cambios aplicados.
+
+---
+
+## Índice
+
+1. [Visión general](#1-visión-general)
+2. [Stack tecnológico](#2-stack-tecnológico)
+3. [Arquitectura](#3-arquitectura)
+4. [Base de datos](#4-base-de-datos)
+5. [Seguridad y RLS](#5-seguridad-y-rls)
+6. [Configuración del entorno](#6-configuración-del-entorno)
+7. [Despliegue](#7-despliegue)
+8. [Plan de optimización por etapas](#8-plan-de-optimización-por-etapas)
+9. [Registro de cambios](#9-registro-de-cambios)
+
+---
+
+## 1. Visión general
+
+**MejoraCRM** es un CRM desarrollado por Mejora Continua® para gestión de clientes, productos e interacciones comerciales.
+
+- **Producción:** [crm.mejoraok.com](https://crm.mejoraok.com)
+- **Repositorio:** [github.com/pabloeckert/MejoraCRM](https://github.com/pabloeckert/MejoraCRM)
+- **Versión actual:** 1.0.0
+- **Package manager:** Bun
+
+---
+
+## 2. Stack tecnológico
+
+| Capa | Tecnología | Versión |
+|------|-----------|---------|
+| Framework | React | 18.3 |
+| Language | TypeScript | 5.8 |
+| Bundler | Vite | 5.4 |
+| UI | Tailwind CSS + shadcn/ui | 3.4 |
+| Backend | Supabase (Auth + PostgreSQL) | Cloud |
+| State | TanStack React Query | 5.x |
+| Charts | Recharts | 3.x |
+| Routing | React Router DOM | 6.x |
+| Icons | Lucide React | 0.462 |
+| Toasts | Sonner | 1.7 |
+| Forms | React Hook Form + Zod | 7.x / 3.x |
+| Testing | Vitest + Testing Library | 3.x / 16.x |
+
+---
+
+## 3. Arquitectura
+
+### Estructura del proyecto
+
+```
+mejoracrm/
+├── src/
+│   ├── components/
+│   │   ├── ui/              # Componentes shadcn/ui (15 activos)
+│   │   ├── AppLayout.tsx    # Layout principal con sidebar
+│   │   ├── AppSidebar.tsx   # Navegación lateral
+│   │   ├── NavLink.tsx      # Links de navegación
+│   │   └── NotificationsPanel.tsx
+│   ├── pages/
+│   │   ├── Dashboard.tsx    # Vista principal (Owner/Seller)
+│   │   ├── Clients.tsx      # Gestión de clientes
+│   │   ├── Interactions.tsx # Registro de interacciones
+│   │   ├── Products.tsx     # Catálogo de productos
+│   │   ├── Settings.tsx     # Configuración
+│   │   ├── Auth.tsx         # Login/Registro
+│   │   └── NotFound.tsx     # 404
+│   ├── contexts/
+│   │   └── AuthContext.tsx   # Autenticación y roles
+│   ├── hooks/
+│   │   └── use-mobile.tsx   # Detección de viewport
+│   ├── integrations/
+│   │   └── supabase/        # Cliente y tipos autogenerados
+│   ├── lib/
+│   │   └── utils.ts         # Utilidades (cn helper)
+│   ├── assets/              # Logos e imágenes
+│   └── test/                # Setup de testing
+├── supabase/
+│   ├── migrations/          # Migraciones SQL (3 archivos)
+│   └── config.toml
+├── public/                  # Assets estáticos, fuentes
+└── Documents/               # Documentación (este archivo)
+```
+
+### Routing
+
+| Ruta | Componente | Acceso |
+|------|-----------|--------|
+| `/` | Dashboard | Todos los roles (vista varía) |
+| `/clients` | Clients | Todos los roles |
+| `/interactions` | Interactions | Todos los roles |
+| `/products` | Products | Admin/Supervisor |
+| `/settings` | Settings | Admin |
+| `/auth` | Auth | Público |
+| `*` | NotFound | Público |
+
+### Sistema de autenticación
+
+- **AuthContext** provee: `user`, `session`, `role`, `profile`, `loading`, `signOut`
+- Al login: se ejecutan 2 queries en paralelo (`get_user_role` RPC + `profiles` select)
+- Los roles definen la vista: `admin`/`supervisor` → OwnerView, `vendedor` → SellerView
+
+### Sistema de colores (identidad Mejora Continua)
+
+```css
+--primary: #495F93;        /* Azul principal */
+--accent: #E5C34B;         /* Dorado */
+--destructive: #C64E4A;    /* Rojo */
+--success: hsl(142,60%,40%); /* Verde */
+--muted: #656565;          /* Gris */
+--background: #000000;     /* Negro (sidebar oscuro) */
+```
+
+---
+
+## 4. Base de datos
+
+### Diagrama de entidades
+
+```
+auth.users (Supabase Auth)
+    │
+    ├── 1:1 ── profiles (nombre, avatar)
+    ├── 1:N ── user_roles (admin/supervisor/vendedor)
+    │
+    └── 1:N ── clients (asignado a vendedor)
+                   │
+                   └── 1:N ── interactions
+                                  │
+                                  └── 1:N ── interaction_lines ─── products
+```
+
+### Enums (v2 — estado actual)
+
+```sql
+app_role:           admin, supervisor, vendedor
+client_status:      activo, potencial, inactivo
+interaction_result: presupuesto, venta, seguimiento, sin_respuesta, no_interesado
+interaction_medium: whatsapp, llamada, email, reunion_presencial, reunion_virtual,
+                    md_instagram, md_facebook, md_linkedin, visita_campo
+currency_code:      ARS, USD, EUR
+quote_path:         catalogo, adjunto
+followup_scenario:  vinculado, independiente, historico
+negotiation_state:  con_interes, sin_respuesta, revisando, pidio_cambios
+```
+
+### Tablas
+
+#### profiles
+Perfil del usuario, creado automáticamente al registrarse (trigger `on_auth_user_created`).
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| user_id | UUID | FK → auth.users, UNIQUE |
+| full_name | TEXT | Nombre completo |
+| avatar_url | TEXT | URL del avatar |
+| created_at | TIMESTAMPTZ | Auto |
+| updated_at | TIMESTAMPTZ | Trigger automático |
+
+#### user_roles
+Roles del usuario. Un usuario puede tener múltiples roles (solo admin gestiona).
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| user_id | UUID | FK → auth.users |
+| role | app_role | admin/supervisor/vendedor |
+
+#### clients
+Clientes y leads del CRM.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| name | TEXT | Nombre/empresa (obligatorio) |
+| company | TEXT | Empresa |
+| contact_name | TEXT | Persona de contacto |
+| segment | TEXT | Rubro/segmento |
+| location | TEXT | Ubicación |
+| province | TEXT | Provincia (v2) |
+| address | TEXT | Dirección (v2) |
+| whatsapp | TEXT | WhatsApp |
+| email | TEXT | Email |
+| channel | TEXT | Canal de ingreso |
+| first_contact_date | DATE | Primer contacto |
+| status | client_status | activo/potencial/inactivo |
+| notes | TEXT | Observaciones |
+| assigned_to | UUID | FK → auth.users (vendedor) |
+| created_at | TIMESTAMPTZ | Auto |
+| updated_at | TIMESTAMPTZ | Trigger automático |
+
+#### interactions
+Registro de cada contacto con un cliente. Tabla central del CRM.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| client_id | UUID | FK → clients (CASCADE) |
+| user_id | UUID | FK → auth.users |
+| interaction_date | TIMESTAMPTZ | Fecha del contacto |
+| result | interaction_result | presupuesto/venta/seguimiento/sin_respuesta/no_interesado |
+| medium | interaction_medium | Canal utilizado |
+| quote_path | quote_path | catálogo o adjunto (presupuestos) |
+| total_amount | NUMERIC(14,2) | Monto total |
+| currency | currency_code | Moneda |
+| attachment_url | TEXT | URL del adjunto |
+| reference_quote_id | UUID | FK → interactions (presupuesto referenciado) |
+| followup_scenario | followup_scenario | Tipo de seguimiento |
+| negotiation_state | negotiation_state | Estado de negociación |
+| followup_motive | TEXT | Motivo del seguimiento |
+| historic_quote_amount | NUMERIC(14,2) | Monto del presupuesto histórico |
+| historic_quote_date | DATE | Fecha del presupuesto histórico |
+| loss_reason | TEXT | Motivo de pérdida |
+| estimated_loss | NUMERIC(14,2) | Monto estimado perdido |
+| next_step | TEXT | Próximo paso |
+| follow_up_date | DATE | Fecha de seguimiento programado |
+| notes | TEXT | Observaciones |
+| created_at | TIMESTAMPTZ | Auto |
+| updated_at | TIMESTAMPTZ | Trigger automático |
+
+#### interaction_lines
+Líneas de productos asociadas a presupuestos y ventas.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| interaction_id | UUID | FK → interactions (CASCADE) |
+| product_id | UUID | FK → products (RESTRICT) |
+| quantity | NUMERIC(14,3) | Cantidad |
+| unit_price | NUMERIC(14,2) | Precio unitario |
+| line_total | NUMERIC(14,2) | Total de la línea |
+| created_at | TIMESTAMPTZ | Auto |
+
+#### products
+Catálogo de productos/servicios.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | UUID | PK |
+| name | TEXT | Nombre |
+| category | TEXT | Categoría |
+| price | NUMERIC(12,2) | Precio base |
+| unit | TEXT | Unidad de medida (default: 'u') |
+| unit_label | TEXT | Etiqueta de unidad (default: 'Unidad') |
+| currency | currency_code | Moneda (default: ARS) |
+| description | TEXT | Descripción |
+| active | BOOLEAN | Activo/inactivo |
+| created_at | TIMESTAMPTZ | Auto |
+
+### Índices
+
+```sql
+-- Interactions
+idx_interactions_client   ON interactions(client_id)
+idx_interactions_user     ON interactions(user_id)
+idx_interactions_date     ON interactions(interaction_date DESC)
+idx_interactions_result   ON interactions(result)
+
+-- Interaction lines
+idx_interaction_lines_interaction ON interaction_lines(interaction_id)
+idx_interaction_lines_product     ON interaction_lines(product_id)
+```
+
+### Funciones SQL
+
+| Función | Tipo | Descripción |
+|---------|------|-------------|
+| `update_updated_at_column()` | Trigger | Actualiza `updated_at` automáticamente |
+| `has_role(user_id, role)` | SECURITY DEFINER | Verifica si el usuario tiene un rol |
+| `get_user_role(user_id)` | SECURITY DEFINER | Obtiene el rol principal del usuario |
+| `handle_new_user()` | Trigger | Crea perfil + rol al registrarse |
+| `calculate_client_status(client_id)` | SECURITY DEFINER | Calcula estado del cliente según interacciones recientes |
+
+### Productos sembrados (seed)
+
+| Producto | Categoría | Precio |
+|----------|-----------|--------|
+| Plantines de Eucalipto | Forestal | $150 |
+| Plantines de Pino | Forestal | $120 |
+| Servicio de Poda | Servicios | $5,000 |
+| Servicio de Raleo | Servicios | $8,000 |
+| Madera Aserrada | Productos | $25,000 |
+| Chips de Madera | Productos | $15,000 |
+| Consultoría Forestal | Servicios | $10,000 |
+| Fertilizantes | Insumos | $3,500 |
+| Herbicidas | Insumos | $4,200 |
+| Maquinaria (alquiler) | Servicios | $20,000 |
+
+---
+
+## 5. Seguridad y RLS
+
+Todas las tablas tienen Row Level Security activado.
+
+### Políticas por tabla
+
+**profiles:**
+- SELECT: todos ven todos (necesario para mostrar nombres)
+- INSERT/UPDATE: solo el propio usuario
+
+**user_roles:**
+- SELECT: todos (necesario para verificar roles)
+- INSERT/UPDATE/DELETE: solo admin
+
+**products:**
+- SELECT: todos
+- ALL: admin o supervisor
+
+**clients:**
+- SELECT: assigned_to = uid, o admin/supervisor
+- INSERT: cualquier usuario autenticado
+- UPDATE: assigned_to = uid, o admin/supervisor
+- DELETE: solo admin
+
+**interactions:**
+- SELECT: user_id = uid, o admin/supervisor
+- INSERT: user_id debe ser el uid
+- UPDATE: user_id = uid, o admin/supervisor
+- DELETE: solo admin
+
+**interaction_lines:**
+- SELECT: hereda permisos de la interaction padre
+- INSERT: solo el dueño de la interaction
+- UPDATE: dueño o admin
+- DELETE: dueño o admin
+
+### Funciones SECURITY DEFINER
+
+- `has_role(_user_id, _role)` — Verificación de rol (usada en todas las políticas)
+- `get_user_role(_user_id)` — Obtención de rol (usada en AuthContext)
+- `handle_new_user()` — Auto-creación de perfil al signup
+- `calculate_client_status(_client_id)` — Cálculo de estado del cliente
+
+---
+
+## 6. Configuración del entorno
+
+### Variables de entorno
+
+```env
+VITE_SUPABASE_PROJECT_ID=     # ID del proyecto en Supabase
+VITE_SUPABASE_PUBLISHABLE_KEY= # Clave anónima (anon key)
+VITE_SUPABASE_URL=             # URL del proyecto (ej: https://xxx.supabase.co)
+```
+
+### Setup local
+
+```bash
+# 1. Clonar
+git clone https://github.com/pabloeckert/MejoraCRM.git
+cd MejoraCRM
+
+# 2. Configurar entorno
+cp .env.example .env
+# Editar .env con credenciales de Supabase
+
+# 3. Instalar dependencias
+bun install
+
+# 4. Desarrollo
+bun dev
+```
+
+---
+
+## 7. Despliegue
+
+### Infraestructura
+
+| Servicio | Detalle |
+|----------|---------|
+| Frontend | crm.mejoraok.com (FTP) |
+| Backend | Supabase Cloud |
+| DNS | Subdominio crm.mejoraok.com |
+
+### Build y deploy
+
+```bash
+# 1. Build de producción
+bun run build
+
+# 2. Subir carpeta dist/ al FTP (hosting)
+```
+
+### Configuración del servidor
+
+El hosting debe servir `index.html` para todas las rutas (SPA routing).
+El archivo `public/.htaccess` maneja los rewrite rules.
+
+### Variables de Supabase
+
+El archivo `.env` se configura localmente. En producción, las variables se inyectan en el build.
+
+---
+
+## 8. Plan de optimización por etapas
+
+### Estado actual (auditoría 2026-04-23)
+
+| Área | Problema | Severidad |
+|------|----------|-----------|
+| Queries | Dashboard carga TODAS las interactions + clients sin filtro | 🔴 Alto |
+| Queries | NotificationsPanel duplica las mismas queries | 🔴 Alto |
+| Queries | Clients.tsx carga todos los clientes sin paginación | 🟡 Medio |
+| Índices | Falta índice en `clients.assigned_to` | 🟡 Medio |
+| Índices | Falta índice en `clients.status` | 🟡 Medio |
+| Índices | Falta índice en `interactions.follow_up_date` | 🟡 Medio |
+| Funciones | `calculate_client_status()` existe pero no se usa | 🟡 Medio |
+| RLS | `clients_insert` permite cualquier usuario autenticado | 🟢 Bajo |
+| Docs | ARCHITECTURE.md referencia páginas inexistentes (Pipeline, Reports) | 🔴 Alto |
+| Docs | DATABASE.md tiene schema v1 (enums y tablas viejas) | 🔴 Alto |
+| Docs | DEPLOYMENT.md tiene credenciales FTP expuestas | 🔴 Alto |
+| Docs | 6 archivos dispersos con información contradictoria | 🟡 Medio |
+
+### Etapa 1 — Documentación ✅ COMPLETADA
+
+**Objetivo:** Consolidar toda la documentación en un solo documento vivo.
+
+- [x] Eliminar `docs/` (6 archivos desactualizados)
+- [x] Crear `Documents/DOCUMENTACION.md` con todo consolidado
+- [x] Agregar plan de optimización al mismo documento
+- [x] Registrar cambios en el historial
+
+### Etapa 2 — Índices de base de datos
+
+**Objetivo:** Mejorar performance de las queries más frecuentes.
+
+**Migración a crear:** `supabase/migrations/20260423_INDEXES.sql`
+
+```sql
+-- Índices faltantes para queries frecuentes
+CREATE INDEX IF NOT EXISTS idx_clients_assigned_to ON public.clients(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_clients_status ON public.clients(status);
+CREATE INDEX IF NOT EXISTS idx_interactions_follow_up_date ON public.interactions(follow_up_date);
+CREATE INDEX IF NOT EXISTS idx_clients_name ON public.clients(name);
+```
+
+**Impacto en frontend:** Nulo. Los índices son transparentes.
+
+### Etapa 3 — Funciones SQL optimizadas
+
+**Objetivo:** Crear funciones que consoliden queries múltiples en una sola llamada.
+
+**Función: `get_dashboard_stats`**
+Consolida las 3 queries del Dashboard en una sola RPC.
+
+**Función: `get_notifications_data`**
+Consolida las 3 queries de NotificationsPanel en una sola RPC.
+
+**Impacto en frontend:** Nulo si se agregan como funciones nuevas. El frontend puede migrar a usarlas gradualmente.
+
+### Etapa 4 — Vistas materializadas (opcional)
+
+**Objetivo:** Pre-computar datos pesados del Dashboard.
+
+- `mv_seller_ranking` — Ranking de vendedores por período
+- `mv_client_summary` — Resumen de clientes con última interacción
+
+**Impacto en frontend:** Nulo. Son tablas adicionales que se consultan aparte.
+
+### Etapa 5 — Limpieza de políticas RLS
+
+**Objetivo:** Endurecer políticas demasiado permisivas.
+
+- Revisar `clients_insert` (actualmente: cualquier autenticado)
+- Agregar política `interaction_lines_select` más restrictiva
+- Verificar que `profiles_select` no exponga datos sensibles
+
+**Impacto en frontend:** Posible si se restringe acceso. Verificar caso por caso.
+
+### Etapa 6 — Regenerar tipos de Supabase
+
+**Objetivo:** Mantener `types.ts` sincronizado con el schema real.
+
+- Ejecutar `supabase gen types typescript` después de cada migración
+- Verificar que el frontend compile sin errores
+
+**Impacto en frontend:** Solo si cambian nombres de columnas/tables (no es el caso).
+
+---
+
+## 9. Registro de cambios
+
+### 2026-04-23 — Limpieza inicial del repositorio
+
+**Realizado:**
+- Eliminado `.env` del tracking (contenía credenciales de Supabase)
+- Creado `.env.example` con variables vacías
+- Merge de `Documents/` + `documents/` → `docs/` (luego reestructurado a `Documents/`)
+- Eliminados 3 lockfiles redundantes (solo `bun.lock`)
+- Eliminados 28 componentes shadcn/ui sin uso
+- Eliminado sistema de toast radix (duplicaba a sonner)
+- Eliminados 17 dependencias `@radix-ui` sin uso
+- Eliminadas dependencias sin uso: `react-is`, `cmdk`, `vaul`, `embla-carousel-react`, `input-otp`, `react-resizable-panels`, `react-hook-form`, `@hookform/resolvers`, `zod`, `@hello-pangea/dnd`, `react-day-picker`
+- Agregado `packageManager: "bun@latest"` a package.json
+- Actualizado README con instrucciones de setup
+- Versión cambiada a `1.0.0`
+
+**Resultado:** 61 archivos modificados, ~11,000 líneas eliminadas.
+
+### 2026-04-23 — Consolidación de documentación
+
+**Realizado:**
+- Eliminados 6 archivos de docs desactualizados (ARCHITECTURE.md, DATABASE.md, DEPLOYMENT.md, CHANGELOG.md, etc.)
+- Creado `Documents/DOCUMENTACION.md` como documento vivo consolidado
+- Incluye: arquitectura, schema v2 actualizado, seguridad RLS, configuración, despliegue, plan de optimización
+- Instrucción: cuando se diga "documentar", actualizar este archivo
+
+---
