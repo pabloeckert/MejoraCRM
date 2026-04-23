@@ -564,4 +564,18 @@ El archivo `.env` se configura localmente. En producción, las variables se inye
 - `tsc --noEmit`: pasa sin errores
 - `vite build`: exitoso (5.2s, 3259 módulos)
 
+### 2026-04-23 — Optimización de bundle + CI/CD
+
+**Realizado:**
+- **Code splitting** en `vite.config.ts` con `manualChunks`:
+  - `vendor-react` (157KB), `vendor-query` (49KB), `vendor-ui` (137KB)
+  - `vendor-charts` (384KB), `vendor-supabase` (196KB), `index` (181KB)
+  - Mayor chunk: 384KB (antes era un monolito de 1.1MB)
+- **CI/CD migrado a bun:**
+  - GitHub Actions usa `oven-sh/setup-bun@v2` + `bun install --frozen-lockfile`
+  - Credenciales FTP movidas a GitHub Secrets (antes hardcodeadas)
+- **Asset eliminado:** `logo-mejora-continua.png` (91KB, no se usaba)
+
+**Verificado:** `vite build` exitoso en 5.3s
+
 ---
