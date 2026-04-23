@@ -310,12 +310,56 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mv_seller_ranking: {
+        Row: {
+          user_id: string
+          full_name: string | null
+          period_start: string
+          ventas_count: number
+          presupuestos_count: number
+          seguimientos_count: number
+          rechazos_count: number
+          total_interactions: number
+          ingresos: number
+          pipeline: number
+        }
+      }
+      mv_client_summary: {
+        Row: {
+          client_id: string
+          name: string
+          company: string | null
+          segment: string | null
+          province: string | null
+          status: Database["public"]["Enums"]["client_status"]
+          assigned_to: string | null
+          client_created_at: string
+          last_interaction_date: string | null
+          last_result: Database["public"]["Enums"]["interaction_result"] | null
+          last_medium: Database["public"]["Enums"]["interaction_medium"] | null
+          total_interactions: number
+          total_ventas: number
+          total_presupuestos: number
+          days_since_last_interaction: number | null
+        }
+      }
     }
     Functions: {
       calculate_client_status: {
         Args: { _client_id: string }
         Returns: Database["public"]["Enums"]["client_status"]
+      }
+      get_dashboard_data: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      get_notifications_data: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      get_seller_ranking: {
+        Args: { period_start: string }
+        Returns: Json
       }
       get_user_role: {
         Args: { _user_id: string }
@@ -327,6 +371,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      refresh_materialized_views: {
+        Args: Record<string, never>
+        Returns: undefined
       }
     }
     Enums: {
