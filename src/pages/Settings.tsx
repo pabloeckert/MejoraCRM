@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone } from "lucide-react";
+import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { isPushSupported, getNotificationPermission, requestNotificationPermission } from "@/lib/notifications";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 function PWAInstallButton() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
@@ -39,6 +42,9 @@ function PWAInstallButton() {
 
 export default function Settings() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
+  const { signOut } = useAuth();
+  const [deleting, setDeleting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
   const [exchangeRate, setExchangeRate] = useState(() => {
     return localStorage.getItem("mejoracrm_exchange_rate") || "1200";
   });
@@ -277,6 +283,114 @@ export default function Settings() {
               </div>
             </div>
             <PWAInstallButton />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cuenta y datos */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            Cuenta y datos
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+            <div className="flex items-center gap-3">
+              <FileText className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Documentos legales</p>
+                <p className="text-xs text-muted-foreground">
+                  Política de privacidad y términos de servicio
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/privacy">Privacidad</Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/terms">Términos</Link>
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/5">
+            <div className="flex items-start gap-3">
+              <Trash2 className="h-5 w-5 text-destructive mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-destructive">Eliminar mis datos</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Esta acción es <strong>irreversible</strong>. Se eliminarán todos tus clientes, interacciones y datos asociados. Tu perfil será anonimizado.
+                </p>
+                {deleting ? (
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <Label className="text-xs">
+                        Escribí <strong>ELIMINAR</strong> para confirmar:
+                      </Label>
+                      <Input
+                        value={confirmText}
+                        onChange={(e) => setConfirmText(e.target.value)}
+                        placeholder="ELIMINAR"
+                        className="h-8 mt-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={confirmText !== "ELIMINAR"}
+                        onClick={async () => {
+                          try {
+                            const { data, error } = await supabase.rpc("request_account_deletion");
+                            if (error) throw error;
+                            const result = data as { success: boolean; message?: string; error?: string };
+                            if (result?.success) {
+                              toast.success(result.message || "Datos eliminados correctamente");
+                              await signOut();
+                            } else {
+                              toast.error(result?.error || "Error al eliminar datos");
+                            }
+                          } catch (err) {
+                            toast.error("Error al eliminar datos");
+                            console.error(err);
+                          } finally {
+                            setDeleting(false);
+                            setConfirmText("");
+                          }
+                        }}
+                      >
+                        Confirmar eliminación
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setDeleting(false);
+                          setConfirmText("");
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={() => setDeleting(true)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1" />
+                    Eliminar mis datos
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

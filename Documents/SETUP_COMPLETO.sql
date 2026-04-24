@@ -485,5 +485,44 @@ INSERT INTO public.products (name, category, price) VALUES
   ('Maquinaria (alquiler)', 'Servicios', 20000.00);
 
 -- =====================================================
+-- Eliminación de cuenta (request_account_deletion)
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION request_account_deletion()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _user_id UUID := auth.uid();
+  _clients_count INT;
+  _interactions_count INT;
+BEGIN
+  IF _user_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'No autenticado');
+  END IF;
+
+  SELECT COUNT(*) INTO _clients_count FROM clients WHERE assigned_to = _user_id;
+  SELECT COUNT(*) INTO _interactions_count FROM interactions WHERE user_id = _user_id;
+
+  UPDATE profiles SET full_name = 'Usuario eliminado', avatar_url = NULL, updated_at = now() WHERE user_id = _user_id;
+  DELETE FROM interactions WHERE user_id = _user_id;
+  DELETE FROM clients WHERE assigned_to = _user_id;
+  DELETE FROM user_roles WHERE user_id = _user_id;
+
+  INSERT INTO audit_log (table_name, record_id, action, old_data, changed_by)
+  VALUES ('account_deletion', _user_id, 'DELETE',
+    jsonb_build_object('clients_deleted', _clients_count, 'interactions_deleted', _interactions_count), _user_id);
+
+  RETURN jsonb_build_object('success', true, 'clients_deleted', _clients_count, 'interactions_deleted', _interactions_count,
+    'message', 'Datos eliminados correctamente. El perfil fue anonimizado.');
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION request_account_deletion() TO authenticated;
+COMMENT ON FUNCTION request_account_deletion() IS 'Elimina todos los datos del usuario autenticado y anonimiza su perfil. Irreversible.';
+
+-- =====================================================
 -- FIN — Setup completo ✅
 -- =====================================================
