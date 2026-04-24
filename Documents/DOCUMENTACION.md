@@ -34,6 +34,8 @@
 | [SETUP_COMPLETO.sql](./SETUP_COMPLETO.sql) | Script SQL completo para setup desde cero |
 | [MIGRACIONES_PENDIENTES.sql](./MIGRACIONES_PENDIENTES.sql) | Migraciones consolidadas (índices, RPC, RLS, vistas) |
 | [CRON_REFRESH_VISTAS.sql](./CRON_REFRESH_VISTAS.sql) | Configuración de pg_cron para refresh de vistas |
+| [RUNBOOK_INCIDENTES.md](./RUNBOOK_INCIDENTES.md) | Guía para diagnosticar y resolver incidentes |
+| [GUIA_STAGING.md](./GUIA_STAGING.md) | Guía para configurar environment de staging |
 
 ---
 
@@ -590,10 +592,10 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | 6.1 | Política de Privacidad (Ley 25.326) | P0 | ✅ |
 | 6.2 | Términos de Servicio | P0 | ✅ |
 | 6.3 | Mecanismo de eliminación de datos | P1 | ✅ |
-| 6.4 | Environment de staging | P1 | ⏳ |
+| 6.4 | Environment de staging | P1 | ⏳ (guía creada) |
 | 6.5 | Deploy FTP → Vercel/Cloudflare Pages | P1 | ⏳ |
-| 6.6 | UptimeRobot monitoreo | P1 | ⏳ |
-| 6.7 | Runbook de incidentes | P2 | ⏳ |
+| 6.6 | UptimeRobot monitoreo | P1 | ⏳ (requiere cuenta) |
+| 6.7 | Runbook de incidentes | P2 | ✅ |
 | 6.8 | Evaluar Supabase Pro | P2 | ⏳ |
 
 ---
@@ -677,6 +679,10 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 - **Eliminación de cuenta**: función SQL `request_account_deletion()` + UI en Settings con confirmación
 - **Links legales**: footer en Auth, sección "Cuenta y datos" en Settings
 - **Tipos y migraciones** actualizados
+
+### 2026-04-25 — Etapa 6: Documentación operativa (6.7)
+- **Runbook de incidentes** (`RUNBOOK_INCIDENTES.md`): 7 escenarios comunes con diagnóstico y resolución
+- **Guía de staging** (`GUIA_STAGING.md`): configuración de environment staging + alternativas Vercel/Cloudflare
 
 ---
 
