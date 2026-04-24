@@ -1,0 +1,48 @@
+{
+  "name": "MejoraCRM",
+  "short_name": "MejoraCRM",
+  "description": "CRM para gestión de clientes, productos e interacciones — Mejora Continua®",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2F2F2",
+  "theme_color": "#2C5CA5",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Clientes",
+      "short_name": "Clientes",
+      "url": "/clients",
+      "description": "Ver lista de clientes"
+    },
+    {
+      "name": "Nueva interacción",
+      "short_name": "Nueva",
+      "url": "/interactions",
+      "description": "Registrar una interacción"
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/",
+      "description": "Ver panel principal"
+    }
+  ]
+}

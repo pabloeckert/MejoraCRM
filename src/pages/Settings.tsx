@@ -6,10 +6,39 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Calendar, Contact, Save, Link2, Unlink } from "lucide-react";
+import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone } from "lucide-react";
 import { toast } from "sonner";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { isPushSupported, getNotificationPermission, requestNotificationPermission } from "@/lib/notifications";
+
+function PWAInstallButton() {
+  const { isInstallable, isInstalled, install } = usePWAInstall();
+
+  if (isInstalled) {
+    return (
+      <Badge variant="outline" className="text-xs text-success bg-success/10">
+        Instalada
+      </Badge>
+    );
+  }
+
+  if (!isInstallable) {
+    return (
+      <Badge variant="outline" className="text-xs text-muted-foreground">
+        No disponible
+      </Badge>
+    );
+  }
+
+  return (
+    <Button variant="outline" size="sm" onClick={() => install()}>
+      Instalar
+    </Button>
+  );
+}
 
 export default function Settings() {
+  const { isInstallable, isInstalled, install } = usePWAInstall();
   const [exchangeRate, setExchangeRate] = useState(() => {
     return localStorage.getItem("mejoracrm_exchange_rate") || "1200";
   });
@@ -168,6 +197,86 @@ export default function Settings() {
                 </Button>
               )}
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notificaciones Push */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Bell className="h-4 w-4 text-primary" />
+            Notificaciones push
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Recibí alertas cuando tengas seguimientos vencidos o clientes sin contacto.
+          </p>
+          {!isPushSupported() ? (
+            <p className="text-xs text-muted-foreground">Tu navegador no soporta notificaciones push.</p>
+          ) : (
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center gap-3">
+                {getNotificationPermission() === "granted" ? (
+                  <Bell className="h-5 w-5 text-success" />
+                ) : (
+                  <BellOff className="h-5 w-5 text-muted-foreground" />
+                )}
+                <div>
+                  <p className="text-sm font-medium">
+                    {getNotificationPermission() === "granted"
+                      ? "Notificaciones activas"
+                      : "Notificaciones desactivadas"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {getNotificationPermission() === "granted"
+                      ? "Recibirás alertas de seguimientos pendientes"
+                      : "Activá para recibir alertas importantes"}
+                  </p>
+                </div>
+              </div>
+              {getNotificationPermission() !== "granted" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const result = await requestNotificationPermission();
+                    if (result === "granted") {
+                      toast.success("Notificaciones activadas");
+                    } else {
+                      toast.error("Permiso denegado");
+                    }
+                  }}
+                >
+                  Activar
+                </Button>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* App instalable */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Smartphone className="h-4 w-4 text-primary" />
+            Aplicación instalable
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+            <div className="flex items-center gap-3">
+              <Download className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Instalar como app</p>
+                <p className="text-xs text-muted-foreground">
+                  Accedé a MejoraCRM desde tu pantalla de inicio, como una app nativa
+                </p>
+              </div>
+            </div>
+            <PWAInstallButton />
           </div>
         </CardContent>
       </Card>

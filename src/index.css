@@ -170,3 +170,61 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ===== PWA & Mobile improvements ===== */
+
+/* Ensure safe area insets for notch devices */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Minimum touch target size: 44x44px (WCAG 2.5.8) */
+@layer base {
+  button, a, [role="button"], input[type="checkbox"], input[type="radio"], select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Compact buttons can be smaller on desktop */
+  @media (min-width: 768px) {
+    button[class*="h-8"], button[class*="h-9"], a[class*="h-8"], a[class*="h-9"] {
+      min-height: auto;
+    }
+  }
+}
+
+/* Mobile-first table scrolling */
+@layer utilities {
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  /* Hide scrollbar on mobile for cleaner look */
+  @media (max-width: 767px) {
+    .table-container::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* PWA standalone mode adjustments */
+@media (display-mode: standalone) {
+  body {
+    /* Extra padding for standalone mode */
+    padding-top: max(env(safe-area-inset-top), 8px);
+  }
+}
