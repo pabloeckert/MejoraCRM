@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import { ListSkeleton } from "@/components/skeletons";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
@@ -70,7 +71,7 @@ export default function Clients() {
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
   const fileInputRef = useState<HTMLInputElement | null>(null);
 
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
       const { data } = await supabase.from("clients").select("*").order("name");
@@ -280,6 +281,8 @@ export default function Clients() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  if (isLoading) return <ListSkeleton />;
 
   const filtered = clients.filter((c) => {
     const matchSearch =
