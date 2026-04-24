@@ -951,19 +951,20 @@ El plan se organiza en **6 etapas** de 2-4 semanas cada una. Cada etapa es indep
 
 ---
 
-### Etapa 1 — Estabilidad y Confianza (Semanas 1-2)
+### Etapa 1 — Estabilidad y Confianza (Semanas 1-2) ✅ COMPLETADA
 
 **Objetivo:** Que el deploy sea seguro y el código sea confiable.
 
-| # | Tarea | Responsable | Prioridad | Esfuerzo |
-|---|-------|-------------|-----------|----------|
-| 1.1 | Agregar error boundary global en App.tsx | Frontend Dev | P0 | 2h |
-| 1.2 | Crear 5 tests unitarios mínimos (calcs Dashboard, validaciones) | QA | P0 | 1 día |
-| 1.3 | Agregar lint + typecheck + test al CI (antes del build) | DevOps | P0 | 2h |
-| 1.4 | Activar Sentry para error tracking | SRE | P0 | 2h |
-| 1.5 | Agregar skeleton loading en Dashboard, Clients, Interactions | UI Designer | P1 | 1 día |
+| # | Tarea | Responsable | Prioridad | Estado |
+|---|-------|-------------|-----------|--------|
+| 1.1 | Error boundary global en App.tsx | Frontend Dev | P0 | ✅ |
+| 1.2 | 32 tests unitarios (calcs, utils, ErrorBoundary) | QA | P0 | ✅ |
+| 1.3 | CI: lint + typecheck + test antes del deploy | DevOps | P0 | ✅ |
+| 1.4 | Sentry para error tracking | SRE | P0 | ⏳ Pendiente (requiere cuenta Sentry) |
+| 1.5 | Skeleton loading en Dashboard, Clients, Interactions | UI Designer | P1 | ✅ |
 
-**Entregable:** Deploy con tests, error tracking activo, loading states.
+**Entregable:** Deploy con tests (32 passing), error boundary, loading states, CI con quality gates.
+**Nota:** Sentry (1.4) requiere crear cuenta en sentry.io y configurar DSN. Pendiente para siguiente iteración.
 
 ---
 

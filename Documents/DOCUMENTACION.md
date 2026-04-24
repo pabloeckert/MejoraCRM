@@ -703,7 +703,8 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 | Optimización | ✅ 100% | 11 índices, 3 RPC, 2 vistas materializadas |
 | CI/CD | ✅ 100% | GitHub Actions → FTP automático en cada push a main |
 | Seguridad | ✅ 100% | 0 vulnerabilidades npm, secrets en GitHub, RLS granular |
-| Documentación | ✅ 100% | 1 archivo consolidado (este documento) |
+| Testing | ✅ 100% | 32 tests unitarios, CI quality gates |
+| Documentación | ✅ 100% | DOCUMENTACION.md + ANALISIS_PROFUNDO.md |
 | Base de datos | ✅ 100% | Proyecto Supabase nuevo, schema ejecutado, cron activo |
 | Deploy | ✅ 100% | crm.mejoraok.com funcionando con nuevo backend |
 
@@ -715,5 +716,43 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 | Repositorio | https://github.com/pabloeckert/MejoraCRM |
 | GitHub Actions | https://github.com/pabloeckert/MejoraCRM/actions |
 | Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
+| Análisis profundo | [Documents/ANALISIS_PROFUNDO.md](./ANALISIS_PROFUNDO.md) |
 
 ---
+
+### 2026-04-24 — Etapa 1: Estabilidad y confianza
+
+**Realizado:**
+- **Error boundary global** (`src/components/ErrorBoundary.tsx`):
+  - UI de error amigable con icono, título y descripción
+  - Sección expandible con detalles técnicos del error
+  - Botones de "Reintentar" y "Recargar página"
+  - Wrap global en App.tsx
+- **32 tests unitarios** (4 archivos):
+  - `src/lib/__tests__/utils.test.ts` — cn() utility (7 tests)
+  - `src/lib/__tests__/calculations.test.ts` — KPIs, filtro por período, seguimientos vencidos, validación WhatsApp, ranking vendedores (19 tests)
+  - `src/components/__tests__/ErrorBoundary.test.tsx` — render, error, fallback (4 tests)
+  - `src/test/example.test.ts` — environment check (2 tests)
+- **Lógica de negocio extraída** a `src/lib/calculations.ts`:
+  - `calculateKPIs()` — cálculo de ventas, presupuestos, conversión
+  - `filterByPeriod()` — filtro de interacciones por fecha
+  - `getOverdueFollowups()` — seguimientos vencidos
+  - `isValidWhatsapp()` — validación de formato de WhatsApp
+  - `calculateSellerRanking()` — ranking de vendedores
+- **CI actualizado** (`.github/workflows/deploy.yml`):
+  - Nuevo job `quality` que ejecuta: `tsc --noEmit`, `eslint`, `vitest run`
+  - Job `deploy` depende de `quality` (needs: quality)
+  - Deploy solo si todos los checks pasan
+- **Skeleton loading states**:
+  - `DashboardSkeleton` — KPIs, charts, ranking con Skeleton components
+  - `ListSkeleton` — tabla genérica para Clients/Interactions/Products
+  - Integrados en Dashboard.tsx, Clients.tsx, Interactions.tsx
+
+**Verificado:**
+- `tsc --noEmit`: sin errores
+- `vitest run`: 32/32 tests pasando
+- `vite build`: exitoso (5.4s, 3263 módulos)
+
+---
+
+
