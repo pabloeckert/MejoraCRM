@@ -58,23 +58,23 @@ export default function Reports() {
   }
 
   const periodInts = interactions.filter(
-    (i: any) => new Date(i.interaction_date) >= periodStart
+    (i) => new Date(i.interaction_date) >= periodStart
   );
 
   // KPIs
-  const ventas = periodInts.filter((i: any) => i.result === "venta");
-  const presupuestos = periodInts.filter((i: any) => i.result === "presupuesto");
-  const noInteresado = periodInts.filter((i: any) => i.result === "no_interesado");
-  const seguimientos = periodInts.filter((i: any) => i.result === "seguimiento");
+  const ventas = periodInts.filter((i) => i.result === "venta");
+  const presupuestos = periodInts.filter((i) => i.result === "presupuesto");
+  const noInteresado = periodInts.filter((i) => i.result === "no_interesado");
+  const seguimientos = periodInts.filter((i) => i.result === "seguimiento");
 
-  const totalVentas = ventas.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
-  const totalPipeline = presupuestos.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
-  const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
+  const totalVentas = ventas.reduce((s: number, i) => s + (Number(i.total_amount) || 0), 0);
+  const totalPipeline = presupuestos.reduce((s: number, i) => s + (Number(i.total_amount) || 0), 0);
+  const totalPerdido = noInteresado.reduce((s: number, i) => s + (Number(i.estimated_loss) || 0), 0);
   const winRate = presupuestos.length > 0 ? Math.round((ventas.length / (ventas.length + noInteresado.length)) * 100) || 0 : 0;
   const conversion = presupuestos.length > 0 ? Math.round((ventas.length / presupuestos.length) * 100) : 0;
 
   // Average sales cycle (days from presupuesto to venta)
-  const ventaWithQuote = ventas.filter((v: any) => v.reference_quote_id);
+  const ventaWithQuote = ventas.filter((v) => v.reference_quote_id);
   const avgCycle = ventaWithQuote.length > 0
     ? Math.round(
         ventaWithQuote.reduce((s: number, v: any) => {
@@ -117,7 +117,7 @@ export default function Reports() {
     { name: "Presupuestos", value: presupuestos.length },
     { name: "Ventas", value: ventas.length },
     { name: "Seguimientos", value: seguimientos.length },
-    { name: "Sin respuesta", value: periodInts.filter((i: any) => i.result === "sin_respuesta").length },
+    { name: "Sin respuesta", value: periodInts.filter((i) => i.result === "sin_respuesta").length },
     { name: "No interesado", value: noInteresado.length },
   ].filter((d) => d.value > 0);
 
@@ -132,9 +132,9 @@ export default function Reports() {
 
   // Top products by revenue
   const productSales: Record<string, number> = {};
-  ventas.forEach((v: any) => {
+  ventas.forEach((v) => {
     if (v.interaction_lines) {
-      v.interaction_lines.forEach((l: any) => {
+      v.interaction_lines.forEach((l) => {
         const name = l.products?.name || l.product?.name || "Sin nombre";
         productSales[name] = (productSales[name] || 0) + (l.line_total || l.quantity * l.unit_price || 0);
       });
@@ -146,9 +146,9 @@ export default function Reports() {
     .slice(0, 6);
 
   // Revenue by province
-  const clientMap = Object.fromEntries(clients.map((c: any) => [c.id, c]));
+  const clientMap = Object.fromEntries(clients.map((c) => [c.id, c]));
   const provinceSales: Record<string, number> = {};
-  ventas.forEach((v: any) => {
+  ventas.forEach((v) => {
     const prov = clientMap[v.client_id]?.province || "Sin provincia";
     provinceSales[prov] = (provinceSales[prov] || 0) + (Number(v.total_amount) || 0);
   });
@@ -331,7 +331,7 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" fontSize={11} />
                 <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={11} />
-                <RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} />
+                <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
                 <Area type="monotone" dataKey="ventas" stackId="1" stroke="hsl(142,60%,40%)" fill="hsl(142,60%,40%)" fillOpacity={0.3} name="Ventas" />
                 <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="hsl(214,58%,41%)" fill="hsl(214,58%,41%)" fillOpacity={0.3} name="Pipeline" />
               </AreaChart>
@@ -376,7 +376,7 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={10} />
                   <YAxis type="category" dataKey="name" width={80} fontSize={10} tickLine={false} />
-                  <RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} />
+                  <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
                   <Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
