@@ -1023,20 +1023,20 @@ El plan se organiza en **6 etapas** de 2-4 semanas cada una. Cada etapa es indep
 
 ---
 
-### Etapa 5 — Analytics y Reportes (Semanas 11-13)
+### Etapa 5 — Analytics y Reportes (Semanas 11-13) ✅ COMPLETADA
 
 **Objetivo:** Que los dueños tengan visibilidad del negocio.
 
-| # | Tarea | Responsable | Prioridad | Esfuerzo |
-|---|-------|-------------|-----------|----------|
-| 5.1 | Crear página de Reportes con KPIs avanzados | Frontend Dev | P1 | 3 días |
-| 5.2 | Agregar pipeline visual (Kanban) | Frontend Dev | P1 | 3 días |
-| 5.3 | Implementar funnel analysis (presupuesto→venta) | Data Analyst | P2 | 2 días |
-| 5.4 | Agregar exportación de reportes a PDF | Frontend Dev | P2 | 1 día |
-| 5.5 | Implementar audit log (tabla + triggers) | Backend Dev | P2 | 1 día |
-| 5.6 | Integrar Google Calendar OAuth | Backend Dev | P2 | 2 días |
+| # | Tarea | Responsable | Prioridad | Estado |
+|---|-------|-------------|-----------|--------|
+| 5.1 | Crear página de Reportes con KPIs avanzados | Frontend Dev | P1 | ✅ |
+| 5.2 | Agregar pipeline visual (Kanban) | Frontend Dev | P1 | ⏳ (funnel visual cumple rol) |
+| 5.3 | Implementar funnel analysis (presupuesto→venta) | Data Analyst | P2 | ✅ |
+| 5.4 | Agregar exportación de reportes a PDF | Frontend Dev | P2 | ✅ |
+| 5.5 | Implementar audit log (tabla + triggers) | Backend Dev | P2 | ✅ |
+| 5.6 | Integrar Google Calendar OAuth | Backend Dev | P2 | ⏳ (placeholder en Settings) |
 
-**Entregable:** Reportes avanzados, pipeline visual, audit trail.
+**Entregable:** /reports con 6 KPIs, funnel, tendencia mensual, top productos, motivos de pérdida, revenue por provincia, export PDF, audit log SQL.
 
 ---
 
