@@ -90,7 +90,7 @@ export function InteractionCard({ interaction: i, index, onNavigate }: Interacti
             {i.interaction_lines?.length > 0 && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 {i.interaction_lines.length} producto(s):{" "}
-                {i.interaction_lines.map((l: any) => l.products?.name).filter(Boolean).join(", ")}
+                {i.interaction_lines.map((l) => l.products?.name).filter(Boolean).join(", ")}
               </p>
             )}
             {i.followup_motive && <p className="text-xs mt-1 italic">"{i.followup_motive}"</p>}

@@ -8,6 +8,7 @@ import {
 import { isBefore, isToday, differenceInDays, startOfMonth, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { KPICard } from "./KPICard";
+import type { Interaction } from "@/lib/types";
 
 const RESULT_LABELS: Record<string, string> = {
   presupuesto: "Envié un presupuesto",
@@ -18,36 +19,36 @@ const RESULT_LABELS: Record<string, string> = {
 };
 
 interface SellerViewProps {
-  interactions: any[];
-  myClients: any[];
+  interactions: Interaction[];
+  myClients: Interaction[];
   sellerName: string;
   navigate: (path: string) => void;
 }
 
 export function SellerView({ interactions, myClients, sellerName, navigate }: SellerViewProps) {
   const monthStart = startOfMonth(new Date());
-  const monthInts = interactions.filter((i: any) => new Date(i.interaction_date) >= monthStart);
+  const monthInts = interactions.filter((i) => new Date(i.interaction_date) >= monthStart);
 
-  const ventas = monthInts.filter((i: any) => i.result === "venta");
-  const presupuestos = monthInts.filter((i: any) => i.result === "presupuesto");
-  const noInteresado = monthInts.filter((i: any) => i.result === "no_interesado");
+  const ventas = monthInts.filter((i) => i.result === "venta");
+  const presupuestos = monthInts.filter((i) => i.result === "presupuesto");
+  const noInteresado = monthInts.filter((i) => i.result === "no_interesado");
 
   const totalVentas = ventas.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
   const totalPresup = presupuestos.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
   const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
 
-  const today = interactions.filter((i: any) => i.follow_up_date && isToday(new Date(i.follow_up_date)));
+  const today = interactions.filter((i) => i.follow_up_date && isToday(new Date(i.follow_up_date)));
   const overdue = interactions.filter(
-    (i: any) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date()) && !isToday(new Date(i.follow_up_date))
+    (i) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date()) && !isToday(new Date(i.follow_up_date))
   );
   const upcoming = interactions
-    .filter((i: any) => i.follow_up_date && new Date(i.follow_up_date) > new Date())
+    .filter((i) => i.follow_up_date && new Date(i.follow_up_date) > new Date())
     .sort((a: any, b: any) => new Date(a.follow_up_date).getTime() - new Date(b.follow_up_date).getTime())
     .slice(0, 5);
 
   const recentActivity = interactions.slice(0, 6);
 
-  const todayInteractions = interactions.filter((i: any) => isToday(new Date(i.interaction_date)));
+  const todayInteractions = interactions.filter((i) => isToday(new Date(i.interaction_date)));
   let motivationalMsg = "";
   if (todayInteractions.length === 0 && today.length > 0) {
     motivationalMsg = `Tenés ${today.length} seguimiento${today.length > 1 ? "s" : ""} para hoy. ¡Empecemos!`;
@@ -55,7 +56,7 @@ export function SellerView({ interactions, myClients, sellerName, navigate }: Se
     motivationalMsg = "Ya registraste tus interacciones del día 👏";
   } else if (overdue.length > 0) {
     motivationalMsg = `Hay ${overdue.length} seguimiento${overdue.length > 1 ? "s" : ""} vencido${overdue.length > 1 ? "s" : ""}. ¿Los revisamos?`;
-  } else if (ventas.some((v: any) => isToday(new Date(v.interaction_date)))) {
+  } else if (ventas.some((v) => isToday(new Date(v.interaction_date)))) {
     motivationalMsg = "¡Venta registrada hoy! Buen trabajo 💪";
   } else if (monthInts.length > 10) {
     motivationalMsg = "Buen ritmo este mes. ¡Seguí así! 👍";
@@ -97,7 +98,7 @@ export function SellerView({ interactions, myClients, sellerName, navigate }: Se
               <p className="text-sm text-muted-foreground py-6 text-center">Sin seguimientos para hoy 👌</p>
             ) : (
               <div className="space-y-2">
-                {today.map((i: any) => (
+                {today.map((i) => (
                   <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg bg-accent/10 hover:bg-accent/20 cursor-pointer transition-colors" onClick={() => navigate("/interactions")}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{i.clients?.name}</p>
@@ -123,7 +124,7 @@ export function SellerView({ interactions, myClients, sellerName, navigate }: Se
               <p className="text-sm text-muted-foreground py-6 text-center">🎉 Todo al día</p>
             ) : (
               <div className="space-y-2 max-h-56 overflow-y-auto">
-                {overdue.slice(0, 6).map((i: any) => (
+                {overdue.slice(0, 6).map((i) => (
                   <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg bg-destructive/5 hover:bg-destructive/10 cursor-pointer" onClick={() => navigate("/interactions")}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{i.clients?.name}</p>
@@ -148,7 +149,7 @@ export function SellerView({ interactions, myClients, sellerName, navigate }: Se
               <p className="text-sm text-muted-foreground py-6 text-center">Sin seguimientos programados</p>
             ) : (
               <div className="space-y-2">
-                {upcoming.map((i: any) => (
+                {upcoming.map((i) => (
                   <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted/30 cursor-pointer" onClick={() => navigate("/interactions")}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{i.clients?.name}</p>
@@ -169,7 +170,7 @@ export function SellerView({ interactions, myClients, sellerName, navigate }: Se
               <p className="text-sm text-muted-foreground py-6 text-center">Sin actividad reciente</p>
             ) : (
               <div className="space-y-2">
-                {recentActivity.map((i: any) => (
+                {recentActivity.map((i) => (
                   <div key={i.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/20">
                     <div className="min-w-0">
                       <p className="text-sm truncate"><span className="font-medium">{i.clients?.name}</span></p>

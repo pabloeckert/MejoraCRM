@@ -13,6 +13,7 @@ import {
 import { isBefore, differenceInDays, startOfMonth, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { KPICard } from "./KPICard";
+import type { Interaction, Client, Profile, SellerStats } from "@/lib/types";
 
 const COLORS = [
   "hsl(214,58%,41%)",
@@ -32,15 +33,15 @@ const RESULT_LABELS: Record<string, string> = {
 };
 
 interface OwnerViewProps {
-  interactions: any[];
-  clients: any[];
-  profiles: any[];
+  interactions: Interaction[];
+  clients: Client[];
+  profiles: Profile[];
   navigate: (path: string) => void;
 }
 
 export function OwnerView({ interactions, clients, profiles, navigate }: OwnerViewProps) {
   const [period, setPeriod] = useState("mes");
-  const profileMap = Object.fromEntries(profiles.map((p: any) => [p.user_id, p.full_name || "Sin nombre"]));
+  const profileMap = Object.fromEntries(profiles.map((p) => [p.user_id, p.full_name || "Sin nombre"]));
 
   const now = new Date();
   let periodStart: Date;
@@ -71,17 +72,17 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
       periodLabel = format(startOfMonth(now), "MMMM yyyy", { locale: es });
   }
 
-  const periodInts = interactions.filter((i: any) => new Date(i.interaction_date) >= periodStart);
-  const ventas = periodInts.filter((i: any) => i.result === "venta");
-  const presupuestos = periodInts.filter((i: any) => i.result === "presupuesto");
-  const noInteresado = periodInts.filter((i: any) => i.result === "no_interesado");
+  const periodInts = interactions.filter((i: Interaction) => new Date(i.interaction_date) >= periodStart);
+  const ventas = periodInts.filter((i: Interaction) => i.result === "venta");
+  const presupuestos = periodInts.filter((i: Interaction) => i.result === "presupuesto");
+  const noInteresado = periodInts.filter((i: Interaction) => i.result === "no_interesado");
 
-  const totalVentas = ventas.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
-  const totalPresup = presupuestos.reduce((s: number, i: any) => s + (Number(i.total_amount) || 0), 0);
+  const totalVentas = ventas.reduce((s: number, i: Interaction) => s + (Number(i.total_amount) || 0), 0);
+  const totalPresup = presupuestos.reduce((s: number, i: Interaction) => s + (Number(i.total_amount) || 0), 0);
   const conversion = presupuestos.length > 0 ? Math.round((ventas.length / presupuestos.length) * 100) : 0;
 
   const overdue = interactions.filter(
-    (i: any) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date())
+    (i) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date())
   );
 
   const resultData = Object.entries(
@@ -92,7 +93,7 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
   ).map(([name, value]) => ({ name: RESULT_LABELS[name] || name, value: value as number }));
 
   const sellerStats: Record<string, { ventas: number; presup: number; segs: number; ingresos: number }> = {};
-  periodInts.forEach((i: any) => {
+  periodInts.forEach((i: Interaction) => {
     const key = i.user_id;
     if (!sellerStats[key]) sellerStats[key] = { ventas: 0, presup: 0, segs: 0, ingresos: 0 };
     if (i.result === "venta") {
@@ -107,18 +108,18 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
     .sort((a, b) => b.ingresos - a.ingresos);
 
   const lastSellerActivity: Record<string, Date> = {};
-  interactions.forEach((i: any) => {
+  interactions.forEach((i: Interaction) => {
     const d = new Date(i.interaction_date);
     if (!lastSellerActivity[i.user_id] || d > lastSellerActivity[i.user_id]) {
       lastSellerActivity[i.user_id] = d;
     }
   });
-  const inactiveSellers = profiles.filter((p: any) => {
+  const inactiveSellers = profiles.filter((p) => {
     const last = lastSellerActivity[p.user_id];
     return !last || differenceInDays(new Date(), last) > 3;
   });
 
-  const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
+  const totalPerdido = noInteresado.reduce((s: number, i: Interaction) => s + (Number(i.estimated_loss) || 0), 0);
 
   const kpis = [
     { label: "Ventas logradas", value: `$${totalVentas.toLocaleString()}`, sub: `${ventas.length} ventas`, icon: DollarSign, color: "text-success", bg: "bg-success/10", onClick: () => navigate("/interactions") },
@@ -211,7 +212,7 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
           <CardContent>
             {overdue.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {overdue.slice(0, 6).map((i: any) => (
+                {overdue.slice(0, 6).map((i) => (
                   <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg bg-destructive/5 hover:bg-destructive/10 cursor-pointer" onClick={() => navigate("/interactions")}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{i.clients?.name || "Cliente"}</p>
@@ -237,7 +238,7 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
           <CardContent>
             {inactiveSellers.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {inactiveSellers.map((p: any) => {
+                {inactiveSellers.map((p: Profile) => {
                   const last = lastSellerActivity[p.user_id];
                   return (
                     <div key={p.user_id} className="p-2.5 rounded-lg bg-accent/5 flex items-center justify-between">
@@ -277,10 +278,10 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
             <CardContent className="h-64">
               {(() => {
                 const productSales: Record<string, number> = {};
-                ventas.forEach((v: any) => { if (v.interaction_lines) v.interaction_lines.forEach((l: any) => { const name = l.products?.name || "Sin nombre"; productSales[name] = (productSales[name] || 0) + (l.line_total || l.quantity * l.unit_price || 0); }); });
+                ventas.forEach((v) => { if (v.interaction_lines) v.interaction_lines.forEach((l) => { const name = l.products?.name || "Sin nombre"; productSales[name] = (productSales[name] || 0) + (l.line_total || l.quantity * l.unit_price || 0); }); });
                 const productData = Object.entries(productSales).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
                 return productData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
                 ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>;
               })()}
             </CardContent>
@@ -290,12 +291,12 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Ventas por zona</CardTitle></CardHeader>
             <CardContent className="h-64">
               {(() => {
-                const clientMap = Object.fromEntries(clients.map((c: any) => [c.id, c]));
+                const clientMap = Object.fromEntries(clients.map((c) => [c.id, c]));
                 const zoneSales: Record<string, number> = {};
-                ventas.forEach((v: any) => { const prov = clientMap[v.client_id]?.province || "Sin provincia"; zoneSales[prov] = (zoneSales[prov] || 0) + (Number(v.total_amount) || 0); });
+                ventas.forEach((v) => { const prov = clientMap[v.client_id]?.province || "Sin provincia"; zoneSales[prov] = (zoneSales[prov] || 0) + (Number(v.total_amount) || 0); });
                 const zoneData = Object.entries(zoneSales).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
                 return zoneData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%"><BarChart data={zoneData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(142,60%,40%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%"><BarChart data={zoneData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(142,60%,40%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
                 ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas por zona</div>;
               })()}
             </CardContent>
@@ -305,12 +306,12 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Distribución por rubro</CardTitle></CardHeader>
             <CardContent className="h-64">
               {(() => {
-                const clientMap = Object.fromEntries(clients.map((c: any) => [c.id, c]));
+                const clientMap = Object.fromEntries(clients.map((c) => [c.id, c]));
                 const rubroSales: Record<string, number> = {};
-                ventas.forEach((v: any) => { const rubro = clientMap[v.client_id]?.segment || "Sin rubro"; rubroSales[rubro] = (rubroSales[rubro] || 0) + (Number(v.total_amount) || 0); });
+                ventas.forEach((v) => { const rubro = clientMap[v.client_id]?.segment || "Sin rubro"; rubroSales[rubro] = (rubroSales[rubro] || 0) + (Number(v.total_amount) || 0); });
                 const rubroData = Object.entries(rubroSales).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
                 return rubroData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={rubroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{rubroData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><RTooltip formatter={(v: any) => `$${Number(v).toLocaleString()}`} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={rubroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{rubroData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
                 ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas por rubro</div>;
               })()}
             </CardContent>
