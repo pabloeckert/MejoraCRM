@@ -612,13 +612,31 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 **Documentación:**
 - 18 archivos desactualizados → `Documents/DOCUMENTACION.md` (documento vivo)
 
-#### Pendiente
+#### Pendiente (2026-04-24 — completado)
 
-| Item | Acción requerida |
-|------|-----------------|
-| Migraciones SQL | Ejecutar las 4 migraciones en Supabase Dashboard (SQL Editor) |
-| FTP Secrets | Configurar `FTP_HOST` y `FTP_USERNAME` en GitHub Secrets |
-| Refresco de vistas | Configurar cron/trigger para `refresh_materialized_views()` |
+| Item | Acción requerida | Estado |
+|------|-----------------|--------|
+| Migraciones SQL | Ejecutar las 4 migraciones en Supabase Dashboard (SQL Editor) | ⏳ Pendiente usuario |
+| FTP Secrets | Configurar `FTP_HOST` y `FTP_USERNAME` en GitHub Secrets | ✅ Configurado |
+| Deploy CI/CD | Fix `bun.lock` frozen-lockfile + secrets FTP | ✅ Funcionando |
+| Refresco de vistas | Configurar cron/trigger para `refresh_materialized_views()` | ⏳ Pendiente usuario |
+
+### 2026-04-24 — Fix CI/CD + configuración de secrets
+
+**Realizado:**
+- **Lockfile:** regenerado `bun.lock` con bun v1.3.13 (misma versión que CI)
+  - Error original: `lockfile had changes, but lockfile is frozen`
+  - Fix: `bun install` + commit del lockfile actualizado
+- **GitHub Secrets:** configurados `FTP_HOST` y `FTP_USERNAME` via API
+  - `FTP_HOST`: 185.212.70.250
+  - `FTP_USERNAME`: u846064658.mejoraok.com
+  - `FTP_PASSWORD`: ya existía
+- **Deploy:** Run #13 completado con éxito → crm.mejoraok.com actualizado
+- **Scripts SQL:** agregados `MIGRACIONES_PENDIENTES.sql` y `CRON_REFRESH_VISTAS.sql` a Documents/
+
+**Pendiente para el usuario:**
+- Ejecutar `MIGRACIONES_PENDIENTES.sql` en Supabase Dashboard (SQL Editor)
+- Activar extensión `pg_cron` y ejecutar `CRON_REFRESH_VISTAS.sql`
 
 #### Métricas
 
