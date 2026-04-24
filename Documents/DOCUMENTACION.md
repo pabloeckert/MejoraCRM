@@ -24,6 +24,7 @@
 
 - **Producción:** [crm.mejoraok.com](https://crm.mejoraok.com)
 - **Repositorio:** [github.com/pabloeckert/MejoraCRM](https://github.com/pabloeckert/MejoraCRM)
+- **Supabase:** `fkjuswkjzaeuogctsxpw` (2026-04-24 — nuevo proyecto)
 - **Versión actual:** 1.0.0
 - **Package manager:** Bun
 
@@ -343,9 +344,9 @@ Todas las tablas tienen Row Level Security activado.
 ### Variables de entorno
 
 ```env
-VITE_SUPABASE_PROJECT_ID=     # ID del proyecto en Supabase
-VITE_SUPABASE_PUBLISHABLE_KEY= # Clave anónima (anon key)
-VITE_SUPABASE_URL=             # URL del proyecto (ej: https://xxx.supabase.co)
+VITE_SUPABASE_PROJECT_ID=fkjuswkjzaeuogctsxpw
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_G7KU4fZN7IwQU56gzcd-2g_0ink6xu4
+VITE_SUPABASE_URL=https://fkjuswkjzaeuogctsxpw.supabase.co
 ```
 
 ### Setup local
@@ -621,8 +622,9 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 | Lockfile CI/CD fix | ✅ Completado |
 | FTP Secrets configurados | ✅ Completado |
 | Deploy automático funcionando | ✅ Completado |
-| Migraciones SQL | ⏳ Pendiente ejecutar en Supabase (script preparado) |
-| Cron de vistas materializadas | ⏳ Pendiente activar pg_cron en Supabase |
+| Proyecto Supabase nuevo | ✅ Creado y configurado |
+| Schema SQL completo | ✅ Ejecutado en Supabase |
+| Cron de vistas materializadas | ✅ Activo (cada 30 min) |
 
 ### 2026-04-24 — Fix CI/CD + configuración de secrets + scripts SQL
 
@@ -644,6 +646,26 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 1. Ejecutar `MIGRACIONES_PENDIENTES.sql` en SQL Editor
 2. Activar extensión `pg_cron` y ejecutar `CRON_REFRESH_VISTAS.sql`
 
+### 2026-04-24 — Nuevo proyecto Supabase + setup completo
+
+**Contexto:** El proyecto Supabase original (`shjzgxsqkhexuwyipdmd`) fue creado por Lovable y no era accesible desde la cuenta de Supabase del usuario. Se creó un proyecto nuevo.
+
+**Realizado:**
+- **Proyecto Supabase nuevo:** `fkjuswkjzaeuogctsxpw` (región: por confirmar)
+- **Script `SETUP_COMPLETO.sql`:** creado con todo el schema desde cero
+  - 8 enums (app_role, client_status, interaction_result, interaction_medium, currency_code, quote_path, followup_scenario, negotiation_state)
+  - 6 tablas (profiles, user_roles, products, clients, interactions, interaction_lines)
+  - 5 funciones SQL (update_updated_at_column, has_role, get_user_role, handle_new_user, calculate_client_status)
+  - 22+ políticas RLS (ya endurecidas desde el inicio)
+  - 11 índices de performance
+  - 3 funciones RPC (get_dashboard_data, get_notifications_data, get_seller_ranking)
+  - 2 vistas materializadas (mv_seller_ranking, mv_client_summary)
+  - Cron job automático (refresco cada 30 min)
+  - 10 productos semilla
+- **`.env` actualizado** con credenciales del nuevo proyecto
+- **Deploy exitoso** (Run #19) → crm.mejoraok.com conectado al nuevo Supabase
+- **Commits:** 5 (SETUP_COMPLETO.sql, fix orden, fix cleanup, .env update)
+
 #### Métricas
 
 | Métrica | Antes | Después |
@@ -661,24 +683,18 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 
 ## 10. Estado del proyecto
 
-### Completitud: 95%
+### Completitud: 100% ✅
 
 | Área | Estado | Detalle |
 |------|--------|---------|
 | Frontend | ✅ 100% | React + Vite + Tailwind, code splitting, 0 vulnerabilidades |
-| Backend | ✅ 100% | Supabase Auth + PostgreSQL, RLS endurecido |
-| Optimización | ✅ 100% | 5 índices, 3 RPC, 2 vistas materializadas |
+| Backend | ✅ 100% | Supabase Auth + PostgreSQL, RLS endurecido, schema completo |
+| Optimización | ✅ 100% | 11 índices, 3 RPC, 2 vistas materializadas |
 | CI/CD | ✅ 100% | GitHub Actions → FTP automático en cada push a main |
 | Seguridad | ✅ 100% | 0 vulnerabilidades npm, secrets en GitHub, RLS granular |
 | Documentación | ✅ 100% | 1 archivo consolidado (este documento) |
-| Migraciones SQL | ⏳ 90% | Scripts preparados, pendiente ejecutar en Supabase |
-| Cron de vistas | ⏳ 90% | Script preparado, pendiente activar pg_cron |
-
-### Pasos restantes para 100%
-
-1. **Ejecutar `Documents/MIGRACIONES_PENDIENTES.sql`** en Supabase Dashboard → SQL Editor
-2. **Activar extensión `pg_cron`** en Supabase → Database → Extensions
-3. **Ejecutar `Documents/CRON_REFRESH_VISTAS.sql`** en Supabase SQL Editor
+| Base de datos | ✅ 100% | Proyecto Supabase nuevo, schema ejecutado, cron activo |
+| Deploy | ✅ 100% | crm.mejoraok.com funcionando con nuevo backend |
 
 ### Links útiles
 
@@ -687,6 +703,6 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 | Producción | https://crm.mejoraok.com |
 | Repositorio | https://github.com/pabloeckert/MejoraCRM |
 | GitHub Actions | https://github.com/pabloeckert/MejoraCRM/actions |
-| Supabase Dashboard | https://supabase.com/dashboard |
+| Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
 
 ---
