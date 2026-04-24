@@ -15,6 +15,7 @@ import Clients from "./pages/Clients";
 import Interactions from "./pages/Interactions";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import { ReactNode } from "react";
 
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
                 <Route path="/interactions" element={<ProtectedRoute><Interactions /></ProtectedRoute>} />
                 <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
