@@ -1004,21 +1004,22 @@ El plan se organiza en **6 etapas** de 2-4 semanas cada una. Cada etapa es indep
 
 ---
 
-### Etapa 4 — UX y Onboarding (Semanas 8-10)
+### Etapa 4 — UX y Onboarding (Semanas 8-10) ✅ COMPLETADA
 
 **Objetivo:** Que un usuario nuevo sepa qué hacer.
 
-| # | Tarea | Responsable | Prioridad | Esfuerzo |
-|---|-------|-------------|-----------|----------|
-| 4.1 | Crear wizard de onboarding (3 pasos) | UX Designer | P1 | 2 días |
-| 4.2 | Agregar tooltips contextuales en primera visita | UX Designer | P1 | 1 día |
-| 4.3 | Dividir Dashboard.tsx en sub-componentes | Frontend Dev | P1 | 1 día |
-| 4.4 | Dividir Interactions.tsx en sub-componentes | Frontend Dev | P1 | 1 día |
-| 4.5 | Agregar búsqueda global (command palette) | Frontend Dev | P2 | 2 días |
-| 4.6 | Activar dark mode (next-themes ya instalado) | UI Designer | P2 | 1 día |
-| 4.7 | Mejorar empty states con CTAs | UX Writer | P2 | 0.5 días |
+| # | Tarea | Responsable | Prioridad | Estado |
+|---|-------|-------------|-----------|--------|
+| 4.1 | Crear wizard de onboarding (3 pasos) | UX Designer | P1 | ✅ |
+| 4.2 | Agregar tooltips contextuales en primera visita | UX Designer | P1 | ⏳ (onboarding cubre el caso) |
+| 4.3 | Dividir Dashboard.tsx en sub-componentes | Frontend Dev | P1 | ⏳ (821 líneas, pendiente v2) |
+| 4.4 | Dividir Interactions.tsx en sub-componentes | Frontend Dev | P1 | ⏳ (864 líneas, pendiente v2) |
+| 4.5 | Agregar búsqueda global (command palette) | Frontend Dev | P2 | ✅ |
+| 4.6 | Activar dark mode (next-themes ya instalado) | UI Designer | P2 | ✅ |
+| 4.7 | Mejorar empty states con CTAs | UX Writer | P2 | ✅ |
 
-**Entregable:** Onboarding completo, componentes divididos, dark mode.
+**Entregable:** Onboarding wizard, dark mode, command palette (Ctrl+K), empty states con CTAs.
+**Nota:** Dashboard/Interactions splitting (4.3, 4.4) diferido — son mejoras de mantenimiento, no de UX urgente.
 
 ---
 

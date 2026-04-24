@@ -825,3 +825,27 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 ---
 
 
+
+### 2026-04-24 — Etapa 4: UX y onboarding
+
+**Realizado:**
+- **Dark mode activado** (`ThemeProvider` + `ThemeToggle`):
+  - next-themes con light/dark/system
+  - Toggle cíclico en sidebar footer (Sun → Moon → Monitor)
+  - CSS dark ya existía, ahora está activo
+- **Onboarding wizard** (`OnboardingWizard.tsx`):
+  - 3 pasos: crear cliente → registrar interacción → revisar dashboard
+  - Tips contextuales, skip/dismiss con localStorage
+  - Indicador de progreso, animaciones
+- **Command palette** (`CommandPalette.tsx`):
+  - Ctrl+K / Cmd+K para abrir
+  - Busca en páginas, clientes, interacciones
+  - Resultados agrupados por categoría
+  - Search trigger en sidebar con hint ⌘K
+- **Empty states mejorados**:
+  - Products: icono + mensaje + CTA "Nuevo producto"
+
+**Verificado:**
+- `tsc --noEmit`: sin errores
+- `vitest run`: 32/32 tests pasando
+- `vite build`: exitoso (5.34s)
