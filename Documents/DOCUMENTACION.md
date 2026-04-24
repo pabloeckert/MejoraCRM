@@ -849,3 +849,28 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 - `tsc --noEmit`: sin errores
 - `vitest run`: 32/32 tests pasando
 - `vite build`: exitoso (5.34s)
+
+### 2026-04-24 — Etapa 5: Analytics y reportes
+
+**Realizado:**
+- **Página de Reportes** (`src/pages/Reports.tsx`):
+  - 6 KPIs: ventas logradas, pipeline activo, win rate, ciclo promedio, tasa conversión, revenue perdido
+  - Funnel de ventas: barras horizontales con tasas de conversión entre etapas
+  - Tendencia mensual: area chart ventas + pipeline (6 meses)
+  - Distribución de resultados: pie chart
+  - Top productos: bar chart horizontal
+  - Motivos de pérdida: pie chart
+  - Revenue por provincia: grid de cards
+  - Selector de período: mes/trimestre/semestre/año
+  - Exportación a PDF: genera HTML imprimible con KPIs, funnel, tablas
+- **Sidebar + routing**: link "Reportes" (admin/supervisor), ruta /reports
+- **Audit log SQL** (`supabase/migrations/20260424220000_add_audit_log.sql`):
+  - Tabla audit_log con old/new data, changed_fields
+  - Trigger genérico en clients, interactions, products, user_roles
+  - RLS: solo admin puede ver
+  - cleanup_audit_log() para logs > 90 días
+
+**Verificado:**
+- `tsc --noEmit`: sin errores
+- `vitest run`: 32/32 tests pasando
+- `vite build`: exitoso (5.56s)
