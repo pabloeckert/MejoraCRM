@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,10 @@ import { toast } from "sonner";
 import { Constants } from "@/integrations/supabase/types";
 import { isBefore, differenceInDays } from "date-fns";
 import { ListSkeleton } from "@/components/skeletons";
+import { useInteractionsPaginated } from "@/hooks/useInteractions";
+import { useClientsMinimal } from "@/hooks/useClients";
+import { useActiveProducts } from "@/hooks/useProducts";
+import { useClientPresupuestos } from "@/hooks/useInteractions";
 
 type Result = "presupuesto" | "venta" | "seguimiento" | "sin_respuesta" | "no_interesado";
 type Medium = (typeof Constants.public.Enums.interaction_medium)[number];
@@ -107,50 +111,14 @@ export default function Interactions() {
   const [form, setForm] = useState<any>({});
   const [lines, setLines] = useState<LineDraft[]>([]);
 
-  const { data: interactions = [], isLoading } = useQuery({
-    queryKey: ["interactions"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("interactions")
-        .select("*, clients(name), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))")
-        .order("interaction_date", { ascending: false });
-      return data || [];
-    },
-  });
-
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients-min"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("id, name").order("name");
-      return data || [];
-    },
-  });
-
-  const { data: products = [] } = useQuery({
-    queryKey: ["products-active"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("id, name, unit_label, currency, price")
-        .eq("active", true)
-        .order("name");
-      return data || [];
-    },
-  });
-
-  const { data: presupuestos = [] } = useQuery({
-    queryKey: ["interactions-presupuestos", form.client_id],
-    enabled: !!form.client_id && (form.result === "venta" || form.result === "seguimiento"),
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("interactions")
-        .select("id, interaction_date, total_amount, currency")
-        .eq("client_id", form.client_id)
-        .eq("result", "presupuesto")
-        .order("interaction_date", { ascending: false });
-      return data || [];
-    },
-  });
+  const { data: interactions = [], isLoading } = useInteractionsPaginated();
+  const { data: clients = [] } = useClientsMinimal();
+  const { data: products = [] } = useActiveProducts();
+  const { data: presupuestos = [] } = useClientPresupuestos(
+    form.client_id && (form.result === "venta" || form.result === "seguimiento")
+      ? form.client_id
+      : undefined
+  );
 
   const createMutation = useMutation({
     mutationFn: async () => {

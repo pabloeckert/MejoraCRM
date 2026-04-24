@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Bell, AlertTriangle, UserX, Clock, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,33 +5,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useNavigate } from "react-router-dom";
 import { differenceInDays, format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useNotificationsData } from "@/hooks/useNotifications";
 
 export function NotificationsPanel() {
   const navigate = useNavigate();
 
-  const { data: interactions = [] } = useQuery({
-    queryKey: ["interactions"],
-    queryFn: async () => {
-      const { data } = await supabase.from("interactions").select("*, clients(name)");
-      return data || [];
-    },
-  });
-
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("*");
-      return data || [];
-    },
-  });
-
-  const { data: profiles = [] } = useQuery({
-    queryKey: ["profiles"],
-    queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("user_id, full_name");
-      return data || [];
-    },
-  });
+  const { data, isLoading } = useNotificationsData();
+  const interactions = data?.interactions ?? [];
+  const clients = data?.clients ?? [];
+  const profiles = data?.profiles ?? [];
 
   // Overdue follow-ups
   const overdueFollowups = interactions.filter(

@@ -17,6 +17,7 @@ import { isBefore, isToday, differenceInDays, startOfMonth, format } from "date-
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons";
+import { useDashboardData } from "@/hooks/useDashboard";
 
 const COLORS = [
   "hsl(214,58%,41%)",
@@ -39,34 +40,11 @@ export default function Dashboard() {
   const { user, role, profile } = useAuth();
   const navigate = useNavigate();
 
-  const { data: interactions = [], isLoading: loadingInteractions } = useQuery({
-    queryKey: ["interactions", "dashboard"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("interactions")
-        .select("*, clients(name), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))")
-        .order("interaction_date", { ascending: false });
-      return data || [];
-    },
-  });
+  const { data, isLoading } = useDashboardData();
+  const interactions = data?.interactions ?? [];
+  const clients = data?.clients ?? [];
+  const profiles = data?.profiles ?? [];
 
-  const { data: clients = [], isLoading: loadingClients } = useQuery({
-    queryKey: ["clients", "dashboard"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("*");
-      return data || [];
-    },
-  });
-
-  const { data: profiles = [], isLoading: loadingProfiles } = useQuery({
-    queryKey: ["profiles"],
-    queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("user_id, full_name");
-      return data || [];
-    },
-  });
-
-  const isLoading = loadingInteractions || loadingClients || loadingProfiles;
   if (isLoading) return <DashboardSkeleton />;
 
   const isOwner = role === "admin" || role === "supervisor";
