@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { Constants } from "@/integrations/supabase/types";
 import { isBefore, differenceInDays } from "date-fns";
+import { ListSkeleton } from "@/components/skeletons";
 
 type Result = "presupuesto" | "venta" | "seguimiento" | "sin_respuesta" | "no_interesado";
 type Medium = (typeof Constants.public.Enums.interaction_medium)[number];
@@ -106,7 +107,7 @@ export default function Interactions() {
   const [form, setForm] = useState<any>({});
   const [lines, setLines] = useState<LineDraft[]>([]);
 
-  const { data: interactions = [] } = useQuery({
+  const { data: interactions = [], isLoading } = useQuery({
     queryKey: ["interactions"],
     queryFn: async () => {
       const { data } = await supabase
@@ -258,6 +259,8 @@ export default function Interactions() {
     () => lines.reduce((s, l) => s + l.quantity * l.unit_price, 0),
     [lines]
   );
+
+  if (isLoading) return <ListSkeleton />;
 
   const filtered = interactions.filter((i: any) => {
     const matchSearch = !search || i.clients?.name?.toLowerCase().includes(search.toLowerCase());

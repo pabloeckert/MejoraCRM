@@ -5,7 +5,34 @@ on:
     branches: [main]
 
 jobs:
+  quality:
+    name: Quality checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run tsc --noEmit
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun run test
+
   deploy:
+    name: Build & deploy
+    needs: quality
     runs-on: ubuntu-latest
 
     steps:
