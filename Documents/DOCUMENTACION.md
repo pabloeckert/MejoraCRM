@@ -18,6 +18,17 @@
 
 ---
 
+## Documentos relacionados
+
+| Documento | Descripción |
+|-----------|-------------|
+| [ANALISIS_PROFUNDO.md](./ANALISIS_PROFUNDO.md) | Análisis multidisciplinario completo (30 perspectivas) + plan por etapas |
+| [SETUP_COMPLETO.sql](./SETUP_COMPLETO.sql) | Script SQL completo para setup desde cero |
+| [MIGRACIONES_PENDIENTES.sql](./MIGRACIONES_PENDIENTES.sql) | Migraciones consolidadas (índices, RPC, RLS, vistas) |
+| [CRON_REFRESH_VISTAS.sql](./CRON_REFRESH_VISTAS.sql) | Configuración de pg_cron para refresh de vistas |
+
+---
+
 ## 1. Visión general
 
 **MejoraCRM** es un CRM desarrollado por Mejora Continua® para gestión de clientes, productos e interacciones comerciales.
