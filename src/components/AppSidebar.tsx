@@ -1,8 +1,9 @@
-import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings } from "lucide-react";
+import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logoImg from "@/assets/logo-white.png";
 import {
   Sidebar,
@@ -48,6 +49,22 @@ export function AppSidebar() {
             )}
           </div>
           <SidebarGroupContent>
+            {/* Search trigger */}
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent("keydown", { key: "k", ctrlKey: true });
+                document.dispatchEvent(event);
+              }}
+              className="flex items-center gap-2 w-full px-3 py-2 mb-1 rounded-lg text-sm text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              {!collapsed && (
+                <>
+                  <span className="flex-1 text-left">Buscar...</span>
+                  <kbd className="hidden sm:inline text-[10px] bg-sidebar-accent/50 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
+                </>
+              )}
+            </button>
             <SidebarMenu>
               {visibleItems.map((item) => {
                 const isActive = item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url);
@@ -82,17 +99,20 @@ export function AppSidebar() {
             <p className="text-sidebar-foreground/50 capitalize">{role || "—"}</p>
           </div>
         )}
-        {user && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => signOut()}
-            className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 h-8"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            {!collapsed && <span className="text-xs">Cerrar sesión</span>}
-          </Button>
-        )}
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut()}
+              className="flex-1 justify-start text-sidebar-foreground/70 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 h-8"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              {!collapsed && <span className="text-xs">Cerrar sesión</span>}
+            </Button>
+          )}
+        </div>
         <div className={`text-[10px] text-sidebar-foreground/30 ${collapsed ? "text-center" : "px-1"}`}>
           {collapsed ? "v2" : "Mejora CRM v2.0"}
         </div>

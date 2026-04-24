@@ -192,9 +192,17 @@ export default function Products() {
               ))}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                    <Package className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                    Sin productos encontrados
+                  <TableCell colSpan={6} className="text-center py-12">
+                    <Package className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm font-medium text-muted-foreground">Sin productos encontrados</p>
+                    <p className="text-xs text-muted-foreground mt-1 mb-4">
+                      {search ? "Probá con otro término de búsqueda" : "Creá tu primer producto para empezar"}
+                    </p>
+                    {!search && (
+                      <Button size="sm" onClick={openNew}>
+                        <Plus className="h-4 w-4 mr-1" /> Nuevo producto
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               )}
