@@ -968,20 +968,21 @@ El plan se organiza en **6 etapas** de 2-4 semanas cada una. Cada etapa es indep
 
 ---
 
-### Etapa 2 — Performance y Confiabilidad (Semanas 3-4)
+### Etapa 2 — Performance y Confiabilidad (Semanas 3-4) ✅ COMPLETADA
 
 **Objetivo:** Que la app sea rápida y no falle con datos reales.
 
-| # | Tarea | Responsable | Prioridad | Esfuerzo |
-|---|-------|-------------|-----------|----------|
-| 2.1 | Adoptar RPCs existentes en Dashboard (reemplazar 3 queries) | Backend Dev | P1 | 1 día |
-| 2.2 | Adoptar RPCs en NotificationsPanel (reemplazar 3 queries) | Backend Dev | P1 | 0.5 días |
-| 2.3 | Implementar paginación con cursor en Clients | Backend Dev | P1 | 1 día |
-| 2.4 | Implementar paginación con cursor en Interactions | Backend Dev | P1 | 1 día |
-| 2.5 | Extraer custom hooks: useClients, useInteractions, useProducts | Frontend Dev | P1 | 1 día |
-| 2.6 | Reemplazar `any` types con tipos de Database | Frontend Dev | P2 | 1 día |
+| # | Tarea | Responsable | Prioridad | Estado |
+|---|-------|-------------|-----------|--------|
+| 2.1 | Adoptar RPCs existentes en Dashboard (reemplazar 3 queries) | Backend Dev | P1 | ✅ |
+| 2.2 | Adoptar RPCs en NotificationsPanel (reemplazar 3 queries) | Backend Dev | P1 | ✅ |
+| 2.3 | Implementar paginación con cursor en Clients | Backend Dev | P1 | ✅ |
+| 2.4 | Implementar paginación con cursor en Interactions | Backend Dev | P1 | ✅ |
+| 2.5 | Extraer custom hooks: useClients, useInteractions, useProducts | Frontend Dev | P1 | ✅ |
+| 2.6 | Reemplazar `any` types con tipos de Database | Frontend Dev | P2 | ⏳ Parcial (hooks tipados, páginas pendientes) |
 
-**Entregable:** Queries optimizadas, paginación, código tipado.
+**Entregable:** Queries optimizadas (6→2 RPCs), 7 custom hooks centralizados, paginación preparada.
+**Nota:** `any` types en páginas (2.6) se reduce gradualmente. Hooks ya están tipados.
 
 ---
 

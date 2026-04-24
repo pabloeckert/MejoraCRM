@@ -753,6 +753,35 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 - `vitest run`: 32/32 tests pasando
 - `vite build`: exitoso (5.4s, 3263 módulos)
 
+### 2026-04-24 — Etapa 2: Performance y confiabilidad
+
+**Realizado:**
+- **Dashboard: 3 queries → 1 RPC** (`useDashboardData`):
+  - Reemplazadas 3 queries separadas por `get_dashboard_data()` RPC
+  - Reduce round-trips de 3 a 1
+- **NotificationsPanel: 3 queries → 1 RPC** (`useNotificationsData`):
+  - Reemplazadas 3 queries separadas por `get_notifications_data()` RPC
+  - Reduce round-trips de 3 a 1
+- **7 custom hooks centralizados** (`src/hooks/`):
+  - `useClients.ts` — `useAllClients()`, `useClientsPaginated()`, `useClientsMinimal()`
+  - `useInteractions.ts` — `useInteractionsPaginated()`, `useAllInteractions()`, `useClientPresupuestos()`
+  - `useProducts.ts` — `useProducts()`, `useActiveProducts()`
+  - `useProfiles.ts` — `useProfiles()`
+  - `useDashboard.ts` — `useDashboardData()` (RPC wrapper)
+  - `useNotifications.ts` — `useNotificationsData()` (RPC wrapper)
+  - `index.ts` — barrel export
+- **Páginas refactorizadas** para usar hooks:
+  - Dashboard.tsx → `useDashboardData()`
+  - NotificationsPanel.tsx → `useNotificationsData()`
+  - Clients.tsx → `useAllClients()`
+  - Interactions.tsx → `useInteractionsPaginated()`, `useClientsMinimal()`, `useActiveProducts()`, `useClientPresupuestos()`
+  - Products.tsx → `useProducts()`
+
+**Verificado:**
+- `tsc --noEmit`: sin errores
+- `vitest run`: 32/32 tests pasando
+- `vite build`: exitoso (5.26s, 3268 módulos)
+
 ---
 
 
