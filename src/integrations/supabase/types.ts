@@ -376,6 +376,10 @@ export type Database = {
         Args: Record<string, never>
         Returns: undefined
       }
+      request_account_deletion: {
+        Args: Record<string, never>
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "supervisor" | "vendedor"

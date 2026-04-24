@@ -585,16 +585,16 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 
 ### Etapa 6 — Escalabilidad y compliance ⏳
 
-| # | Tarea | Prioridad | Esfuerzo |
-|---|-------|-----------|----------|
-| 6.1 | Política de Privacidad (Ley 25.326) | P0 | 1 día |
-| 6.2 | Términos de Servicio | P0 | 1 día |
-| 6.3 | Mecanismo de eliminación de datos | P1 | 1 día |
-| 6.4 | Environment de staging | P1 | 1 día |
-| 6.5 | Deploy FTP → Vercel/Cloudflare Pages | P1 | 0.5 días |
-| 6.6 | UptimeRobot monitoreo | P1 | 1h |
-| 6.7 | Runbook de incidentes | P2 | 1 día |
-| 6.8 | Evaluar Supabase Pro | P2 | — |
+| # | Tarea | Prioridad | Estado |
+|---|-------|-----------|--------|
+| 6.1 | Política de Privacidad (Ley 25.326) | P0 | ✅ |
+| 6.2 | Términos de Servicio | P0 | ✅ |
+| 6.3 | Mecanismo de eliminación de datos | P1 | ✅ |
+| 6.4 | Environment de staging | P1 | ⏳ |
+| 6.5 | Deploy FTP → Vercel/Cloudflare Pages | P1 | ⏳ |
+| 6.6 | UptimeRobot monitoreo | P1 | ⏳ |
+| 6.7 | Runbook de incidentes | P2 | ⏳ |
+| 6.8 | Evaluar Supabase Pro | P2 | ⏳ |
 
 ---
 
@@ -671,11 +671,18 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 - Instrucción "documentar" integrada al inicio del documento
 - Análisis multidisciplinario condensado en sección 6
 
+### 2026-04-25 — Etapa 6: Compliance legal (6.1, 6.2, 6.3)
+- **Política de Privacidad** (`/privacy`): Ley 25.326, datos recopilados, finalidad, base legal, retención, derechos del titular
+- **Términos de Servicio** (`/terms`): aceptación, descripción, cuenta, uso aceptable, propiedad de datos
+- **Eliminación de cuenta**: función SQL `request_account_deletion()` + UI en Settings con confirmación
+- **Links legales**: footer en Auth, sección "Cuenta y datos" en Settings
+- **Tipos y migraciones** actualizados
+
 ---
 
 ## 10. Estado del proyecto
 
-### Completitud: ~90%
+### Completitud: ~93%
 
 | Área | Estado | Detalle |
 |------|--------|---------|
@@ -688,8 +695,8 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | Documentación | ✅ | Este archivo consolidado |
 | PWA/Mobile | ✅ | Service worker, manifest, icons, push prep |
 | Analytics | ✅ | Reportes con KPIs, funnel, export PDF |
-| Compliance | ⏳ | Sin ToS, sin Privacy Policy (Etapa 6) |
-| Monitoring | ⏳ | Sin Sentry, sin UptimeRobot (Etapa 6) |
+| Compliance | ✅ | Privacy Policy + ToS + eliminación de cuenta |
+| Monitoring | ⏳ | Sin Sentry, sin UptimeRobot (6.6 pendiente) |
 
 ### Links útiles
 

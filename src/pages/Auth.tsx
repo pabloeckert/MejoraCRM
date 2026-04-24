@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,6 +113,11 @@ export default function Auth() {
                   {isLogin ? "Registrate" : "Iniciá sesión"}
                 </span>
               </button>
+            </div>
+            <div className="mt-4 text-center text-xs text-muted-foreground">
+              <Link to="/privacy" className="hover:text-primary transition-colors underline underline-offset-2">Privacidad</Link>
+              {" · "}
+              <Link to="/terms" className="hover:text-primary transition-colors underline underline-offset-2">Términos</Link>
             </div>
           </CardContent>
         </Card>
