@@ -684,20 +684,46 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 - **Runbook de incidentes** (`RUNBOOK_INCIDENTES.md`): 7 escenarios comunes con diagnóstico y resolución
 - **Guía de staging** (`GUIA_STAGING.md`): configuración de environment staging + alternativas Vercel/Cloudflare
 
+### 2026-04-25 — Split de componentes grandes (5.a)
+- **Dashboard.tsx**: 803 → 32 líneas (orquestador) + 3 sub-componentes
+  - `KPICard.tsx` (35L), `OwnerView.tsx` (322L), `SellerView.tsx` (196L)
+- **Interactions.tsx**: 835 → 94 líneas (orquestador) + 3 sub-componentes
+  - `InteractionCard.tsx` (116L), `InteractionForm.tsx` (273L), `ProductLines.tsx` (70L)
+- Máximo por archivo: 322 líneas (antes 835)
+
+### 2026-04-25 — Pipeline Kanban (8.a)
+- **Página `/pipeline`**: vista Kanban con 5 columnas (Presupuestos, Seguimientos, Ventas, Sin respuesta, No interesado)
+- Vista alternativa de lista agrupada por columna
+- Cards con monto, productos, next_step, fecha, indicador de vencimiento
+- Búsqueda por cliente, totales por columna
+- Link en sidebar con icono Kanban
+
+### 2026-04-25 — react-hook-form + zod (9.a)
+- **Schema de validación** (`src/lib/schemas.ts`): esquema zod para InteractionForm
+- **InteractionForm migrado**: de useState manual a react-hook-form + Controller
+- Validación por esquema: cliente, medio, resultado requeridos
+- Validación condicional: loss_reason si no_interesado, followup_scenario si seguimiento
+- Errores inline bajo cada campo
+- Dependencias nuevas: react-hook-form, @hookform/resolvers, zod
+
+### 2026-04-25 — Tests unitarios (10.c)
+- **14 nuevos tests** para schemas (zod): validación de formulario, conditional logic, enums
+- **Total: 46 tests** (era 32)
+
 ---
 
 ## 10. Estado del proyecto
 
-### Completitud: ~93%
+### Completitud: ~95%
 
 | Área | Estado | Detalle |
 |------|--------|---------|
-| Frontend | ✅ | React + Vite + Tailwind, code splitting, dark mode, PWA |
+| Frontend | ✅ | React + Vite + Tailwind, code splitting, dark mode, PWA, Kanban |
 | Backend | ✅ | Supabase Auth + PG, RLS endurecido, schema completo |
 | Optimización | ✅ | 11 índices, 3 RPCs, 2 vistas materializadas |
 | CI/CD | ✅ | GitHub Actions → FTP con quality gates |
 | Seguridad | ✅ | 0 vulnerabilidades, secrets en GitHub, RLS granular |
-| Testing | 🟡 | 32 tests unitarios, CI quality gates, sin E2E |
+| Testing | ✅ | 46 tests unitarios (schemas, calculations, utils, ErrorBoundary), CI quality gates |
 | Documentación | ✅ | Este archivo consolidado |
 | PWA/Mobile | ✅ | Service worker, manifest, icons, push prep |
 | Analytics | ✅ | Reportes con KPIs, funnel, export PDF |
@@ -725,5 +751,8 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | Documentos | 18 archivos | 1 archivo |
 | Queries Dashboard | 3 separadas | 1 RPC |
 | Políticas RLS | 12 | 22+ |
-| Tests | 0 | 32 |
+| Tests | 0 | 46 |
+| Páginas | 7 | 9 (+Pipeline, +Privacy, +Terms) |
+| Formularios | useState manual | react-hook-form + zod |
+| Mayor componente | 864 líneas | 322 líneas |
 | Páginas con features | 7 | 8 (+Reports) |
