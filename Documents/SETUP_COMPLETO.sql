@@ -9,10 +9,36 @@
 -- 1. EXTENSIONES
 -- =====================================================
 CREATE EXTENSION IF NOT EXISTS pg_cron;
+-- (si pg_cron no está disponible, se puede activar después)
 
 -- =====================================================
--- 2. ENUMS
+-- 1.5 LIMPIEZA (por si se re-ejecuta)
 -- =====================================================
+DROP MATERIALIZED VIEW IF EXISTS public.mv_seller_ranking CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS public.mv_client_summary CASCADE;
+DROP TABLE IF EXISTS public.interaction_lines CASCADE;
+DROP TABLE IF EXISTS public.interactions CASCADE;
+DROP TABLE IF EXISTS public.clients CASCADE;
+DROP TABLE IF EXISTS public.products CASCADE;
+DROP TABLE IF EXISTS public.user_roles CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+DROP FUNCTION IF EXISTS public.refresh_materialized_views CASCADE;
+DROP FUNCTION IF EXISTS public.get_dashboard_data CASCADE;
+DROP FUNCTION IF EXISTS public.get_notifications_data CASCADE;
+DROP FUNCTION IF EXISTS public.get_seller_ranking CASCADE;
+DROP FUNCTION IF EXISTS public.calculate_client_status CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user CASCADE;
+DROP FUNCTION IF EXISTS public.has_role CASCADE;
+DROP FUNCTION IF EXISTS public.get_user_role CASCADE;
+DROP FUNCTION IF EXISTS public.update_updated_at_column CASCADE;
+DROP TYPE IF EXISTS public.negotiation_state CASCADE;
+DROP TYPE IF EXISTS public.followup_scenario CASCADE;
+DROP TYPE IF EXISTS public.quote_path CASCADE;
+DROP TYPE IF EXISTS public.currency_code CASCADE;
+DROP TYPE IF EXISTS public.interaction_medium CASCADE;
+DROP TYPE IF EXISTS public.interaction_result CASCADE;
+DROP TYPE IF EXISTS public.client_status CASCADE;
+DROP TYPE IF EXISTS public.app_role CASCADE;
 CREATE TYPE public.app_role AS ENUM ('admin', 'supervisor', 'vendedor');
 CREATE TYPE public.client_status AS ENUM ('activo', 'potencial', 'inactivo');
 CREATE TYPE public.interaction_result AS ENUM ('presupuesto', 'venta', 'seguimiento', 'sin_respuesta', 'no_interesado');
