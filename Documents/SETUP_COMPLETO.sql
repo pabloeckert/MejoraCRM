@@ -23,7 +23,7 @@ CREATE TYPE public.followup_scenario AS ENUM ('vinculado', 'independiente', 'his
 CREATE TYPE public.negotiation_state AS ENUM ('con_interes', 'sin_respuesta', 'revisando', 'pidio_cambios');
 
 -- =====================================================
--- 3. FUNCIONES BASE
+-- 3. FUNCIONES BASE (sin dependencias en tablas)
 -- =====================================================
 
 -- Trigger updated_at
@@ -34,70 +34,6 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
-
--- Verificación de rol
-CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
-RETURNS BOOLEAN
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role
-  )
-$$;
-
--- Obtención de rol
-CREATE OR REPLACE FUNCTION public.get_user_role(_user_id UUID)
-RETURNS app_role
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
-AS $$
-  SELECT role FROM public.user_roles WHERE user_id = _user_id LIMIT 1
-$$;
-
--- Auto-crear perfil al registrarse
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (user_id, full_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', ''));
-  INSERT INTO public.user_roles (user_id, role)
-  VALUES (NEW.id, COALESCE((NEW.raw_user_meta_data->>'role')::app_role, 'vendedor'));
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
-
--- Calcular estado del cliente
-CREATE OR REPLACE FUNCTION public.calculate_client_status(_client_id UUID)
-RETURNS public.client_status
-LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public
-AS $$
-DECLARE
-  has_recent_positive BOOLEAN;
-  has_any_recent BOOLEAN;
-BEGIN
-  SELECT EXISTS (
-    SELECT 1 FROM public.interactions
-    WHERE client_id = _client_id
-      AND result IN ('presupuesto', 'venta')
-      AND interaction_date >= now() - INTERVAL '90 days'
-  ) INTO has_recent_positive;
-
-  IF has_recent_positive THEN
-    RETURN 'activo';
-  END IF;
-
-  SELECT EXISTS (
-    SELECT 1 FROM public.interactions
-    WHERE client_id = _client_id
-      AND interaction_date >= now() - INTERVAL '90 days'
-  ) INTO has_any_recent;
-
-  IF has_any_recent THEN
-    RETURN 'potencial';
-  END IF;
-
-  RETURN 'inactivo';
-END;
-$$;
 
 -- =====================================================
 -- 4. TABLAS
@@ -201,7 +137,75 @@ CREATE TABLE public.interaction_lines (
 ALTER TABLE public.interaction_lines ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
--- 5. TRIGGERS
+-- 5. FUNCIONES QUE DEPENDEN DE TABLAS
+-- =====================================================
+
+-- Verificación de rol
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role
+  )
+$$;
+
+-- Obtención de rol
+CREATE OR REPLACE FUNCTION public.get_user_role(_user_id UUID)
+RETURNS app_role
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT role FROM public.user_roles WHERE user_id = _user_id LIMIT 1
+$$;
+
+-- Auto-crear perfil al registrarse
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (user_id, full_name)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', ''));
+  INSERT INTO public.user_roles (user_id, role)
+  VALUES (NEW.id, COALESCE((NEW.raw_user_meta_data->>'role')::app_role, 'vendedor'));
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Calcular estado del cliente
+CREATE OR REPLACE FUNCTION public.calculate_client_status(_client_id UUID)
+RETURNS public.client_status
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  has_recent_positive BOOLEAN;
+  has_any_recent BOOLEAN;
+BEGIN
+  SELECT EXISTS (
+    SELECT 1 FROM public.interactions
+    WHERE client_id = _client_id
+      AND result IN ('presupuesto', 'venta')
+      AND interaction_date >= now() - INTERVAL '90 days'
+  ) INTO has_recent_positive;
+
+  IF has_recent_positive THEN
+    RETURN 'activo';
+  END IF;
+
+  SELECT EXISTS (
+    SELECT 1 FROM public.interactions
+    WHERE client_id = _client_id
+      AND interaction_date >= now() - INTERVAL '90 days'
+  ) INTO has_any_recent;
+
+  IF has_any_recent THEN
+    RETURN 'potencial';
+  END IF;
+
+  RETURN 'inactivo';
+END;
+$$;
+
+-- =====================================================
+-- 6. TRIGGERS
 -- =====================================================
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
