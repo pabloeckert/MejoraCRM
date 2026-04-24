@@ -15,6 +15,8 @@ import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Down
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
+import { useAllClients } from "@/hooks/useClients";
+import { useAllInteractions } from "@/hooks/useInteractions";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
@@ -71,14 +73,9 @@ export default function Clients() {
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
   const fileInputRef = useState<HTMLInputElement | null>(null);
 
-  const { data: clients = [], isLoading } = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => {
-      const { data } = await supabase.from("clients").select("*").order("name");
-      return data || [];
-    },
-  });
+  const { data: clients = [], isLoading } = useAllClients();
 
+  // Client-specific interactions (for detail view)
   const { data: clientInteractions = [] } = useQuery({
     queryKey: ["client-interactions", detailClient?.id],
     enabled: !!detailClient,

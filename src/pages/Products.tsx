@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Pencil, Search, Package } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import { useProducts } from "@/hooks/useProducts";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
@@ -47,13 +48,7 @@ export default function Products() {
 
   const canManage = role === "admin" || role === "supervisor";
 
-  const { data: products = [] } = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const { data } = await supabase.from("products").select("*").order("name");
-      return data || [];
-    },
-  });
+  const { data: products = [] } = useProducts();
 
   const upsertMutation = useMutation({
     mutationFn: async (p: ProductInsert & { id?: string }) => {
