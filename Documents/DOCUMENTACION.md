@@ -782,6 +782,46 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 - `vitest run`: 32/32 tests pasando
 - `vite build`: exitoso (5.26s, 3268 módulos)
 
+### 2026-04-24 — Etapa 3: PWA + mobile
+
+**Realizado:**
+- **PWA Manifest** (`public/manifest.json`):
+  - Nombre, descripción, colores del brand
+  - Shortcuts: Clientes, Nueva interacción, Dashboard
+  - Icons: 192x192, 512x512 con propósito "any maskable"
+- **Icons generados** (`public/icons/`):
+  - SVG base → PNGs con rsvg-convert (192, 512, apple-touch, favicon-16/32)
+- **Service Worker** (`public/sw.js`):
+  - Network-first para navegación/API (fallback offline → index.html)
+  - Cache-first para assets estáticos (JS, CSS, fonts, icons)
+  - Pre-cache de fonts críticos en install
+  - Supabase API excluido del cache (auth tokens)
+  - Push notification handler con acciones Ver/Cerrar
+  - Notification click → abre app en la ruta correcta
+- **Responsive CSS** (`src/index.css`):
+  - Safe area insets para dispositivos con notch
+  - Prevent zoom on input focus (iOS, font-size: 16px)
+  - PWA standalone mode adjustments
+  - Touch targets: min 44x44px global (excepción desktop compact)
+- **Push notifications** (`src/lib/notifications.ts`):
+  - `isPushSupported()`, `requestNotificationPermission()`
+  - `subscribeToPush()`, `showLocalNotification()`
+  - VAPID key placeholder para Supabase Edge Functions
+- **PWA install** (`src/hooks/usePWAInstall.ts` + `src/components/PWAInstallBanner.tsx`):
+  - Banner flotante con CTA de instalación
+  - Settings: sección de notificaciones + instalación
+  - Badge "Instalada" cuando ya está en pantalla de inicio
+- **index.html actualizado**:
+  - manifest link, theme-color, apple-mobile-web-app meta tags
+  - Service Worker registration script
+  - viewport-fit=cover para notch devices
+
+**Verificado:**
+- `tsc --noEmit`: sin errores
+- `vitest run`: 32/32 tests pasando
+- `vite build`: exitoso (5.38s)
+- `dist/` incluye: manifest.json, sw.js, icons/
+
 ---
 
 

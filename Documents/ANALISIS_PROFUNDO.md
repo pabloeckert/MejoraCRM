@@ -986,20 +986,21 @@ El plan se organiza en **6 etapas** de 2-4 semanas cada una. Cada etapa es indep
 
 ---
 
-### Etapa 3 — Mobile y PWA (Semanas 5-7)
+### Etapa 3 — Mobile y PWA (Semanas 5-7) ✅ COMPLETADA
 
 **Objetivo:** Que funcione bien en el celular.
 
-| # | Tarea | Responsable | Prioridad | Esfuerzo |
-|---|-------|-------------|-----------|----------|
-| 3.1 | Agregar manifest.json con icons | Frontend Dev | P0 | 2h |
-| 3.2 | Implementar Service Worker básico (cache de assets) | Frontend Dev | P0 | 1 día |
-| 3.3 | Revisar y mejorar responsive design en todas las páginas | UI Designer | P1 | 2 días |
-| 3.4 | Aumentar touch targets a 44px mínimo | UI Designer | P1 | 0.5 días |
-| 3.5 | Implementar push notifications para seguimientos vencidos | Frontend Dev | P2 | 2 días |
-| 3.6 | Agregar offline básico (cache de última vista) | Frontend Dev | P2 | 2 días |
+| # | Tarea | Responsable | Prioridad | Estado |
+|---|-------|-------------|-----------|--------|
+| 3.1 | Agregar manifest.json con icons | Frontend Dev | P0 | ✅ |
+| 3.2 | Implementar Service Worker básico (cache de assets) | Frontend Dev | P0 | ✅ |
+| 3.3 | Revisar y mejorar responsive design en todas las páginas | UI Designer | P1 | ✅ |
+| 3.4 | Aumentar touch targets a 44px mínimo | UI Designer | P1 | ✅ |
+| 3.5 | Implementar push notifications para seguimientos vencidos | Frontend Dev | P2 | ✅ (infra lista, VAPID key pendiente) |
+| 3.6 | Agregar offline básico (cache de última vista) | Frontend Dev | P2 | ✅ |
 
-**Entregable:** PWA instalable, funcional en mobile, push notifications.
+**Entregable:** PWA instalable, funcional en mobile, push notifications preparadas, offline con cache.
+**Nota:** Para activar push notifications desde servidor, se necesita configurar VAPID keys en Supabase Edge Functions.
 
 ---
 
