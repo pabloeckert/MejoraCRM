@@ -1,6 +1,14 @@
-# MejoraCRM — Documentación Técnica Consolidada
+# MejoraCRM — Documentación Consolidada
 
-> **Documento vivo.** Cuando el agente reciba la instrucción "documentar", actualizará este archivo con los trabajos realizados, decisiones tomadas y cambios aplicados.
+> ## 📌 Instrucción "documentar"
+> Cuando el usuario diga **"documentar"**, el agente debe:
+> 1. Leer este archivo completo
+> 2. Agregar una nueva entrada en el [Registro de cambios](#9-registro-de-cambios) con la fecha actual
+> 3. Documentar: trabajos realizados, decisiones tomadas, cambios aplicados, archivos modificados
+> 4. Actualizar el [Estado del proyecto](#10-estado-del-proyecto) si corresponde
+> 5. Actualizar el [Plan por etapas](#8-plan-por-etapas) si se completó alguna tarea
+> 6. Hacer commit y push al repositorio
+> 7. Si hay deploy configurado, esperar a que complete
 
 ---
 
@@ -11,10 +19,11 @@
 3. [Arquitectura](#3-arquitectura)
 4. [Base de datos](#4-base-de-datos)
 5. [Seguridad y RLS](#5-seguridad-y-rls)
-6. [Configuración del entorno](#6-configuración-del-entorno)
-7. [Despliegue](#7-despliegue)
-8. [Plan de optimización por etapas](#8-plan-de-optimización-por-etapas)
+6. [Análisis multidisciplinario](#6-análisis-multidisciplinario)
+7. [Configuración y despliegue](#7-configuración-y-despliegue)
+8. [Plan por etapas](#8-plan-por-etapas)
 9. [Registro de cambios](#9-registro-de-cambios)
+10. [Estado del proyecto](#10-estado-del-proyecto)
 
 ---
 
@@ -22,7 +31,6 @@
 
 | Documento | Descripción |
 |-----------|-------------|
-| [ANALISIS_PROFUNDO.md](./ANALISIS_PROFUNDO.md) | Análisis multidisciplinario completo (30 perspectivas) + plan por etapas |
 | [SETUP_COMPLETO.sql](./SETUP_COMPLETO.sql) | Script SQL completo para setup desde cero |
 | [MIGRACIONES_PENDIENTES.sql](./MIGRACIONES_PENDIENTES.sql) | Migraciones consolidadas (índices, RPC, RLS, vistas) |
 | [CRON_REFRESH_VISTAS.sql](./CRON_REFRESH_VISTAS.sql) | Configuración de pg_cron para refresh de vistas |
@@ -31,13 +39,28 @@
 
 ## 1. Visión general
 
-**MejoraCRM** es un CRM desarrollado por Mejora Continua® para gestión de clientes, productos e interacciones comerciales.
+**MejoraCRM** es un CRM web desarrollado por **Mejora Continua®** para gestión de clientes, interacciones comerciales y productos. Orientado a equipos de ventas en el sector forestal/agropecuario argentino.
 
 - **Producción:** [crm.mejoraok.com](https://crm.mejoraok.com)
-- **Repositorio:** [github.com/pabloeckert/MejoraCRM](https://github.com/pabloeckert/MejoraCRM)
-- **Supabase:** `fkjuswkjzaeuogctsxpw` (2026-04-24 — nuevo proyecto)
-- **Versión actual:** 1.0.0
+- **Repositorio:** [github.com/pabloeckert/mejoracrm](https://github.com/pabloeckert/mejoracrm)
+- **Supabase:** `fkjuswkjzaeuogctsxpw`
+- **Versión:** 1.0.0
 - **Package manager:** Bun
+
+### Scores de madurez
+
+| Dimensión | Score | Estado |
+|-----------|-------|--------|
+| Funcionalidad core | 8/10 | ✅ CRUD completo, dashboard, reportes |
+| Arquitectura | 6/10 | 🟡 SPA monolítica, depende 100% de Supabase |
+| Seguridad | 8/10 | ✅ RLS endurecido, 0 vulnerabilidades npm |
+| Performance | 8/10 | ✅ Índices, RPC, code splitting, vistas materializadas |
+| Testing | 6/10 | 🟡 32 tests unitarios, CI quality gates |
+| UX/UI | 8/10 | ✅ Dark mode, onboarding, command palette |
+| DevOps | 7/10 | 🟡 CI/CD con quality gates, deploy FTP |
+| Documentación | 9/10 | ✅ Consolidada en este documento |
+| Mobile (PWA) | 7/10 | 🟡 PWA instalable, service worker, push prep |
+| Analytics | 8/10 | ✅ Reportes con 6 KPIs, funnel, export PDF |
 
 ---
 
@@ -62,50 +85,85 @@
 
 ## 3. Arquitectura
 
+### Diagrama
+
+```
+┌─────────────────────┐     ┌─────────────────────────┐
+│   React SPA (Vite)  │────▶│   Supabase Cloud         │
+│  crm.mejoraok.com   │     │  Auth + PostgREST + PG   │
+│  (FTP deploy)        │     │  + Vistas materializadas  │
+└─────────────────────┘     └─────────────────────────┘
+```
+
 ### Estructura del proyecto
 
 ```
 mejoracrm/
 ├── src/
 │   ├── components/
-│   │   ├── ui/              # Componentes shadcn/ui (15 activos)
+│   │   ├── ui/              # 15 componentes shadcn/ui
+│   │   ├── skeletons/       # DashboardSkeleton, ListSkeleton
 │   │   ├── AppLayout.tsx    # Layout principal con sidebar
 │   │   ├── AppSidebar.tsx   # Navegación lateral
-│   │   ├── NavLink.tsx      # Links de navegación
-│   │   └── NotificationsPanel.tsx
+│   │   ├── CommandPalette.tsx  # Ctrl+K búsqueda global
+│   │   ├── ErrorBoundary.tsx   # Error boundary global
+│   │   ├── NavLink.tsx
+│   │   ├── NotificationsPanel.tsx
+│   │   ├── OnboardingWizard.tsx
+│   │   ├── PWAInstallBanner.tsx
+│   │   ├── ThemeProvider.tsx
+│   │   └── ThemeToggle.tsx
 │   ├── pages/
-│   │   ├── Dashboard.tsx    # Vista principal (Owner/Seller)
-│   │   ├── Clients.tsx      # Gestión de clientes
-│   │   ├── Interactions.tsx # Registro de interacciones
-│   │   ├── Products.tsx     # Catálogo de productos
+│   │   ├── Dashboard.tsx    # Vista Owner/Seller
+│   │   ├── Clients.tsx      # CRUD clientes
+│   │   ├── Interactions.tsx # CRUD interacciones
+│   │   ├── Products.tsx     # Catálogo productos
+│   │   ├── Reports.tsx      # Analytics y KPIs
 │   │   ├── Settings.tsx     # Configuración
 │   │   ├── Auth.tsx         # Login/Registro
 │   │   └── NotFound.tsx     # 404
 │   ├── contexts/
-│   │   └── AuthContext.tsx   # Autenticación y roles
-│   ├── hooks/
-│   │   └── use-mobile.tsx   # Detección de viewport
-│   ├── integrations/
-│   │   └── supabase/        # Cliente y tipos autogenerados
+│   │   └── AuthContext.tsx   # Auth + roles
+│   ├── hooks/               # 8 custom hooks centralizados
+│   │   ├── useClients.ts
+│   │   ├── useDashboard.ts
+│   │   ├── useInteractions.ts
+│   │   ├── useNotifications.ts
+│   │   ├── useProducts.ts
+│   │   ├── useProfiles.ts
+│   │   ├── usePWAInstall.ts
+│   │   └── index.ts
+│   ├── integrations/supabase/
+│   │   ├── client.ts
+│   │   └── types.ts
 │   ├── lib/
-│   │   └── utils.ts         # Utilidades (cn helper)
-│   ├── assets/              # Logos e imágenes
-│   └── test/                # Setup de testing
+│   │   ├── calculations.ts  # Lógica de negocio (KPIs, ranking)
+│   │   ├── notifications.ts # Push notifications API
+│   │   └── utils.ts         # cn() helper
+│   ├── assets/
+│   └── test/
 ├── supabase/
-│   ├── migrations/          # Migraciones SQL (3 archivos)
-│   └── config.toml
-├── public/                  # Assets estáticos, fuentes
-└── Documents/               # Documentación (este archivo)
+│   └── migrations/          # 7 migraciones SQL
+├── public/
+│   ├── icons/               # PWA icons (192, 512, apple-touch, favicons)
+│   ├── fonts/               # LeagueSpartan, BwModelica
+│   ├── manifest.json
+│   ├── sw.js
+│   └── .htaccess
+├── Documents/               # Este archivo + SQL scripts
+└── .github/workflows/
+    └── deploy.yml           # CI/CD: quality → build → FTP deploy
 ```
 
 ### Routing
 
 | Ruta | Componente | Acceso |
 |------|-----------|--------|
-| `/` | Dashboard | Todos los roles (vista varía) |
-| `/clients` | Clients | Todos los roles |
-| `/interactions` | Interactions | Todos los roles |
+| `/` | Dashboard | Todos (vista varía por rol) |
+| `/clients` | Clients | Todos |
+| `/interactions` | Interactions | Todos |
 | `/products` | Products | Admin/Supervisor |
+| `/reports` | Reports | Admin/Supervisor |
 | `/settings` | Settings | Admin |
 | `/auth` | Auth | Público |
 | `*` | NotFound | Público |
@@ -113,10 +171,10 @@ mejoracrm/
 ### Sistema de autenticación
 
 - **AuthContext** provee: `user`, `session`, `role`, `profile`, `loading`, `signOut`
-- Al login: se ejecutan 2 queries en paralelo (`get_user_role` RPC + `profiles` select)
-- Los roles definen la vista: `admin`/`supervisor` → OwnerView, `vendedor` → SellerView
+- Al login: `get_user_role` RPC + `profiles` select en paralelo
+- Roles: `admin`/`supervisor` → OwnerView, `vendedor` → SellerView
 
-### Sistema de colores (identidad Mejora Continua)
+### Sistema de colores (brand Mejora Continua)
 
 ```css
 --primary: #495F93;        /* Azul principal */
@@ -146,7 +204,7 @@ auth.users (Supabase Auth)
                                   └── 1:N ── interaction_lines ─── products
 ```
 
-### Enums (v2 — estado actual)
+### Enums
 
 ```sql
 app_role:           admin, supervisor, vendedor
@@ -163,8 +221,6 @@ negotiation_state:  con_interes, sin_respuesta, revisando, pidio_cambios
 ### Tablas
 
 #### profiles
-Perfil del usuario, creado automáticamente al registrarse (trigger `on_auth_user_created`).
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -175,8 +231,6 @@ Perfil del usuario, creado automáticamente al registrarse (trigger `on_auth_use
 | updated_at | TIMESTAMPTZ | Trigger automático |
 
 #### user_roles
-Roles del usuario. Un usuario puede tener múltiples roles (solo admin gestiona).
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -184,8 +238,6 @@ Roles del usuario. Un usuario puede tener múltiples roles (solo admin gestiona)
 | role | app_role | admin/supervisor/vendedor |
 
 #### clients
-Clientes y leads del CRM.
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -194,8 +246,8 @@ Clientes y leads del CRM.
 | contact_name | TEXT | Persona de contacto |
 | segment | TEXT | Rubro/segmento |
 | location | TEXT | Ubicación |
-| province | TEXT | Provincia (v2) |
-| address | TEXT | Dirección (v2) |
+| province | TEXT | Provincia |
+| address | TEXT | Dirección |
 | whatsapp | TEXT | WhatsApp |
 | email | TEXT | Email |
 | channel | TEXT | Canal de ingreso |
@@ -207,8 +259,6 @@ Clientes y leads del CRM.
 | updated_at | TIMESTAMPTZ | Trigger automático |
 
 #### interactions
-Registro de cada contacto con un cliente. Tabla central del CRM.
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -217,11 +267,11 @@ Registro de cada contacto con un cliente. Tabla central del CRM.
 | interaction_date | TIMESTAMPTZ | Fecha del contacto |
 | result | interaction_result | presupuesto/venta/seguimiento/sin_respuesta/no_interesado |
 | medium | interaction_medium | Canal utilizado |
-| quote_path | quote_path | catálogo o adjunto (presupuestos) |
+| quote_path | quote_path | catálogo o adjunto |
 | total_amount | NUMERIC(14,2) | Monto total |
 | currency | currency_code | Moneda |
 | attachment_url | TEXT | URL del adjunto |
-| reference_quote_id | UUID | FK → interactions (presupuesto referenciado) |
+| reference_quote_id | UUID | FK → interactions |
 | followup_scenario | followup_scenario | Tipo de seguimiento |
 | negotiation_state | negotiation_state | Estado de negociación |
 | followup_motive | TEXT | Motivo del seguimiento |
@@ -236,8 +286,6 @@ Registro de cada contacto con un cliente. Tabla central del CRM.
 | updated_at | TIMESTAMPTZ | Trigger automático |
 
 #### interaction_lines
-Líneas de productos asociadas a presupuestos y ventas.
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -249,8 +297,6 @@ Líneas de productos asociadas a presupuestos y ventas.
 | created_at | TIMESTAMPTZ | Auto |
 
 #### products
-Catálogo de productos/servicios.
-
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID | PK |
@@ -258,20 +304,27 @@ Catálogo de productos/servicios.
 | category | TEXT | Categoría |
 | price | NUMERIC(12,2) | Precio base |
 | unit | TEXT | Unidad de medida (default: 'u') |
-| unit_label | TEXT | Etiqueta de unidad (default: 'Unidad') |
+| unit_label | TEXT | Etiqueta de unidad |
 | currency | currency_code | Moneda (default: ARS) |
 | description | TEXT | Descripción |
 | active | BOOLEAN | Activo/inactivo |
 | created_at | TIMESTAMPTZ | Auto |
 
-### Índices
+### Índices (11 total)
 
 ```sql
+-- Clients
+idx_clients_assigned_to  ON clients(assigned_to)
+idx_clients_status       ON clients(status)
+idx_clients_name         ON clients(name)
+
 -- Interactions
-idx_interactions_client   ON interactions(client_id)
-idx_interactions_user     ON interactions(user_id)
-idx_interactions_date     ON interactions(interaction_date DESC)
-idx_interactions_result   ON interactions(result)
+idx_interactions_client          ON interactions(client_id)
+idx_interactions_user            ON interactions(user_id)
+idx_interactions_date            ON interactions(interaction_date DESC)
+idx_interactions_result          ON interactions(result)
+idx_interactions_follow_up_date  ON interactions(follow_up_date) WHERE follow_up_date IS NOT NULL
+idx_interactions_client_result   ON interactions(client_id, result)
 
 -- Interaction lines
 idx_interaction_lines_interaction ON interaction_lines(interaction_id)
@@ -286,9 +339,20 @@ idx_interaction_lines_product     ON interaction_lines(product_id)
 | `has_role(user_id, role)` | SECURITY DEFINER | Verifica si el usuario tiene un rol |
 | `get_user_role(user_id)` | SECURITY DEFINER | Obtiene el rol principal del usuario |
 | `handle_new_user()` | Trigger | Crea perfil + rol al registrarse |
-| `calculate_client_status(client_id)` | SECURITY DEFINER | Calcula estado del cliente según interacciones recientes |
+| `calculate_client_status(client_id)` | SECURITY DEFINER | Calcula estado del cliente |
+| `get_dashboard_data()` | RPC | Consolida datos del Dashboard en 1 llamada |
+| `get_notifications_data()` | RPC | Consolida datos de notificaciones en 1 llamada |
+| `get_seller_ranking(period_start)` | RPC | Ranking pre-computado por período |
+| `refresh_materialized_views()` | Admin | Refresca vistas materializadas |
 
-### Productos sembrados (seed)
+### Vistas materializadas
+
+| Vista | Descripción | Refresh |
+|-------|-------------|---------|
+| `mv_seller_ranking` | Ranking mensual de vendedores con ingresos y pipeline | pg_cron cada 30 min |
+| `mv_client_summary` | Resumen de clientes con última interacción e inactividad | pg_cron cada 30 min |
+
+### Productos semilla
 
 | Producto | Categoría | Precio |
 |----------|-----------|--------|
@@ -307,50 +371,95 @@ idx_interaction_lines_product     ON interaction_lines(product_id)
 
 ## 5. Seguridad y RLS
 
-Todas las tablas tienen Row Level Security activado.
+Todas las tablas tienen Row Level Security activado con 22+ políticas granulares.
 
 ### Políticas por tabla
 
-**profiles:**
-- SELECT: todos ven todos (necesario para mostrar nombres)
-- INSERT/UPDATE: solo el propio usuario
+**profiles:** SELECT todos, INSERT/UPDATE solo propio usuario, DELETE admin
+**user_roles:** SELECT todos, INSERT/UPDATE/DELETE solo admin
+**products:** SELECT todos, INSERT/UPDATE/DELETE admin o supervisor
+**clients:** SELECT assigned_to o admin/supervisor, INSERT admin/supervisor/vendedor-asignado, UPDATE assigned_to o admin/supervisor, DELETE admin o supervisor
+**interactions:** SELECT user_id o admin/supervisor, INSERT user_id = uid, UPDATE user_id o admin/supervisor, DELETE user_id propio o admin
+**interaction_lines:** SELECT hereda de interaction padre, INSERT dueño de interaction, UPDATE/DELETE dueño o admin
+**audit_log:** SELECT solo admin
 
-**user_roles:**
-- SELECT: todos (necesario para verificar roles)
-- INSERT/UPDATE/DELETE: solo admin
+### Audit log
 
-**products:**
-- SELECT: todos
-- ALL: admin o supervisor
-
-**clients:**
-- SELECT: assigned_to = uid, o admin/supervisor
-- INSERT: cualquier usuario autenticado
-- UPDATE: assigned_to = uid, o admin/supervisor
-- DELETE: solo admin
-
-**interactions:**
-- SELECT: user_id = uid, o admin/supervisor
-- INSERT: user_id debe ser el uid
-- UPDATE: user_id = uid, o admin/supervisor
-- DELETE: solo admin
-
-**interaction_lines:**
-- SELECT: hereda permisos de la interaction padre
-- INSERT: solo el dueño de la interaction
-- UPDATE: dueño o admin
-- DELETE: dueño o admin
-
-### Funciones SECURITY DEFINER
-
-- `has_role(_user_id, _role)` — Verificación de rol (usada en todas las políticas)
-- `get_user_role(_user_id)` — Obtención de rol (usada en AuthContext)
-- `handle_new_user()` — Auto-creación de perfil al signup
-- `calculate_client_status(_client_id)` — Cálculo de estado del cliente
+Tabla `audit_log` con trigger genérico en clients, interactions, products, user_roles. Registra old/new data y changed_fields. Cleanup automático de logs > 90 días.
 
 ---
 
-## 6. Configuración del entorno
+## 6. Análisis multidiplinario
+
+### Evaluación por rol profesional
+
+#### Área Técnica
+
+| Rol | Score | Estado | Hallazgos clave |
+|-----|-------|--------|-----------------|
+| Software Architect | 6/10 | 🟡 | SPA monolítica, 100% acoplada a Supabase |
+| Cloud Architect | 6/10 | 🟡 | Sin CDN, sin staging, FTP deploy, bajo costo |
+| Backend Developer | 8/10 | ✅ | Schema normalizado, 11 índices, 3 RPCs, 2 vistas materializadas |
+| Frontend Developer | 7/10 | 🟡 | 32 tests, hooks centralizados, pero componentes >500 líneas |
+| iOS/Android Developer | 7/10 | 🟡 | PWA implementada, push notifications preparadas |
+| DevOps Engineer | 7/10 | 🟡 | CI/CD con quality gates, pero deploy FTP sin rollback |
+| SRE | 4/10 | 🔴 | Sin monitoring, sin alertas, sin error tracking |
+| Cybersecurity | 8/10 | ✅ | RLS endurecido, 0 vulns npm, secrets en GitHub |
+| Data Engineer | 6/10 | 🟡 | Vistas materializadas + cron, sin ETL formal |
+| ML Engineer | 1/10 | 🔴 | Sin ML (volumen insuficiente, no prioritario) |
+| QA Automation | 6/10 | 🟡 | 32 tests, CI quality gates, sin E2E |
+| DBA | 8/10 | ✅ | Schema optimizado, índices, funciones, vistas |
+
+#### Área de Producto y Gestión
+
+| Rol | Score | Estado | Hallazgos clave |
+|-----|-------|--------|-----------------|
+| Product Manager | 7/10 | 🟡 | Nicho claro, diferenciadores definidos, gap en features |
+| Product Owner | 7/10 | 🟡 | Backlog priorizado, 5 etapas completadas de 6 |
+| Scrum Master | 5/10 | 🟡 | Sin formalismo, Kanban recomendado para equipo pequeño |
+| UX Researcher | 2/10 | 🔴 | Sin investigación de usuarios real |
+| UX Designer | 7/10 | 🟡 | Heurísticas Nielsen mejoradas, onboarding implementado |
+| UI Designer | 8/10 | ✅ | Dark mode, skeletons, empty states, brand consistente |
+| UX Writer | 7/10 | 🟡 | Copy funcional, necesita unificación de voz |
+| Localization | 1/10 | 🔴 | Hardcoded español, sin i18n (no prioritario para AR) |
+| Delivery Manager | 7/10 | 🟡 | Lead time <5min, sin staging, sin feature flags |
+
+#### Área Comercial y de Crecimiento
+
+| Rol | Score | Estado | Hallazgos clave |
+|-----|-------|--------|-----------------|
+| Growth Manager | 4/10 | 🟡 | CRM interno, sin métricas de uso |
+| ASO Specialist | N/A | — | No aplica (no hay app store) |
+| Performance Marketing | N/A | — | No hay paid ads |
+| SEO | 3/10 | 🟡 | Solo login indexable, sin OG tags |
+| Business Dev | 5/10 | 🟡 | Oportunidades de partnership identificadas |
+| Account Manager | 7/10 | 🟡 | Stakeholder activo, bajo churn risk |
+| Content Manager | 3/10 | 🟡 | Docs técnicas sí, guías de usuario no |
+| Community Manager | N/A | — | No aplica (producto interno) |
+
+#### Área de Operaciones, Legal y Análisis
+
+| Rol | Score | Estado | Hallazgos clave |
+|-----|-------|--------|-----------------|
+| BI Analyst | 8/10 | ✅ | Dashboard con KPIs, reportes con funnel y charts |
+| Data Scientist | 4/10 | 🟡 | Volumen insuficiente para ML |
+| Legal & Compliance | 2/10 | 🔴 | Sin ToS, sin Privacy Policy, sin cookies |
+| DPO | 2/10 | 🔴 | Sin registro de tratamiento, Ley 25.326 no cumplida |
+| Customer Success | 5/10 | 🟡 | Onboarding implementado, sin feedback in-app |
+| Technical Support | 4/10 | 🟡 | GitHub Issues como T3, sin T1/T2 formal |
+| RevOps | 1/10 | 🔴 | Producto interno, sin monetización |
+
+### Top 5 áreas de mejora
+
+1. **Legal/Compliance** — Sin Privacy Policy ni ToS (riesgo bajo Ley 25.326)
+2. **SRE/Monitoring** — Sin herramientas de observabilidad
+3. **UX Research** — Sin datos de usuarios reales
+4. **Componentes grandes** — Dashboard (821L), Interactions (864L) necesitan splitting
+5. **Staging/Deploy** — FTP sin rollback, sin environment de staging
+
+---
+
+## 7. Configuración y despliegue
 
 ### Variables de entorno
 
@@ -363,321 +472,235 @@ VITE_SUPABASE_URL=https://fkjuswkjzaeuogctsxpw.supabase.co
 ### Setup local
 
 ```bash
-# 1. Clonar
-git clone https://github.com/pabloeckert/MejoraCRM.git
-cd MejoraCRM
-
-# 2. Configurar entorno
-cp .env.example .env
-# Editar .env con credenciales de Supabase
-
-# 3. Instalar dependencias
+git clone https://github.com/pabloeckert/mejoracrm.git
+cd mejoracrm
+cp .env.example .env  # Editar con credenciales
 bun install
-
-# 4. Desarrollo
 bun dev
 ```
 
----
+### CI/CD (GitHub Actions)
 
-## 7. Despliegue
+```
+push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejoraok.com
+```
 
 ### Infraestructura
 
 | Servicio | Detalle |
 |----------|---------|
-| Frontend | crm.mejoraok.com (FTP) |
+| Frontend | crm.mejoraok.com (FTP deploy) |
 | Backend | Supabase Cloud |
+| CI/CD | GitHub Actions |
 | DNS | Subdominio crm.mejoraok.com |
 
-### Build y deploy
+### FTP
 
-```bash
-# 1. Build de producción
-bun run build
+| Campo | Valor |
+|-------|-------|
+| Host | 185.212.70.250 |
+| User | u846064658.mejoraok.com |
+| Port | 21 |
+| Dir | /home/u846064658/domains/mejoraok.com/public_html/crm |
 
-# 2. Subir carpeta dist/ al FTP (hosting)
-```
+> ⚠️ Las credenciales FTP están en GitHub Secrets, no en el repo.
 
-### Configuración del servidor
+### Scripts SQL
 
-El hosting debe servir `index.html` para todas las rutas (SPA routing).
-El archivo `public/.htaccess` maneja los rewrite rules.
-
-### Variables de Supabase
-
-El archivo `.env` se configura localmente. En producción, las variables se inyectan en el build.
+| Script | Uso |
+|--------|-----|
+| `SETUP_COMPLETO.sql` | Setup desde cero en proyecto Supabase nuevo |
+| `MIGRACIONES_PENDIENTES.sql` | Aplicar sobre schema existente |
+| `CRON_REFRESH_VISTAS.sql` | Activar pg_cron para vistas materializadas |
 
 ---
 
-## 8. Plan de optimización por etapas
+## 8. Plan por etapas
 
-### Estado actual (auditoría 2026-04-23)
+### Resumen
 
-| Área | Problema | Severidad |
-|------|----------|-----------|
-| Queries | Dashboard carga TODAS las interactions + clients sin filtro | 🔴 Alto |
-| Queries | NotificationsPanel duplica las mismas queries | 🔴 Alto |
-| Queries | Clients.tsx carga todos los clientes sin paginación | 🟡 Medio |
-| Índices | Falta índice en `clients.assigned_to` | 🟡 Medio |
-| Índices | Falta índice en `clients.status` | 🟡 Medio |
-| Índices | Falta índice en `interactions.follow_up_date` | 🟡 Medio |
-| Funciones | `calculate_client_status()` existe pero no se usa | 🟡 Medio |
-| RLS | `clients_insert` permite cualquier usuario autenticado | 🟢 Bajo |
-| Docs | ARCHITECTURE.md referencia páginas inexistentes (Pipeline, Reports) | 🔴 Alto |
-| Docs | DATABASE.md tiene schema v1 (enums y tablas viejas) | 🔴 Alto |
-| Docs | DEPLOYMENT.md tiene credenciales FTP expuestas | 🔴 Alto |
-| Docs | 6 archivos dispersos con información contradictoria | 🟡 Medio |
+| Etapa | Nombre | Estado | Semanas |
+|-------|--------|--------|---------|
+| 1 | Estabilidad y confianza | ✅ COMPLETADA | 1-2 |
+| 2 | Performance y confiabilidad | ✅ COMPLETADA | 3-4 |
+| 3 | Mobile y PWA | ✅ COMPLETADA | 5-7 |
+| 4 | UX y onboarding | ✅ COMPLETADA | 8-10 |
+| 5 | Analytics y reportes | ✅ COMPLETADA | 11-13 |
+| 6 | Escalabilidad y compliance | ⏳ PENDIENTE | 14-16 |
 
-### Etapa 1 — Documentación ✅ COMPLETADA
+### Etapa 1 — Estabilidad y confianza ✅
 
-**Objetivo:** Consolidar toda la documentación en un solo documento vivo.
+| # | Tarea | Estado |
+|---|-------|--------|
+| 1.1 | Error boundary global | ✅ |
+| 1.2 | 32 tests unitarios | ✅ |
+| 1.3 | CI: lint + typecheck + test | ✅ |
+| 1.4 | Sentry error tracking | ⏳ (requiere cuenta Sentry) |
+| 1.5 | Skeleton loading states | ✅ |
 
-- [x] Eliminar `docs/` (18 archivos desactualizados)
-- [x] Crear `Documents/DOCUMENTACION.md` con todo consolidado
-- [x] Agregar plan de optimización al mismo documento
-- [x] Registrar cambios en el historial
+### Etapa 2 — Performance y confiabilidad ✅
 
-### Etapa 2 — Índices de base de datos ✅ COMPLETADA
+| # | Tarea | Estado |
+|---|-------|--------|
+| 2.1 | Dashboard: 3 queries → 1 RPC | ✅ |
+| 2.2 | Notifications: 3 queries → 1 RPC | ✅ |
+| 2.3 | Paginación en Clients | ✅ |
+| 2.4 | Paginación en Interactions | ✅ |
+| 2.5 | 7 custom hooks centralizados | ✅ |
+| 2.6 | Reemplazar `any` types | ⏳ Parcial |
 
-**Objetivo:** Mejorar performance de las queries más frecuentes.
+### Etapa 3 — Mobile y PWA ✅
 
-**Migración:** `20260423130000_add_performance_indexes.sql`
+| # | Tarea | Estado |
+|---|-------|--------|
+| 3.1 | manifest.json con icons | ✅ |
+| 3.2 | Service Worker (cache assets) | ✅ |
+| 3.3 | Responsive design | ✅ |
+| 3.4 | Touch targets 44px | ✅ |
+| 3.5 | Push notifications (infra) | ✅ |
+| 3.6 | Offline básico | ✅ |
 
-- [x] `idx_clients_assigned_to` — búsquedas por vendedor
-- [x] `idx_clients_status` — filtrado por estado
-- [x] `idx_clients_name` — ordenamiento por nombre
-- [x] `idx_interactions_follow_up_date` — seguimientos programados (parcial, solo no-null)
-- [x] `idx_interactions_client_result` — filtro compuesto cliente+resultado
+### Etapa 4 — UX y onboarding ✅
 
-**Impacto en frontend:** Nulo. Los índices son transparentes.
+| # | Tarea | Estado |
+|---|-------|--------|
+| 4.1 | Onboarding wizard (3 pasos) | ✅ |
+| 4.2 | Tooltips contextuales | ⏳ (onboarding cubre caso) |
+| 4.3 | Split Dashboard.tsx | ⏳ (diferido a v2) |
+| 4.4 | Split Interactions.tsx | ⏳ (diferido a v2) |
+| 4.5 | Command palette (Ctrl+K) | ✅ |
+| 4.6 | Dark mode | ✅ |
+| 4.7 | Empty states con CTAs | ✅ |
 
-### Etapa 3 — Funciones SQL optimizadas ✅ COMPLETADA
+### Etapa 5 — Analytics y reportes ✅
 
-**Objetivo:** Crear funciones que consoliden queries múltiples en una sola llamada.
+| # | Tarea | Estado |
+|---|-------|--------|
+| 5.1 | Página Reportes con 6 KPIs | ✅ |
+| 5.2 | Pipeline visual (Kanban) | ⏳ (funnel cumple rol) |
+| 5.3 | Funnel analysis | ✅ |
+| 5.4 | Exportación a PDF | ✅ |
+| 5.5 | Audit log (tabla + triggers) | ✅ |
+| 5.6 | Google Calendar OAuth | ⏳ (placeholder en Settings) |
 
-**Migración:** `20260423131000_add_dashboard_rpc_functions.sql`
+### Etapa 6 — Escalabilidad y compliance ⏳
 
-- [x] `get_dashboard_data()` — consolida 3 queries del Dashboard en 1 RPC
-- [x] `get_notifications_data()` — consolida 3 queries de NotificationsPanel en 1 RPC
-- [x] `get_seller_ranking(period_start)` — ranking pre-computado por período
-
-**Impacto en frontend:** Nulo. Funciones nuevas, el frontend puede adoptarlas gradualmente.
-**Tipos actualizados:** `types.ts` incluye las nuevas funciones.
-
-### Etapa 4 — Vistas materializadas ✅ COMPLETADA
-
-**Objetivo:** Pre-computar datos pesados del Dashboard.
-
-**Migración:** `20260423133000_add_materialized_views.sql`
-
-- [x] `mv_seller_ranking` — ranking de vendedores del mes con ingresos, pipeline, conteos
-- [x] `mv_client_summary` — resumen de clientes con última interacción y días de inactividad
-- [x] `refresh_materialized_views()` — función para refrescar ambas vistas concurrentemente
-- [x] Índices únicos para refresh concurrent
-- [x] Permisos SELECT para authenticated
-
-**Impacto en frontend:** Nulo. Son vistas adicionales, no reemplazan tablas existentes.
-**Tipos actualizados:** `types.ts` incluye las vistas como Views.
-
-### Etapa 5 — Endurecimiento de políticas RLS ✅ COMPLETADA
-
-**Objetivo:** Endurecer políticas demasiado permisivas sin romper funcionalidad.
-
-**Migración:** `20260423132000_harden_rls_policies.sql`
-
-- [x] `clients_insert`: ahora requiere ser admin, supervisor, o vendedor asignándose a sí mismo
-- [x] `products_manage` → separada en `products_insert`, `products_update`, `products_delete`
-- [x] `interactions_delete`: vendedor puede borrar las propias (además de admin)
-- [x] `clients_delete`: supervisor también puede (además de admin)
-- [x] `profiles_delete`: admin puede limpiar perfiles
-
-**Impacto en frontend:** Nulo. El frontend ya envía `assigned_to` al crear clientes.
-**Nota:** La política anterior (`auth.uid() IS NOT NULL`) permitía a cualquier vendedor crear clientes sin restricción. Ahora solo puede crear clientes asignados a sí mismo.
-
-### Etapa 6 — Regenerar tipos de Supabase ✅ COMPLETADA
-
-**Objetivo:** Mantener `types.ts` sincronizado con el schema real.
-
-- [x] Agregadas funciones RPC nuevas al bloque Functions
-- [x] Agregadas vistas materializadas al bloque Views
-- [x] Verificar que el frontend compile sin errores
-
-**Impacto en frontend:** Nulo. Solo se agregaron tipos nuevos.
+| # | Tarea | Prioridad | Esfuerzo |
+|---|-------|-----------|----------|
+| 6.1 | Política de Privacidad (Ley 25.326) | P0 | 1 día |
+| 6.2 | Términos de Servicio | P0 | 1 día |
+| 6.3 | Mecanismo de eliminación de datos | P1 | 1 día |
+| 6.4 | Environment de staging | P1 | 1 día |
+| 6.5 | Deploy FTP → Vercel/Cloudflare Pages | P1 | 0.5 días |
+| 6.6 | UptimeRobot monitoreo | P1 | 1h |
+| 6.7 | Runbook de incidentes | P2 | 1 día |
+| 6.8 | Evaluar Supabase Pro | P2 | — |
 
 ---
 
 ## 9. Registro de cambios
 
 ### 2026-04-23 — Limpieza inicial del repositorio
-
-**Realizado:**
-- Eliminado `.env` del tracking (contenía credenciales de Supabase)
-- Creado `.env.example` con variables vacías
-- Merge de `Documents/` + `documents/` → `docs/` (luego reestructurado a `Documents/`)
-- Eliminados 3 lockfiles redundantes (solo `bun.lock`)
-- Eliminados 28 componentes shadcn/ui sin uso
-- Eliminado sistema de toast radix (duplicaba a sonner)
-- Eliminados 17 dependencias `@radix-ui` sin uso
-- Eliminadas dependencias sin uso: `react-is`, `cmdk`, `vaul`, `embla-carousel-react`, `input-otp`, `react-resizable-panels`, `react-hook-form`, `@hookform/resolvers`, `zod`, `@hello-pangea/dnd`, `react-day-picker`
-- Agregado `packageManager: "bun@latest"` a package.json
-- Actualizado README con instrucciones de setup
-- Versión cambiada a `1.0.0`
-
-**Resultado:** 61 archivos modificados, ~11,000 líneas eliminadas.
+- Eliminado `.env` del tracking, creado `.env.example`
+- Merge de `Documents/` + `documents/` → `Documents/`
+- Eliminados 3 lockfiles redundantes, 28 componentes UI sin uso, 17 dependencias @radix-ui
+- Versión → `1.0.0`, `packageManager: "bun@latest"` agregado
+- **Resultado:** 61 archivos modificados, ~11,000 líneas eliminadas
 
 ### 2026-04-23 — Consolidación de documentación
-
-**Realizado:**
 - Eliminados 18 archivos de docs desactualizados
 - Creado `Documents/DOCUMENTACION.md` como documento vivo consolidado
-- Incluye: arquitectura, schema v2 actualizado, seguridad RLS, configuración, despliegue, plan de optimización
-- Instrucción: cuando se diga "documentar", actualizar este archivo
 
-### 2026-04-23 — Optimización backend (Etapas 2-6)
+### 2026-04-23 — Optimización backend (Etapas 2-6 del plan original)
+- **Índices:** 5 nuevos (`idx_clients_assigned_to`, `idx_clients_status`, `idx_clients_name`, `idx_interactions_follow_up_date` parcial, `idx_interactions_client_result`)
+- **Funciones RPC:** `get_dashboard_data()`, `get_notifications_data()`, `get_seller_ranking()`
+- **Vistas materializadas:** `mv_seller_ranking`, `mv_client_summary` + `refresh_materialized_views()`
+- **RLS:** Endurecimiento de 5 políticas
+- **Tipos:** `types.ts` actualizado
 
-**Realizado:**
-- **Índices (Etapa 2):** 5 nuevos índices para queries frecuentes
-  - `idx_clients_assigned_to`, `idx_clients_status`, `idx_clients_name`
-  - `idx_interactions_follow_up_date` (parcial), `idx_interactions_client_result`
-- **Funciones RPC (Etapa 3):** 3 funciones para consolidar queries
-  - `get_dashboard_data()` — reemplaza 3 queries del Dashboard
-  - `get_notifications_data()` — reemplaza 3 queries de NotificationsPanel
-  - `get_seller_ranking(period_start)` — ranking pre-computado
-- **Vistas materializadas (Etapa 4):** 2 vistas para datos pesados
-  - `mv_seller_ranking` — ranking mensual de vendedores
-  - `mv_client_summary` — resumen de clientes con última interacción
-  - `refresh_materialized_views()` — función de refresco concurrente
-- **RLS (Etapa 5):** Endurecimiento de 5 políticas
-  - `clients_insert`: restringido a admin/supervisor/vendedor-asignado
-  - `products`: separada en INSERT/UPDATE/DELETE granulares
-  - `interactions_delete`: vendedor puede borrar propias
-  - `clients_delete`: supervisor también puede
-  - `profiles_delete`: admin puede limpiar
-- **Tipos (Etapa 6):** `types.ts` actualizado con nuevas funciones y vistas
-
-**Impacto en frontend:** Nulo. Solo se agregaron objetos nuevos, no se modificaron existentes.
-
-### 2026-04-23 — Optimización frontend + actualización de dependencias
-
-**Realizado:**
-- **QueryClient:** configurado `staleTime: 30s`, `refetchOnWindowFocus: false`, `retry: 1`
-  - Reduce requests innecesarios al cambiar de pestaña
-- **Dashboard:** query keys incluyen contexto del componente para invalidación correcta
-- **Interactions mutation:** ahora invalida `["clients"]` y `["profiles"]` (antes no)
-- **Dependencias actualizadas:**
-  - vite: 5.4 → 6.4 (corrige vulnerabilidad esbuild)
-  - @vitejs/plugin-react-swc: 3.11 → 4.3 (compatibilidad con vite 6)
-  - jsdom: 20 → 26 (corrige vulnerabilidad http-proxy-agent)
-  - Resultado: **0 vulnerabilidades** (antes 5)
-- **Restaurados:** skeleton.tsx y sheet.tsx (necesarios por sidebar.tsx)
-
-**Verificado:**
-- `tsc --noEmit`: pasa sin errores
-- `vite build`: exitoso (5.2s, 3259 módulos)
-
-### 2026-04-23 — Optimización de bundle + CI/CD
-
-**Realizado:**
-- **Code splitting** en `vite.config.ts` con `manualChunks`:
-  - `vendor-react` (157KB), `vendor-query` (49KB), `vendor-ui` (137KB)
-  - `vendor-charts` (384KB), `vendor-supabase` (196KB), `index` (181KB)
-  - Mayor chunk: 384KB (antes era un monolito de 1.1MB)
-- **CI/CD migrado a bun:**
-  - GitHub Actions usa `oven-sh/setup-bun@v2` + `bun install --frozen-lockfile`
-  - Credenciales FTP movidas a GitHub Secrets (antes hardcodeadas)
-- **Asset eliminado:** `logo-mejora-continua.png` (91KB, no se usaba)
-
-**Verificado:** `vite build` exitoso en 5.3s
-
-### 2026-04-23 — Resumen de sesión completa
-
-Sesión integral de depuración, optimización y documentación del proyecto.
-
-#### Cambios realizados (total: 10 commits)
-
-**Repositorio:**
-- `.env` eliminado del tracking, `.env.example` creado
-- 28 componentes UI sin uso eliminados, 17 dependencias @radix-ui removidas
-- 3 lockfiles consolidados en `bun.lock`
-- `Documents/` + `documents/` unificados en `Documents/`
-- Versión: `0.0.0` → `1.0.0`
-- `packageManager: "bun@latest"` agregado
-
-**Backend (4 migraciones SQL):**
-- 5 índices de performance
-- 3 funciones RPC (dashboard, notificaciones, ranking)
-- 2 vistas materializadas (seller ranking, client summary)
-- 5 políticas RLS endurecidas
-- `types.ts` sincronizado con nuevo schema
-
-**Frontend:**
-- QueryClient: staleTime 30s, sin refetch on focus, retry 1
+### 2026-04-23 — Frontend + dependencias
+- QueryClient: `staleTime: 30s`, `refetchOnWindowFocus: false`, `retry: 1`
 - Query keys corregidos para invalidación post-mutación
-- Code splitting: 1.1MB → 6 chunks (máx 384KB)
+- Dependencias: vite 5.4→6.4, plugin-react-swc 3.11→4.3, jsdom 20→26
+- **Resultado:** 0 vulnerabilidades (antes 5)
 
-**Seguridad:**
-- 5 vulnerabilidades npm → 0
-- FTP credentials → GitHub Secrets
-- CI/CD: npm → bun
+### 2026-04-23 — Bundle + CI/CD
+- Code splitting con `manualChunks`: vendor-react (157KB), vendor-query (49KB), vendor-ui (137KB), vendor-charts (384KB), vendor-supabase (196KB)
+- CI/CD migrado a bun, credenciales FTP → GitHub Secrets
 
-**Documentación:**
-- 18 archivos desactualizados → `Documents/DOCUMENTACION.md` (documento vivo)
+### 2026-04-24 — Fix CI/CD + scripts SQL
+- Lockfile regenerado con bun v1.3.13
+- GitHub Secrets: `FTP_HOST`, `FTP_USERNAME` configurados via API
+- Scripts SQL: `MIGRACIONES_PENDIENTES.sql`, `CRON_REFRESH_VISTAS.sql`
 
-#### Estado final del plan
+### 2026-04-24 — Nuevo proyecto Supabase
+- Proyecto nuevo: `fkjuswkjzaeuogctsxpw`
+- `SETUP_COMPLETO.sql` ejecutado (8 enums, 6 tablas, 5 funciones, 22+ RLS, 11 índices, 3 RPCs, 2 vistas, cron, 10 productos seed)
+- Deploy conectado al nuevo backend
 
-| Item | Estado |
-|------|--------|
-| 6 etapas de optimización | ✅ Completadas |
-| Documentación consolidada | ✅ Completada |
-| Lockfile CI/CD fix | ✅ Completado |
-| FTP Secrets configurados | ✅ Completado |
-| Deploy automático funcionando | ✅ Completado |
-| Proyecto Supabase nuevo | ✅ Creado y configurado |
-| Schema SQL completo | ✅ Ejecutado en Supabase |
-| Cron de vistas materializadas | ✅ Activo (cada 30 min) |
+### 2026-04-24 — Etapa 1: Estabilidad y confianza
+- Error boundary global (`ErrorBoundary.tsx`)
+- 32 tests unitarios (calculations, utils, ErrorBoundary)
+- CI: quality gates (tsc + lint + test) antes de deploy
+- Skeleton loading (Dashboard, List)
 
-### 2026-04-24 — Fix CI/CD + configuración de secrets + scripts SQL
+### 2026-04-24 — Etapa 2: Performance y confiabilidad
+- Dashboard/Notifications: 3 queries → 1 RPC cada uno
+- 7 custom hooks centralizados
+- Páginas refactorizadas para usar hooks
 
-**Realizado:**
-- **Lockfile:** regenerado `bun.lock` con bun v1.3.13 (misma versión que CI)
-  - Error original: `lockfile had changes, but lockfile is frozen`
-  - Fix: `bun install` + commit del lockfile actualizado
-- **GitHub Secrets:** configurados `FTP_HOST` y `FTP_USERNAME` via API
-  - `FTP_HOST`: 185.212.70.250
-  - `FTP_USERNAME`: u846064658.mejoraok.com
-  - `FTP_PASSWORD`: ya existía
-- **Deploy:** Run #13 y #14 completados con éxito → crm.mejoraok.com actualizado
-- **Scripts SQL preparados:**
-  - `Documents/MIGRACIONES_PENDIENTES.sql` — script consolidado con las 4 migraciones (índices, RPC, RLS, vistas materializadas) listo para copiar-pegar en Supabase SQL Editor
-  - `Documents/CRON_REFRESH_VISTAS.sql` — activación de pg_cron + schedule cada 30 min para refrescar vistas materializadas
-- **Commits:** 4 commits nuevos (lockfile fix, scripts SQL, docs update)
+### 2026-04-24 — Etapa 3: PWA + mobile
+- manifest.json, icons (192, 512, apple-touch, favicons)
+- Service Worker (network-first navegación, cache-first assets)
+- Responsive CSS (safe areas, prevent zoom, touch targets 44px)
+- Push notifications API + PWA install banner
 
-**Pendiente para el usuario (2 pasos manuales en Supabase Dashboard):**
-1. Ejecutar `MIGRACIONES_PENDIENTES.sql` en SQL Editor
-2. Activar extensión `pg_cron` y ejecutar `CRON_REFRESH_VISTAS.sql`
+### 2026-04-24 — Etapa 4: UX y onboarding
+- Dark mode (next-themes, light/dark/system)
+- Onboarding wizard (3 pasos: cliente → interacción → dashboard)
+- Command palette (Ctrl+K) con búsqueda global
+- Empty states mejorados
 
-### 2026-04-24 — Nuevo proyecto Supabase + setup completo
+### 2026-04-24 — Etapa 5: Analytics y reportes
+- Página Reports: 6 KPIs, funnel, tendencia mensual, distribución, top productos, motivos de pérdida, revenue por provincia
+- Selector de período, exportación a PDF
+- Audit log SQL (tabla + triggers + RLS + cleanup)
 
-**Contexto:** El proyecto Supabase original (`shjzgxsqkhexuwyipdmd`) fue creado por Lovable y no era accesible desde la cuenta de Supabase del usuario. Se creó un proyecto nuevo.
+### 2026-04-25 — Consolidación de documentación
+- Fusión de `DOCUMENTACION.md` + `ANALISIS_PROFUNDO.md` en un solo archivo
+- Instrucción "documentar" integrada al inicio del documento
+- Análisis multidisciplinario condensado en sección 6
 
-**Realizado:**
-- **Proyecto Supabase nuevo:** `fkjuswkjzaeuogctsxpw` (región: por confirmar)
-- **Script `SETUP_COMPLETO.sql`:** creado con todo el schema desde cero
-  - 8 enums (app_role, client_status, interaction_result, interaction_medium, currency_code, quote_path, followup_scenario, negotiation_state)
-  - 6 tablas (profiles, user_roles, products, clients, interactions, interaction_lines)
-  - 5 funciones SQL (update_updated_at_column, has_role, get_user_role, handle_new_user, calculate_client_status)
-  - 22+ políticas RLS (ya endurecidas desde el inicio)
-  - 11 índices de performance
-  - 3 funciones RPC (get_dashboard_data, get_notifications_data, get_seller_ranking)
-  - 2 vistas materializadas (mv_seller_ranking, mv_client_summary)
-  - Cron job automático (refresco cada 30 min)
-  - 10 productos semilla
-- **`.env` actualizado** con credenciales del nuevo proyecto
-- **Deploy exitoso** (Run #19) → crm.mejoraok.com conectado al nuevo Supabase
-- **Commits:** 5 (SETUP_COMPLETO.sql, fix orden, fix cleanup, .env update)
+---
 
-#### Métricas
+## 10. Estado del proyecto
+
+### Completitud: ~90%
+
+| Área | Estado | Detalle |
+|------|--------|---------|
+| Frontend | ✅ | React + Vite + Tailwind, code splitting, dark mode, PWA |
+| Backend | ✅ | Supabase Auth + PG, RLS endurecido, schema completo |
+| Optimización | ✅ | 11 índices, 3 RPCs, 2 vistas materializadas |
+| CI/CD | ✅ | GitHub Actions → FTP con quality gates |
+| Seguridad | ✅ | 0 vulnerabilidades, secrets en GitHub, RLS granular |
+| Testing | 🟡 | 32 tests unitarios, CI quality gates, sin E2E |
+| Documentación | ✅ | Este archivo consolidado |
+| PWA/Mobile | ✅ | Service worker, manifest, icons, push prep |
+| Analytics | ✅ | Reportes con KPIs, funnel, export PDF |
+| Compliance | ⏳ | Sin ToS, sin Privacy Policy (Etapa 6) |
+| Monitoring | ⏳ | Sin Sentry, sin UptimeRobot (Etapa 6) |
+
+### Links útiles
+
+| Recurso | URL |
+|---------|-----|
+| Producción | https://crm.mejoraok.com |
+| Repositorio | https://github.com/pabloeckert/mejoracrm |
+| GitHub Actions | https://github.com/pabloeckert/mejoracrm/actions |
+| Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
+
+### Métricas finales
 
 | Métrica | Antes | Después |
 |---------|-------|---------|
@@ -687,190 +710,7 @@ Sesión integral de depuración, optimización y documentación del proyecto.
 | Mayor chunk JS | 1.1MB | 384KB |
 | Componentes UI | 43 | 15 |
 | Documentos | 18 archivos | 1 archivo |
-| Queries Dashboard | 3 separadas | 1 RPC disponible |
-| Políticas RLS | 12 | 17 (más granulares) |
-
----
-
-## 10. Estado del proyecto
-
-### Completitud: 100% ✅
-
-| Área | Estado | Detalle |
-|------|--------|---------|
-| Frontend | ✅ 100% | React + Vite + Tailwind, code splitting, 0 vulnerabilidades |
-| Backend | ✅ 100% | Supabase Auth + PostgreSQL, RLS endurecido, schema completo |
-| Optimización | ✅ 100% | 11 índices, 3 RPC, 2 vistas materializadas |
-| CI/CD | ✅ 100% | GitHub Actions → FTP automático en cada push a main |
-| Seguridad | ✅ 100% | 0 vulnerabilidades npm, secrets en GitHub, RLS granular |
-| Testing | ✅ 100% | 32 tests unitarios, CI quality gates |
-| Documentación | ✅ 100% | DOCUMENTACION.md + ANALISIS_PROFUNDO.md |
-| Base de datos | ✅ 100% | Proyecto Supabase nuevo, schema ejecutado, cron activo |
-| Deploy | ✅ 100% | crm.mejoraok.com funcionando con nuevo backend |
-
-### Links útiles
-
-| Recurso | URL |
-|---------|-----|
-| Producción | https://crm.mejoraok.com |
-| Repositorio | https://github.com/pabloeckert/MejoraCRM |
-| GitHub Actions | https://github.com/pabloeckert/MejoraCRM/actions |
-| Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
-| Análisis profundo | [Documents/ANALISIS_PROFUNDO.md](./ANALISIS_PROFUNDO.md) |
-
----
-
-### 2026-04-24 — Etapa 1: Estabilidad y confianza
-
-**Realizado:**
-- **Error boundary global** (`src/components/ErrorBoundary.tsx`):
-  - UI de error amigable con icono, título y descripción
-  - Sección expandible con detalles técnicos del error
-  - Botones de "Reintentar" y "Recargar página"
-  - Wrap global en App.tsx
-- **32 tests unitarios** (4 archivos):
-  - `src/lib/__tests__/utils.test.ts` — cn() utility (7 tests)
-  - `src/lib/__tests__/calculations.test.ts` — KPIs, filtro por período, seguimientos vencidos, validación WhatsApp, ranking vendedores (19 tests)
-  - `src/components/__tests__/ErrorBoundary.test.tsx` — render, error, fallback (4 tests)
-  - `src/test/example.test.ts` — environment check (2 tests)
-- **Lógica de negocio extraída** a `src/lib/calculations.ts`:
-  - `calculateKPIs()` — cálculo de ventas, presupuestos, conversión
-  - `filterByPeriod()` — filtro de interacciones por fecha
-  - `getOverdueFollowups()` — seguimientos vencidos
-  - `isValidWhatsapp()` — validación de formato de WhatsApp
-  - `calculateSellerRanking()` — ranking de vendedores
-- **CI actualizado** (`.github/workflows/deploy.yml`):
-  - Nuevo job `quality` que ejecuta: `tsc --noEmit`, `eslint`, `vitest run`
-  - Job `deploy` depende de `quality` (needs: quality)
-  - Deploy solo si todos los checks pasan
-- **Skeleton loading states**:
-  - `DashboardSkeleton` — KPIs, charts, ranking con Skeleton components
-  - `ListSkeleton` — tabla genérica para Clients/Interactions/Products
-  - Integrados en Dashboard.tsx, Clients.tsx, Interactions.tsx
-
-**Verificado:**
-- `tsc --noEmit`: sin errores
-- `vitest run`: 32/32 tests pasando
-- `vite build`: exitoso (5.4s, 3263 módulos)
-
-### 2026-04-24 — Etapa 2: Performance y confiabilidad
-
-**Realizado:**
-- **Dashboard: 3 queries → 1 RPC** (`useDashboardData`):
-  - Reemplazadas 3 queries separadas por `get_dashboard_data()` RPC
-  - Reduce round-trips de 3 a 1
-- **NotificationsPanel: 3 queries → 1 RPC** (`useNotificationsData`):
-  - Reemplazadas 3 queries separadas por `get_notifications_data()` RPC
-  - Reduce round-trips de 3 a 1
-- **7 custom hooks centralizados** (`src/hooks/`):
-  - `useClients.ts` — `useAllClients()`, `useClientsPaginated()`, `useClientsMinimal()`
-  - `useInteractions.ts` — `useInteractionsPaginated()`, `useAllInteractions()`, `useClientPresupuestos()`
-  - `useProducts.ts` — `useProducts()`, `useActiveProducts()`
-  - `useProfiles.ts` — `useProfiles()`
-  - `useDashboard.ts` — `useDashboardData()` (RPC wrapper)
-  - `useNotifications.ts` — `useNotificationsData()` (RPC wrapper)
-  - `index.ts` — barrel export
-- **Páginas refactorizadas** para usar hooks:
-  - Dashboard.tsx → `useDashboardData()`
-  - NotificationsPanel.tsx → `useNotificationsData()`
-  - Clients.tsx → `useAllClients()`
-  - Interactions.tsx → `useInteractionsPaginated()`, `useClientsMinimal()`, `useActiveProducts()`, `useClientPresupuestos()`
-  - Products.tsx → `useProducts()`
-
-**Verificado:**
-- `tsc --noEmit`: sin errores
-- `vitest run`: 32/32 tests pasando
-- `vite build`: exitoso (5.26s, 3268 módulos)
-
-### 2026-04-24 — Etapa 3: PWA + mobile
-
-**Realizado:**
-- **PWA Manifest** (`public/manifest.json`):
-  - Nombre, descripción, colores del brand
-  - Shortcuts: Clientes, Nueva interacción, Dashboard
-  - Icons: 192x192, 512x512 con propósito "any maskable"
-- **Icons generados** (`public/icons/`):
-  - SVG base → PNGs con rsvg-convert (192, 512, apple-touch, favicon-16/32)
-- **Service Worker** (`public/sw.js`):
-  - Network-first para navegación/API (fallback offline → index.html)
-  - Cache-first para assets estáticos (JS, CSS, fonts, icons)
-  - Pre-cache de fonts críticos en install
-  - Supabase API excluido del cache (auth tokens)
-  - Push notification handler con acciones Ver/Cerrar
-  - Notification click → abre app en la ruta correcta
-- **Responsive CSS** (`src/index.css`):
-  - Safe area insets para dispositivos con notch
-  - Prevent zoom on input focus (iOS, font-size: 16px)
-  - PWA standalone mode adjustments
-  - Touch targets: min 44x44px global (excepción desktop compact)
-- **Push notifications** (`src/lib/notifications.ts`):
-  - `isPushSupported()`, `requestNotificationPermission()`
-  - `subscribeToPush()`, `showLocalNotification()`
-  - VAPID key placeholder para Supabase Edge Functions
-- **PWA install** (`src/hooks/usePWAInstall.ts` + `src/components/PWAInstallBanner.tsx`):
-  - Banner flotante con CTA de instalación
-  - Settings: sección de notificaciones + instalación
-  - Badge "Instalada" cuando ya está en pantalla de inicio
-- **index.html actualizado**:
-  - manifest link, theme-color, apple-mobile-web-app meta tags
-  - Service Worker registration script
-  - viewport-fit=cover para notch devices
-
-**Verificado:**
-- `tsc --noEmit`: sin errores
-- `vitest run`: 32/32 tests pasando
-- `vite build`: exitoso (5.38s)
-- `dist/` incluye: manifest.json, sw.js, icons/
-
----
-
-
-
-### 2026-04-24 — Etapa 4: UX y onboarding
-
-**Realizado:**
-- **Dark mode activado** (`ThemeProvider` + `ThemeToggle`):
-  - next-themes con light/dark/system
-  - Toggle cíclico en sidebar footer (Sun → Moon → Monitor)
-  - CSS dark ya existía, ahora está activo
-- **Onboarding wizard** (`OnboardingWizard.tsx`):
-  - 3 pasos: crear cliente → registrar interacción → revisar dashboard
-  - Tips contextuales, skip/dismiss con localStorage
-  - Indicador de progreso, animaciones
-- **Command palette** (`CommandPalette.tsx`):
-  - Ctrl+K / Cmd+K para abrir
-  - Busca en páginas, clientes, interacciones
-  - Resultados agrupados por categoría
-  - Search trigger en sidebar con hint ⌘K
-- **Empty states mejorados**:
-  - Products: icono + mensaje + CTA "Nuevo producto"
-
-**Verificado:**
-- `tsc --noEmit`: sin errores
-- `vitest run`: 32/32 tests pasando
-- `vite build`: exitoso (5.34s)
-
-### 2026-04-24 — Etapa 5: Analytics y reportes
-
-**Realizado:**
-- **Página de Reportes** (`src/pages/Reports.tsx`):
-  - 6 KPIs: ventas logradas, pipeline activo, win rate, ciclo promedio, tasa conversión, revenue perdido
-  - Funnel de ventas: barras horizontales con tasas de conversión entre etapas
-  - Tendencia mensual: area chart ventas + pipeline (6 meses)
-  - Distribución de resultados: pie chart
-  - Top productos: bar chart horizontal
-  - Motivos de pérdida: pie chart
-  - Revenue por provincia: grid de cards
-  - Selector de período: mes/trimestre/semestre/año
-  - Exportación a PDF: genera HTML imprimible con KPIs, funnel, tablas
-- **Sidebar + routing**: link "Reportes" (admin/supervisor), ruta /reports
-- **Audit log SQL** (`supabase/migrations/20260424220000_add_audit_log.sql`):
-  - Tabla audit_log con old/new data, changed_fields
-  - Trigger genérico en clients, interactions, products, user_roles
-  - RLS: solo admin puede ver
-  - cleanup_audit_log() para logs > 90 días
-
-**Verificado:**
-- `tsc --noEmit`: sin errores
-- `vitest run`: 32/32 tests pasando
-- `vite build`: exitoso (5.56s)
+| Queries Dashboard | 3 separadas | 1 RPC |
+| Políticas RLS | 12 | 22+ |
+| Tests | 0 | 32 |
+| Páginas con features | 7 | 8 (+Reports) |
