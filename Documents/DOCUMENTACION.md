@@ -710,6 +710,26 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 - **14 nuevos tests** para schemas (zod): validación de formulario, conditional logic, enums
 - **Total: 46 tests** (era 32)
 
+### 2026-04-25 — Limpieza de tipos any
+- **107 → 38 `any` types** en todo el frontend
+- Nuevo `src/lib/types.ts`: Interaction, Client, Profile, Product, DashboardData, SellerStats
+- OwnerView: 27→2, SellerView: 19→4, Reports: 24→8, Pipeline: 9→4
+- 38 restantes son en renderizado de charts y formularios complejos (difíciles de tipar sin refactor mayor)
+
+### 2026-04-25 — Commits de la sesión (9 commits)
+
+| Commit | Contenido |
+|--------|-----------|
+| `e9ae237` | Consolidar docs en DOCUMENTACION.md único |
+| `23dc63a` | Etapa 6.1-6.3: Privacy, Terms, eliminación de cuenta |
+| `66d25a5` | Runbook de incidentes + guía de staging |
+| `adebe9c` | Split Dashboard (803→322) e Interactions (835→273) |
+| `bbc8b78` | Pipeline Kanban con 5 columnas |
+| `59fdf51` | react-hook-form + zod en InteractionForm |
+| `418182a` | 14 tests nuevos (schemas zod) — total 46 |
+| `12103f6` | documentar: changelog completo de la sesión |
+| `18c67e5` + `d3c4897` | Limpieza de `any` types (107→38) |
+
 ---
 
 ## 10. Estado del proyecto
@@ -724,6 +744,7 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | CI/CD | ✅ | GitHub Actions → FTP con quality gates |
 | Seguridad | ✅ | 0 vulnerabilidades, secrets en GitHub, RLS granular |
 | Testing | ✅ | 46 tests unitarios (schemas, calculations, utils, ErrorBoundary), CI quality gates |
+| Tipos | 🟡 | 38 any restantes (charts, forms complejos) |
 | Documentación | ✅ | Este archivo consolidado |
 | PWA/Mobile | ✅ | Service worker, manifest, icons, push prep |
 | Analytics | ✅ | Reportes con KPIs, funnel, export PDF |
@@ -755,4 +776,5 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | Páginas | 7 | 9 (+Pipeline, +Privacy, +Terms) |
 | Formularios | useState manual | react-hook-form + zod |
 | Mayor componente | 864 líneas | 322 líneas |
+| `any` types | 107 | 38 |
 | Páginas con features | 7 | 8 (+Reports) |
