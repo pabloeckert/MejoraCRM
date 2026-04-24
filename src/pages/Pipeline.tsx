@@ -29,7 +29,7 @@ export default function Pipeline() {
 
   const filtered = useMemo(() => {
     if (!search) return interactions;
-    return interactions.filter((i: any) =>
+    return interactions.filter((i) =>
       i.clients?.name?.toLowerCase().includes(search.toLowerCase())
     );
   }, [interactions, search]);
@@ -37,7 +37,7 @@ export default function Pipeline() {
   const grouped = useMemo(() => {
     const groups: Record<string, any[]> = {};
     COLUMNS.forEach((c) => (groups[c.key] = []));
-    filtered.forEach((i: any) => {
+    filtered.forEach((i) => {
       if (groups[i.result]) groups[i.result].push(i);
     });
     // Sort each group by date desc
@@ -105,7 +105,7 @@ export default function Pipeline() {
                     {items.length === 0 ? (
                       <p className="text-xs text-muted-foreground text-center py-4">Sin interacciones</p>
                     ) : (
-                      items.map((i: any) => (
+                      items.map((i) => (
                         <KanbanCard key={i.id} interaction={i} onClick={() => navigate("/interactions")} />
                       ))
                     )}
@@ -132,7 +132,7 @@ export default function Pipeline() {
                   )}
                 </div>
                 <div className="space-y-1 mb-4">
-                  {items.map((i: any) => (
+                  {items.map((i) => (
                     <KanbanCard key={i.id} interaction={i} onClick={() => navigate("/interactions")} />
                   ))}
                 </div>
@@ -166,7 +166,7 @@ function KanbanCard({ interaction: i, onClick }: { interaction: any; onClick: ()
         )}
         {i.interaction_lines?.length > 0 && (
           <p className="text-[10px] text-muted-foreground truncate">
-            {i.interaction_lines.map((l: any) => l.products?.name).filter(Boolean).join(", ")}
+            {i.interaction_lines.map((l) => l.products?.name).filter(Boolean).join(", ")}
           </p>
         )}
         {i.next_step && <p className="text-xs text-muted-foreground truncate">→ {i.next_step}</p>}
