@@ -3,10 +3,10 @@
 > ## 📌 Instrucción "documentar"
 > Cuando el usuario diga **"documentar"**, el agente debe:
 > 1. Leer este archivo completo
-> 2. Agregar una nueva entrada en el [Registro de cambios](#9-registro-de-cambios) con la fecha actual
+> 2. Agregar una nueva entrada en el [Registro de cambios](#12-registro-de-cambios) con la fecha actual
 > 3. Documentar: trabajos realizados, decisiones tomadas, cambios aplicados, archivos modificados
-> 4. Actualizar el [Estado del proyecto](#10-estado-del-proyecto) si corresponde
-> 5. Actualizar el [Plan por etapas](#8-plan-por-etapas) si se completó alguna tarea
+> 4. Actualizar el [Estado del proyecto](#13-estado-del-proyecto) si corresponde
+> 5. Actualizar el [Plan por etapas](#9-plan-por-etapas) si se completó alguna tarea
 > 6. Hacer commit y push al repositorio
 > 7. Si hay deploy configurado, esperar a que complete
 
@@ -19,11 +19,14 @@
 3. [Arquitectura](#3-arquitectura)
 4. [Base de datos](#4-base-de-datos)
 5. [Seguridad y RLS](#5-seguridad-y-rls)
-6. [Análisis multidisciplinario](#6-análisis-multidisciplinario)
+6. [Infraestructura y hosting](#6-infraestructura-y-hosting)
 7. [Configuración y despliegue](#7-configuración-y-despliegue)
-8. [Plan por etapas](#8-plan-por-etapas)
-9. [Registro de cambios](#9-registro-de-cambios)
-10. [Estado del proyecto](#10-estado-del-proyecto)
+8. [Análisis multidisciplinario](#8-análisis-multidisciplinario)
+9. [Plan por etapas](#9-plan-por-etapas)
+10. [Runbook de incidentes](#10-runbook-de-incidentes)
+11. [Guía de staging](#11-guía-de-staging)
+12. [Registro de cambios](#12-registro-de-cambios)
+13. [Estado del proyecto](#13-estado-del-proyecto)
 
 ---
 
@@ -31,11 +34,9 @@
 
 | Documento | Descripción |
 |-----------|-------------|
-| [SETUP_COMPLETO.sql](./SETUP_COMPLETO.sql) | Script SQL completo para setup desde cero |
-| [MIGRACIONES_PENDIENTES.sql](./MIGRACIONES_PENDIENTES.sql) | Migraciones consolidadas (índices, RPC, RLS, vistas) |
-| [CRON_REFRESH_VISTAS.sql](./CRON_REFRESH_VISTAS.sql) | Configuración de pg_cron para refresh de vistas |
-| [RUNBOOK_INCIDENTES.md](./RUNBOOK_INCIDENTES.md) | Guía para diagnosticar y resolver incidentes |
-| [GUIA_STAGING.md](./GUIA_STAGING.md) | Guía para configurar environment de staging |
+| `SETUP_COMPLETO.sql` | Script SQL completo para setup desde cero |
+| `MIGRACIONES_PENDIENTES.sql` | Migraciones consolidadas (índices, RPC, RLS, vistas) |
+| `CRON_REFRESH_VISTAS.sql` | Configuración de pg_cron para refresh de vistas |
 
 ---
 
@@ -44,10 +45,18 @@
 **MejoraCRM** es un CRM web desarrollado por **Mejora Continua®** para gestión de clientes, interacciones comerciales y productos. Orientado a equipos de ventas en el sector forestal/agropecuario argentino.
 
 - **Producción:** [crm.mejoraok.com](https://crm.mejoraok.com)
-- **Repositorio:** [github.com/pabloeckert/mejoracrm](https://github.com/pabloeckert/mejoracrm)
+- **Repositorio:** [github.com/pabloeckert/MejoraCRM](https://github.com/pabloeckert/MejoraCRM)
 - **Supabase:** `fkjuswkjzaeuogctsxpw`
+- **Email:** hola@mejoraok.com
 - **Versión:** 1.0.0
 - **Package manager:** Bun
+
+### Contexto de infraestructura
+
+- **Hosting anterior:** Hostinger (FTP deploy) — **dado de baja**
+- **Email activo:** hola@mejoraok.com (único servicio conservado)
+- **Dominio:** mejoraok.com — requiere reconfiguración DNS apuntando a nuevo hosting
+- **Backend:** Supabase Cloud (sin cambios, independiente del hosting frontend)
 
 ### Scores de madurez
 
@@ -57,9 +66,9 @@
 | Arquitectura | 6/10 | 🟡 SPA monolítica, depende 100% de Supabase |
 | Seguridad | 8/10 | ✅ RLS endurecido, 0 vulnerabilidades npm |
 | Performance | 8/10 | ✅ Índices, RPC, code splitting, vistas materializadas |
-| Testing | 6/10 | 🟡 32 tests unitarios, CI quality gates |
+| Testing | 6/10 | 🟡 46 tests unitarios, CI quality gates |
 | UX/UI | 8/10 | ✅ Dark mode, onboarding, command palette |
-| DevOps | 7/10 | 🟡 CI/CD con quality gates, deploy FTP |
+| DevOps | 5/10 | 🔴 FTP deploy caído con Hostinger, sin hosting activo |
 | Documentación | 9/10 | ✅ Consolidada en este documento |
 | Mobile (PWA) | 7/10 | 🟡 PWA instalable, service worker, push prep |
 | Analytics | 8/10 | ✅ Reportes con 6 KPIs, funnel, export PDF |
@@ -80,6 +89,7 @@
 | Routing | React Router DOM | 6.x |
 | Icons | Lucide React | 0.462 |
 | Toasts | Sonner | 1.7 |
+| Forms | react-hook-form + zod | 7.x / 4.x |
 | Testing | Vitest + Testing Library | 3.x / 16.x |
 | Package Manager | Bun | latest |
 
@@ -93,18 +103,20 @@
 ┌─────────────────────┐     ┌─────────────────────────┐
 │   React SPA (Vite)  │────▶│   Supabase Cloud         │
 │  crm.mejoraok.com   │     │  Auth + PostgREST + PG   │
-│  (FTP deploy)        │     │  + Vistas materializadas  │
+│  (nuevo hosting)     │     │  + Vistas materializadas  │
 └─────────────────────┘     └─────────────────────────┘
 ```
 
 ### Estructura del proyecto
 
 ```
-mejoracrm/
+MejoraCRM/
 ├── src/
 │   ├── components/
 │   │   ├── ui/              # 15 componentes shadcn/ui
 │   │   ├── skeletons/       # DashboardSkeleton, ListSkeleton
+│   │   ├── dashboard/       # KPICard, OwnerView, SellerView
+│   │   ├── interactions/    # InteractionCard, InteractionForm, ProductLines
 │   │   ├── AppLayout.tsx    # Layout principal con sidebar
 │   │   ├── AppSidebar.tsx   # Navegación lateral
 │   │   ├── CommandPalette.tsx  # Ctrl+K búsqueda global
@@ -116,13 +128,16 @@ mejoracrm/
 │   │   ├── ThemeProvider.tsx
 │   │   └── ThemeToggle.tsx
 │   ├── pages/
-│   │   ├── Dashboard.tsx    # Vista Owner/Seller
+│   │   ├── Dashboard.tsx    # Vista Owner/Seller (orquestador)
 │   │   ├── Clients.tsx      # CRUD clientes
-│   │   ├── Interactions.tsx # CRUD interacciones
+│   │   ├── Interactions.tsx # CRUD interacciones (orquestador)
 │   │   ├── Products.tsx     # Catálogo productos
+│   │   ├── Pipeline.tsx     # Kanban de ventas
 │   │   ├── Reports.tsx      # Analytics y KPIs
 │   │   ├── Settings.tsx     # Configuración
 │   │   ├── Auth.tsx         # Login/Registro
+│   │   ├── Privacy.tsx      # Política de privacidad
+│   │   ├── Terms.tsx        # Términos de servicio
 │   │   └── NotFound.tsx     # 404
 │   ├── contexts/
 │   │   └── AuthContext.tsx   # Auth + roles
@@ -141,20 +156,22 @@ mejoracrm/
 │   ├── lib/
 │   │   ├── calculations.ts  # Lógica de negocio (KPIs, ranking)
 │   │   ├── notifications.ts # Push notifications API
+│   │   ├── schemas.ts       # Zod schemas para formularios
+│   │   ├── types.ts         # Tipos compartidos
 │   │   └── utils.ts         # cn() helper
 │   ├── assets/
 │   └── test/
 ├── supabase/
 │   └── migrations/          # 7 migraciones SQL
 ├── public/
-│   ├── icons/               # PWA icons (192, 512, apple-touch, favicons)
+│   ├── icons/               # PWA icons
 │   ├── fonts/               # LeagueSpartan, BwModelica
 │   ├── manifest.json
 │   ├── sw.js
 │   └── .htaccess
 ├── Documents/               # Este archivo + SQL scripts
 └── .github/workflows/
-    └── deploy.yml           # CI/CD: quality → build → FTP deploy
+    └── deploy.yml           # CI/CD: quality → build → deploy
 ```
 
 ### Routing
@@ -164,9 +181,12 @@ mejoracrm/
 | `/` | Dashboard | Todos (vista varía por rol) |
 | `/clients` | Clients | Todos |
 | `/interactions` | Interactions | Todos |
+| `/pipeline` | Pipeline | Todos |
 | `/products` | Products | Admin/Supervisor |
 | `/reports` | Reports | Admin/Supervisor |
 | `/settings` | Settings | Admin |
+| `/privacy` | Privacy | Público |
+| `/terms` | Terms | Público |
 | `/auth` | Auth | Público |
 | `*` | NotFound | Público |
 
@@ -220,7 +240,7 @@ followup_scenario:  vinculado, independiente, historico
 negotiation_state:  con_interes, sin_respuesta, revisando, pidio_cambios
 ```
 
-### Tablas
+### Tablas principales
 
 #### profiles
 | Columna | Tipo | Notas |
@@ -346,6 +366,7 @@ idx_interaction_lines_product     ON interaction_lines(product_id)
 | `get_notifications_data()` | RPC | Consolida datos de notificaciones en 1 llamada |
 | `get_seller_ranking(period_start)` | RPC | Ranking pre-computado por período |
 | `refresh_materialized_views()` | Admin | Refresca vistas materializadas |
+| `request_account_deletion()` | RPC | Elimina datos del usuario (GDPR) |
 
 ### Vistas materializadas
 
@@ -389,75 +410,114 @@ Todas las tablas tienen Row Level Security activado con 22+ políticas granulare
 
 Tabla `audit_log` con trigger genérico en clients, interactions, products, user_roles. Registra old/new data y changed_fields. Cleanup automático de logs > 90 días.
 
+### Eliminación de cuenta
+
+Función `request_account_deletion()` que elimina datos del usuario y anonimiza el perfil. Cumple con derecho de supresión (Ley 25.326 / GDPR).
+
 ---
 
-## 6. Análisis multidiplinario
+## 6. Infraestructura y hosting
 
-### Evaluación por rol profesional
+### Situación actual
 
-#### Área Técnica
+| Servicio | Estado | Detalle |
+|----------|--------|---------|
+| Dominio mejoraok.com | ⚠️ Reconfigurar | DNS debe apuntar al nuevo hosting |
+| Email hola@mejoraok.com | ✅ Activo | Único servicio conservado de Hostinger |
+| Frontend CRM | 🔴 Sin hosting | Hostinger dado de baja, FTP caído |
+| Backend Supabase | ✅ Activo | Cloud, independiente del hosting |
+| CI/CD GitHub Actions | ⚠️ Pendiente | Workflow existe pero FTP target caído |
 
-| Rol | Score | Estado | Hallazgos clave |
-|-----|-------|--------|-----------------|
-| Software Architect | 6/10 | 🟡 | SPA monolítica, 100% acoplada a Supabase |
-| Cloud Architect | 6/10 | 🟡 | Sin CDN, sin staging, FTP deploy, bajo costo |
-| Backend Developer | 8/10 | ✅ | Schema normalizado, 11 índices, 3 RPCs, 2 vistas materializadas |
-| Frontend Developer | 7/10 | 🟡 | 32 tests, hooks centralizados, pero componentes >500 líneas |
-| iOS/Android Developer | 7/10 | 🟡 | PWA implementada, push notifications preparadas |
-| DevOps Engineer | 7/10 | 🟡 | CI/CD con quality gates, pero deploy FTP sin rollback |
-| SRE | 4/10 | 🔴 | Sin monitoring, sin alertas, sin error tracking |
-| Cybersecurity | 8/10 | ✅ | RLS endurecido, 0 vulns npm, secrets en GitHub |
-| Data Engineer | 6/10 | 🟡 | Vistas materializadas + cron, sin ETL formal |
-| ML Engineer | 1/10 | 🔴 | Sin ML (volumen insuficiente, no prioritario) |
-| QA Automation | 6/10 | 🟡 | 32 tests, CI quality gates, sin E2E |
-| DBA | 8/10 | ✅ | Schema optimizado, índices, funciones, vistas |
+### Recomendación de hosting
 
-#### Área de Producto y Gestión
+Para un SPA estático (React/Vite) con backend en Supabase, las mejores opciones son:
 
-| Rol | Score | Estado | Hallazgos clave |
-|-----|-------|--------|-----------------|
-| Product Manager | 7/10 | 🟡 | Nicho claro, diferenciadores definidos, gap en features |
-| Product Owner | 7/10 | 🟡 | Backlog priorizado, 5 etapas completadas de 6 |
-| Scrum Master | 5/10 | 🟡 | Sin formalismo, Kanban recomendado para equipo pequeño |
-| UX Researcher | 2/10 | 🔴 | Sin investigación de usuarios real |
-| UX Designer | 7/10 | 🟡 | Heurísticas Nielsen mejoradas, onboarding implementado |
-| UI Designer | 8/10 | ✅ | Dark mode, skeletons, empty states, brand consistente |
-| UX Writer | 7/10 | 🟡 | Copy funcional, necesita unificación de voz |
-| Localization | 1/10 | 🔴 | Hardcoded español, sin i18n (no prioritario para AR) |
-| Delivery Manager | 7/10 | 🟡 | Lead time <5min, sin staging, sin feature flags |
+#### Opción A: Vercel ⭐ RECOMENDADA
 
-#### Área Comercial y de Crecimiento
+| Aspecto | Detalle |
+|---------|---------|
+| Costo | Free (Hobby) — 100GB bandwidth/mes |
+| Deploy | Git push automático (main → prod, branches → preview) |
+| CDN | Global edge network |
+| SSL | Automático (Let's Encrypt) |
+| Custom domain | ✅ crm.mejoraok.com |
+| Rollback | Instantáneo (1 click) |
+| Preview deploys | ✅ Automático por PR |
+| Analytics | Incluido (Core Web Vitals) |
+| Config | Framework: Vite, Build: `bun run build`, Output: `dist` |
 
-| Rol | Score | Estado | Hallazgos clave |
-|-----|-------|--------|-----------------|
-| Growth Manager | 4/10 | 🟡 | CRM interno, sin métricas de uso |
-| ASO Specialist | N/A | — | No aplica (no hay app store) |
-| Performance Marketing | N/A | — | No hay paid ads |
-| SEO | 3/10 | 🟡 | Solo login indexable, sin OG tags |
-| Business Dev | 5/10 | 🟡 | Oportunidades de partnership identificadas |
-| Account Manager | 7/10 | 🟡 | Stakeholder activo, bajo churn risk |
-| Content Manager | 3/10 | 🟡 | Docs técnicas sí, guías de usuario no |
-| Community Manager | N/A | — | No aplica (producto interno) |
+**Ventajas:** Deploy más simple, preview por PR, analytics incluido, rollback instantáneo, sin mantener secrets FTP.
 
-#### Área de Operaciones, Legal y Análisis
+**Pasos:**
+1. Crear cuenta en vercel.com con GitHub
+2. Importar repo `pabloeckert/MejoraCRM`
+3. Configurar: Framework = Vite, Build = `bun run build`, Output = `dist`
+4. Agregar env vars: `VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_URL`
+5. Custom domain: agregar `crm.mejoraok.com` en Vercel
+6. DNS: crear CNAME `crm` → `cname.vercel-dns.com`
 
-| Rol | Score | Estado | Hallazgos clave |
-|-----|-------|--------|-----------------|
-| BI Analyst | 8/10 | ✅ | Dashboard con KPIs, reportes con funnel y charts |
-| Data Scientist | 4/10 | 🟡 | Volumen insuficiente para ML |
-| Legal & Compliance | 2/10 | 🔴 | Sin ToS, sin Privacy Policy, sin cookies |
-| DPO | 2/10 | 🔴 | Sin registro de tratamiento, Ley 25.326 no cumplida |
-| Customer Success | 5/10 | 🟡 | Onboarding implementado, sin feedback in-app |
-| Technical Support | 4/10 | 🟡 | GitHub Issues como T3, sin T1/T2 formal |
-| RevOps | 1/10 | 🔴 | Producto interno, sin monetización |
+#### Opción B: Cloudflare Pages
 
-### Top 5 áreas de mejora
+| Aspecto | Detalle |
+|---------|---------|
+| Costo | Free — requests ilimitados, 500MB bandwidth/mes (suficiente) |
+| Deploy | Git push automático |
+| CDN | Cloudflare global (el más rápido) |
+| SSL | Automático |
+| Custom domain | ✅ |
+| Rollback | ✅ |
+| Preview deploys | ✅ Por branch |
 
-1. **Legal/Compliance** — Sin Privacy Policy ni ToS (riesgo bajo Ley 25.326)
-2. **SRE/Monitoring** — Sin herramientas de observabilidad
-3. **UX Research** — Sin datos de usuarios reales
-4. **Componentes grandes** — Dashboard (821L), Interactions (864L) necesitan splitting
-5. **Staging/Deploy** — FTP sin rollback, sin environment de staging
+**Ventajas:** CDN de Cloudflare (el más rápido del mundo), requests ilimitados gratis.
+
+**Pasos:**
+1. Crear cuenta en dash.cloudflare.com
+2. Pages → Create → Connect to Git
+3. Configurar: Framework = Vite, Build = `bun run build`, Output = `dist`
+4. Custom domain: agregar crm.mejoraok.com
+5. DNS automático si el dominio está en Cloudflare
+
+#### Opción C: Netlify
+
+| Aspecto | Detalle |
+|---------|---------|
+| Costo | Free — 100GB bandwidth/mes |
+| Deploy | Git push automático |
+| CDN | Global |
+| SSL | Automático |
+| Preview deploys | ✅ |
+
+Similar a Vercel. Menos popular para proyectos nuevos pero igualmente sólido.
+
+#### Comparativa rápida
+
+| Criterio | Vercel | Cloudflare Pages | Netlify |
+|----------|--------|-----------------|---------|
+| Free tier | 100GB | requests ∞ | 100GB |
+| Deploy speed | ~30s | ~20s | ~30s |
+| CDN | Global | Cloudflare (top) | Global |
+| Preview por PR | ✅ | ✅ | ✅ |
+| Rollback | ✅ | ✅ | ✅ |
+| Analytics | ✅ Incluido | ✅ Web Analytics | ❌ (pagar) |
+| DX (Developer Experience) | Excelente | Bueno | Bueno |
+| Edge functions | ✅ | ✅ Workers | ✅ Functions |
+
+**Veredicto:** **Vercel** es la opción recomendada por DX, analytics incluido, y ecosistema React. Cloudflare Pages es la segunda opción si se prioriza rendimiento de CDN.
+
+### Plan de migración DNS
+
+```
+1. Elegir hosting (Vercel recomendado)
+2. Conectar repo GitHub
+3. Configurar env vars de Supabase
+4. Agregar custom domain crm.mejoraok.com
+5. Actualizar DNS:
+   - crm → CNAME → cname.vercel-dns.com
+   - (o el registro que indique Vercel)
+6. Verificar SSL automático
+7. Probar https://crm.mejoraok.com
+8. Actualizar deploy.yml (remover FTP, agregar Vercel/CF)
+```
 
 ---
 
@@ -467,15 +527,15 @@ Tabla `audit_log` con trigger genérico en clients, interactions, products, user
 
 ```env
 VITE_SUPABASE_PROJECT_ID=fkjuswkjzaeuogctsxpw
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_G7KU4fZN7IwQU56gzcd-2g_0ink6xu4
+VITE_SUPABASE_PUBLISHABLE_KEY=<en .env, no commitear>
 VITE_SUPABASE_URL=https://fkjuswkjzaeuogctsxpw.supabase.co
 ```
 
 ### Setup local
 
 ```bash
-git clone https://github.com/pabloeckert/mejoracrm.git
-cd mejoracrm
+git clone https://github.com/pabloeckert/MejoraCRM.git
+cd MejoraCRM
 cp .env.example .env  # Editar con credenciales
 bun install
 bun dev
@@ -483,29 +543,15 @@ bun dev
 
 ### CI/CD (GitHub Actions)
 
+Estado actual: workflow apunta a FTP de Hostinger (caído).
+
+**Nuevo flujo recomendado (con Vercel):**
 ```
-push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejoraok.com
+push main → quality (tsc + lint + test) → Vercel deploy automático
+push branch → quality → preview URL automática
 ```
 
-### Infraestructura
-
-| Servicio | Detalle |
-|----------|---------|
-| Frontend | crm.mejoraok.com (FTP deploy) |
-| Backend | Supabase Cloud |
-| CI/CD | GitHub Actions |
-| DNS | Subdominio crm.mejoraok.com |
-
-### FTP
-
-| Campo | Valor |
-|-------|-------|
-| Host | 185.212.70.250 |
-| User | u846064658.mejoraok.com |
-| Port | 21 |
-| Dir | /home/u846064658/domains/mejoraok.com/public_html/crm |
-
-> ⚠️ Las credenciales FTP están en GitHub Secrets, no en el repo.
+El workflow de quality checks se mantiene. El deploy lo maneja Vercel directamente (no necesita GitHub Actions para deploy).
 
 ### Scripts SQL
 
@@ -517,25 +563,115 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 
 ---
 
-## 8. Plan por etapas
+## 8. Análisis multidisciplinario
+
+Evaluación completa del proyecto desde la perspectiva de cada rol profesional. Score: 1-10.
+
+### Área Técnica
+
+| Rol | Score | Estado | Hallazgos | Acciones prioritarias |
+|-----|-------|--------|-----------|----------------------|
+| **Software Architect** | 6/10 | 🟡 | SPA monolítica, 100% acoplada a Supabase, sin abstracción de backend | Estraña interfaz para desacoplar Supabase (preparar migración futura). Separar lógica de negocio de hooks. |
+| **Cloud Architect** | 6/10 | 🟡 | Sin CDN propio, FTP caído, bajo costo actual | Migrar a Vercel/CF Pages. Evaluar Supabase Pro si crece el uso. |
+| **Backend Developer** | 8/10 | ✅ | Schema normalizado, 11 índices, 3 RPCs, 2 vistas materializadas | Optimizar RPCs con `json_build_object` más eficiente. Considerar Edge Functions para lógica compleja. |
+| **Frontend Developer** | 7/10 | 🟡 | 46 tests, hooks centralizados, componentes splitteados | Reducir 38 `any` restantes. Migrar Clients/Products a react-hook-form. |
+| **iOS Developer** | 7/10 | 🟡 | PWA implementada, push notifications preparadas | Testear PWA en iOS Safari. Implementar push notifications reales. |
+| **Android Developer** | 7/10 | 🟡 | PWA + manifest correcto | Testear en Chrome Android. Implementar share target. |
+| **DevOps Engineer** | 5/10 | 🔴 | FTP caído, sin hosting activo, CI parcial | Migrar a Vercel. Agregar staging environment. Automatizar backups de Supabase. |
+| **SRE** | 4/10 | 🔴 | Sin monitoring, sin alertas, sin error tracking | Sentry para errores. UptimeRobot para uptime. Dashboard de métricas Supabase. |
+| **Cybersecurity Architect** | 8/10 | ✅ | RLS endurecido, 0 vulns npm, secrets en GitHub | Rotar anon key (expuesta en commit histórico). Auditoría RLS periódica. |
+| **Data Engineer** | 6/10 | 🟡 | Vistas materializadas + cron, sin ETL formal | Considerar Airbyte/Fivetran si necesita integrar fuentes externas. |
+| **ML Engineer** | 1/10 | 🔴 | Sin ML (volumen insuficiente) | No prioritario. Cuando haya 1000+ clientes: scoring de leads, churn prediction. |
+| **QA Automation** | 6/10 | 🟡 | 46 tests, CI quality gates, sin E2E | Agregar Playwright/Cypress para flujos críticos (login, crear interacción). |
+| **DBA** | 8/10 | ✅ | Schema optimizado, índices, funciones, vistas | Monitorear uso de índices. Considerar partición si audit_log crece mucho. |
+
+### Área de Producto y Gestión
+
+| Rol | Score | Estado | Hallazgos | Acciones prioritarias |
+|-----|-------|--------|-----------|----------------------|
+| **Product Manager** | 7/10 | 🟡 | Nicho claro (forestal AR), diferenciadores definidos | Definir roadmap Q3/Q4. Investigar competidores (HubSpot, Pipedrive para AR). |
+| **Product Owner** | 7/10 | 🟡 | Backlog priorizado, 5/6 etapas completadas | Cerrar etapa 6. Definir criterios de aceptación para v2. |
+| **Scrum Master** | 5/10 | 🟡 | Sin formalismo de procesos | Kanban con WIP limits para equipo pequeño. Daily async si crece el equipo. |
+| **UX Researcher** | 2/10 | 🔴 | Sin investigación de usuarios real | Entrevistar 5 usuarios alpha. Crear user personas. Mapa de empatía. |
+| **UX Designer** | 7/10 | 🟡 | Heurísticas Nielsen mejoradas, onboarding implementado | Test de usabilidad con 3-5 usuarios. Revisar flujos de error. |
+| **UI Designer** | 8/10 | ✅ | Dark mode, skeletons, empty states, brand consistente | Microinteracciones. Animaciones de transición entre páginas. |
+| **UX Writer** | 7/10 | 🟡 | Copy funcional, necesita unificación de voz | Crear guía de tono. Unificar mensajes de error. Mejorar tooltips. |
+| **Localization Manager** | 1/10 | 🔴 | Hardcoded español, sin i18n | No prioritario para AR. Si expandir a otros países: react-i18next. |
+| **Delivery Manager** | 7/10 | 🟡 | Lead time <5min, sin staging, sin feature flags | Staging environment. Feature flags con LaunchDarkly/Unleash (self-hosted). |
+
+### Área Comercial y de Crecimiento
+
+| Rol | Score | Estado | Hallazgos | Acciones prioritarias |
+|-----|-------|--------|-----------|----------------------|
+| **Growth Manager** | 4/10 | 🟡 | CRM interno, sin métricas de uso | Analytics de uso (PostHog/Mixpanel). Tracking de activación. |
+| **ASO Specialist** | N/A | — | No aplica (no hay app nativa) | Si se lanza app nativa: optimizar listing. |
+| **Performance Marketing** | N/A | — | No hay paid ads | No prioritario (producto interno). |
+| **SEO Specialist** | 3/10 | 🟡 | Solo login indexable, sin OG tags | Agregar meta tags, OG image, sitemap básico. |
+| **Business Dev** | 5/10 | 🟡 | Oportunidades de partnership identificadas | Contactar distribuidores forestales. Partnership con consultoras. |
+| **Account Manager** | 7/10 | 🟡 | Stakeholder activo, bajo churn risk | Feedback mensual con usuario principal. Roadmap compartido. |
+| **Content Manager** | 3/10 | 🟡 | Docs técnicas sí, guías de usuario no | Crear guía de usuario con screenshots. Video tutorial básico. |
+| **Community Manager** | N/A | — | No aplica (producto interno) | — |
+
+### Área de Operaciones, Legal y Análisis
+
+| Rol | Score | Estado | Hallazgos | Acciones prioritarias |
+|-----|-------|--------|-----------|----------------------|
+| **BI Analyst** | 8/10 | ✅ | Dashboard con KPIs, reportes con funnel y charts | Agregar export a Excel. Dashboard personalizable por usuario. |
+| **Data Scientist** | 4/10 | 🟡 | Volumen insuficiente para ML | Cuando haya datos: predicción de ventas, detección de churn. |
+| **Legal & Compliance** | 5/10 | 🟡 | Privacy Policy + ToS implementados | Revisar con abogado local. Agregar política de cookies. |
+| **DPO** | 4/10 | 🟡 | Eliminación de cuenta implementada | Registro de actividades de tratamiento. Evaluación de impacto. |
+| **Customer Success** | 5/10 | 🟡 | Onboarding implementado, sin feedback in-app | NPS survey in-app. Health score por cliente. |
+| **Technical Support** | 4/10 | 🟡 | GitHub Issues como T3, sin T1/T2 formal | Crear canal de soporte (email hola@mejoraok.com). FAQ in-app. |
+| **RevOps** | 1/10 | 🔴 | Producto interno, sin monetización | No prioritario. Si se comercializa: pricing, tiers, billing. |
+
+### Top 5 áreas de mejora (global)
+
+1. **Hosting/DevOps** — Sin hosting activo, migrar a Vercel/CF Pages (P0)
+2. **SRE/Monitoring** — Sin herramientas de observabilidad (P1)
+3. **UX Research** — Sin datos de usuarios reales (P1)
+4. **QA E2E** — Sin tests end-to-end (P1)
+5. **Legal** — Privacy Policy necesita revisión profesional (P2)
+
+---
+
+## 9. Plan por etapas
 
 ### Resumen
 
-| Etapa | Nombre | Estado | Semanas |
-|-------|--------|--------|---------|
-| 1 | Estabilidad y confianza | ✅ COMPLETADA | 1-2 |
-| 2 | Performance y confiabilidad | ✅ COMPLETADA | 3-4 |
-| 3 | Mobile y PWA | ✅ COMPLETADA | 5-7 |
-| 4 | UX y onboarding | ✅ COMPLETADA | 8-10 |
-| 5 | Analytics y reportes | ✅ COMPLETADA | 11-13 |
-| 6 | Escalabilidad y compliance | ⏳ PENDIENTE | 14-16 |
+| Etapa | Nombre | Estado | Semanas | Foco |
+|-------|--------|--------|---------|------|
+| 0 | Infraestructura base | ⏳ PENDIENTE | 0-1 | Hosting, DNS, deploy |
+| 1 | Estabilidad y confianza | ✅ COMPLETADA | 1-2 | Error handling, tests, CI |
+| 2 | Performance y confiabilidad | ✅ COMPLETADA | 3-4 | RPCs, hooks, paginación |
+| 3 | Mobile y PWA | ✅ COMPLETADA | 5-7 | PWA, responsive, push |
+| 4 | UX y onboarding | ✅ COMPLETADA | 8-10 | Onboarding, dark mode, UX |
+| 5 | Analytics y reportes | ✅ COMPLETADA | 11-13 | KPIs, funnel, export |
+| 6 | Escalabilidad y compliance | ⏳ PARCIAL | 14-16 | Legal, staging, monitoring |
+| 7 | Crecimiento y profesionalización | 🔜 NUEVA | 17-22 | UX Research, marketing, soporte |
+| 8 | Escala y automatización | 🔜 NUEVA | 23-30 | ML, integraciones, multi-tenant |
+
+---
+
+### Etapa 0 — Infraestructura base ⏳
+
+> **Roles involucrados:** Cloud Architect, DevOps Engineer, SRE, Cybersecurity
+
+| # | Tarea | Prioridad | Rol | Estado |
+|---|-------|-----------|-----|--------|
+| 0.1 | Migrar hosting a Vercel o Cloudflare Pages | P0 | Cloud Architect | ⏳ |
+| 0.2 | Configurar DNS: crm.mejoraok.com → nuevo hosting | P0 | DevOps | ⏳ |
+| 0.3 | Configurar env vars en nuevo hosting | P0 | DevOps | ⏳ |
+| 0.4 | Actualizar GitHub Actions (remover FTP) | P0 | DevOps | ⏳ |
+| 0.5 | Verificar SSL y PWA en nuevo hosting | P1 | SRE | ⏳ |
+| 0.6 | Rotar anon key de Supabase (expuesta en commit) | P0 | Cybersecurity | ⏳ |
+| 0.7 | Staging environment (Vercel preview o subdominio) | P1 | DevOps | ⏳ |
 
 ### Etapa 1 — Estabilidad y confianza ✅
 
 | # | Tarea | Estado |
 |---|-------|--------|
 | 1.1 | Error boundary global | ✅ |
-| 1.2 | 32 tests unitarios | ✅ |
+| 1.2 | 46 tests unitarios | ✅ |
 | 1.3 | CI: lint + typecheck + test | ✅ |
 | 1.4 | Sentry error tracking | ⏳ (requiere cuenta Sentry) |
 | 1.5 | Skeleton loading states | ✅ |
@@ -549,7 +685,7 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | 2.3 | Paginación en Clients | ✅ |
 | 2.4 | Paginación en Interactions | ✅ |
 | 2.5 | 7 custom hooks centralizados | ✅ |
-| 2.6 | Reemplazar `any` types | ⏳ Parcial |
+| 2.6 | Reemplazar `any` types | 🟡 Parcial (38 restantes) |
 
 ### Etapa 3 — Mobile y PWA ✅
 
@@ -567,40 +703,209 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 | # | Tarea | Estado |
 |---|-------|--------|
 | 4.1 | Onboarding wizard (3 pasos) | ✅ |
-| 4.2 | Tooltips contextuales | ⏳ (onboarding cubre caso) |
-| 4.3 | Split Dashboard.tsx | ⏳ (diferido a v2) |
-| 4.4 | Split Interactions.tsx | ⏳ (diferido a v2) |
-| 4.5 | Command palette (Ctrl+K) | ✅ |
-| 4.6 | Dark mode | ✅ |
-| 4.7 | Empty states con CTAs | ✅ |
+| 4.2 | Command palette (Ctrl+K) | ✅ |
+| 4.3 | Dark mode | ✅ |
+| 4.4 | Empty states con CTAs | ✅ |
+| 4.5 | Split Dashboard.tsx (803→322 líneas) | ✅ |
+| 4.6 | Split Interactions.tsx (835→273 líneas) | ✅ |
 
 ### Etapa 5 — Analytics y reportes ✅
 
 | # | Tarea | Estado |
 |---|-------|--------|
 | 5.1 | Página Reportes con 6 KPIs | ✅ |
-| 5.2 | Pipeline visual (Kanban) | ⏳ (funnel cumple rol) |
-| 5.3 | Funnel analysis | ✅ |
-| 5.4 | Exportación a PDF | ✅ |
-| 5.5 | Audit log (tabla + triggers) | ✅ |
-| 5.6 | Google Calendar OAuth | ⏳ (placeholder en Settings) |
+| 5.2 | Funnel analysis | ✅ |
+| 5.3 | Exportación a PDF | ✅ |
+| 5.4 | Audit log (tabla + triggers) | ✅ |
+| 5.5 | Pipeline Kanban (5 columnas) | ✅ |
+| 5.6 | react-hook-form + zod en InteractionForm | ✅ |
 
 ### Etapa 6 — Escalabilidad y compliance ⏳
 
-| # | Tarea | Prioridad | Estado |
-|---|-------|-----------|--------|
-| 6.1 | Política de Privacidad (Ley 25.326) | P0 | ✅ |
-| 6.2 | Términos de Servicio | P0 | ✅ |
-| 6.3 | Mecanismo de eliminación de datos | P1 | ✅ |
-| 6.4 | Environment de staging | P1 | ⏳ (guía creada) |
-| 6.5 | Deploy FTP → Vercel/Cloudflare Pages | P1 | ⏳ |
-| 6.6 | UptimeRobot monitoreo | P1 | ⏳ (requiere cuenta) |
-| 6.7 | Runbook de incidentes | P2 | ✅ |
-| 6.8 | Evaluar Supabase Pro | P2 | ⏳ |
+| # | Tarea | Prioridad | Rol | Estado |
+|---|-------|-----------|-----|--------|
+| 6.1 | Política de Privacidad (Ley 25.326) | P0 | Legal | ✅ |
+| 6.2 | Términos de Servicio | P0 | Legal | ✅ |
+| 6.3 | Eliminación de cuenta | P1 | DPO | ✅ |
+| 6.4 | Staging environment | P1 | DevOps | ⏳ |
+| 6.5 | Deploy moderno (Vercel/CF Pages) | P0 | DevOps | ⏳ |
+| 6.6 | Sentry error tracking | P1 | SRE | ⏳ |
+| 6.7 | UptimeRobot monitoreo | P1 | SRE | ⏳ |
+| 6.8 | Runbook de incidentes | P2 | SRE | ✅ (en este doc) |
+| 6.9 | Evaluar Supabase Pro | P2 | DBA | ⏳ |
+| 6.10 | Backup automático Supabase | P1 | DBA | ⏳ |
+
+### Etapa 7 — Crecimiento y profesionalización 🔜
+
+> **Roles involucrados:** UX Researcher, UX Designer, Content Manager, Growth Manager, Customer Success, Technical Support, SEO, Business Dev
+
+| # | Tarea | Prioridad | Rol | Estado |
+|---|-------|-----------|-----|--------|
+| 7.1 | Entrevistar 5 usuarios alpha | P0 | UX Researcher | ⏳ |
+| 7.2 | User personas (3 perfiles) | P1 | UX Researcher | ⏳ |
+| 7.3 | Test de usabilidad (3-5 usuarios) | P1 | UX Designer | ⏳ |
+| 7.4 | Guía de usuario con screenshots | P1 | Content Manager | ⏳ |
+| 7.5 | Video tutorial básico (3 min) | P2 | Content Manager | ⏳ |
+| 7.6 | NPS survey in-app | P1 | Customer Success | ⏳ |
+| 7.7 | Canal de soporte (email + FAQ in-app) | P1 | Tech Support | ⏳ |
+| 7.8 | Meta tags + OG image + sitemap | P2 | SEO | ⏳ |
+| 7.9 | Analytics de uso (PostHog) | P1 | Growth Manager | ⏳ |
+| 7.10 | Tracking de activación (funnel onboarding) | P1 | Growth Manager | ⏳ |
+| 7.11 | Migrar Clients.tsx a react-hook-form + zod | P2 | Frontend | ⏳ |
+| 7.12 | Migrar Products.tsx a react-hook-form + zod | P2 | Frontend | ⏳ |
+| 7.13 | Tests E2E con Playwright (flujos críticos) | P1 | QA Automation | ⏳ |
+| 7.14 | Google Calendar OAuth (Settings) | P2 | Backend | ⏳ |
+
+### Etapa 8 — Escala y automatización 🔜
+
+> **Roles involucrados:** ML Engineer, Data Engineer, Backend, Business Dev, RevOps
+
+| # | Tarea | Prioridad | Rol | Estado |
+|---|-------|-----------|-----|--------|
+| 8.1 | Scoring de leads (ML) | P2 | ML Engineer | ⏳ |
+| 8.2 | Predicción de churn de clientes | P2 | ML Engineer | ⏳ |
+| 8.3 | Integración con WhatsApp Business API | P1 | Backend | ⏳ |
+| 8.4 | Integración con email marketing | P2 | Data Engineer | ⏳ |
+| 8.5 | Multi-tenant (si se comercializa) | P2 | Software Architect | ⏳ |
+| 8.6 | Pricing tiers y billing | P2 | RevOps | ⏳ |
+| 8.7 | API pública para integraciones | P2 | Backend | ⏳ |
+| 8.8 | App nativa (iOS/Android) | P3 | Mobile | ⏳ |
 
 ---
 
-## 9. Registro de cambios
+## 10. Runbook de incidentes
+
+### Contactos
+
+| Rol | Responsable | Contacto |
+|-----|------------|----------|
+| Admin Supabase | — | Supabase Dashboard |
+| Admin Hosting | — | Vercel/CF Dashboard |
+| Admin DNS | — | Panel de dominio |
+| Email | — | hola@mejoraok.com |
+
+### URLs clave
+
+| Servicio | URL |
+|----------|-----|
+| Producción | https://crm.mejoraok.com |
+| Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
+| GitHub Actions | https://github.com/pabloeckert/MejoraCRM/actions |
+| Vercel Dashboard | https://vercel.com/dashboard (una vez configurado) |
+
+### Escenario 1: La app no carga (página en blanco)
+
+**Diagnóstico:**
+1. DevTools → Console → errores rojos
+2. Verificar si `https://crm.mejoraok.com` responde
+3. Verificar Supabase status: https://status.supabase.com
+
+**Causas posibles:**
+- Error de JS → revertir deploy
+- Supabase caído → esperar o contactar soporte
+- CORS → verificar allowed origins en Supabase
+- Env vars → verificar en dashboard de hosting
+
+**Resolución:**
+```bash
+# Revertir (Vercel: instant rollback desde dashboard)
+# O revertir código:
+git revert HEAD && git push origin main
+```
+
+### Escenario 2: Error de autenticación
+
+**Diagnóstico:**
+1. Supabase Dashboard → Authentication → Users
+2. Verificar usuario exista y esté confirmado
+3. Verificar RLS no bloquee
+
+**Resolución:** Confirmar email manualmente si necesario. Verificar `handle_new_user()` trigger.
+
+### Escenario 3: Datos no aparecen (listas vacías)
+
+**Diagnóstico:**
+1. Verificar RLS en Supabase Dashboard
+2. Verificar datos en Table Editor
+3. Console del navegador para errores de red
+
+**Resolución:**
+```sql
+SELECT * FROM pg_policies WHERE tablename = 'clients';
+SELECT COUNT(*) FROM clients;
+SELECT get_dashboard_data();
+```
+
+### Escenario 4: Deploy fallido
+
+**Diagnóstico:**
+1. GitHub Actions → run fallido → revisar step
+
+**Causas comunes:**
+- `tsc --noEmit` → error de TypeScript
+- `eslint` → error de linting
+- `vitest run` → test roto
+- `bun install` → regenerar lockfile
+
+### Escenario 5: Supabase — Límites alcanzados
+
+**Límites plan Free:** 500MB storage, 2GB transfer/mes, 50K usuarios activos/mes.
+
+**Resolución:** Upgrade a Supabase Pro ($25/mes).
+
+### Escenario 6: Rendimiento lento
+
+**Diagnóstico:**
+```sql
+EXPLAIN ANALYZE SELECT * FROM clients WHERE assigned_to = '<user_id>';
+SELECT refresh_materialized_views();
+SELECT * FROM pg_stat_user_tables WHERE schemaname = 'public';
+```
+
+### Escenario 7: Datos corruptos o eliminados
+
+**Diagnóstico:**
+```sql
+SELECT * FROM audit_log ORDER BY changed_at DESC LIMIT 50;
+```
+
+**Prevención:** Audit log activo. Considerar soft delete para datos críticos.
+
+### Checklist post-incidente
+
+- [ ] Causa raíz identificada
+- [ ] Tiempo de degradación medido
+- [ ] Usuarios afectados cuantificados
+- [ ] Medidas preventivas definidas
+- [ ] Runbook actualizado
+- [ ] Test preventivo creado
+
+---
+
+## 11. Guía de staging
+
+### Opción 1: Vercel Preview Deploys (recomendada)
+
+Vercel genera un preview URL automáticamente por cada PR. No necesita configuración adicional.
+
+- `main` → producción (crm.mejoraok.com)
+- Cualquier branch → preview URL única
+
+### Opción 2: Staging manual
+
+1. Crear segundo proyecto Supabase: `mejoracrm-staging`
+2. Ejecutar `SETUP_COMPLETO.sql` en el nuevo proyecto
+3. Crear `.env.staging` con credenciales del proyecto staging
+4. Build: `bun run build --mode staging`
+5. Deploy a subdominio: `staging.crm.mejoraok.com`
+
+### Opción 3: Cloudflare Pages branches
+
+Similar a Vercel: cada branch genera un preview URL automático.
+
+---
+
+## 12. Registro de cambios
 
 ### 2026-04-23 — Limpieza inicial del repositorio
 - Eliminado `.env` del tracking, creado `.env.example`
@@ -614,15 +919,13 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 - Creado `Documents/DOCUMENTACION.md` como documento vivo consolidado
 
 ### 2026-04-23 — Optimización backend (Etapas 2-6 del plan original)
-- **Índices:** 5 nuevos (`idx_clients_assigned_to`, `idx_clients_status`, `idx_clients_name`, `idx_interactions_follow_up_date` parcial, `idx_interactions_client_result`)
+- **Índices:** 5 nuevos
 - **Funciones RPC:** `get_dashboard_data()`, `get_notifications_data()`, `get_seller_ranking()`
 - **Vistas materializadas:** `mv_seller_ranking`, `mv_client_summary` + `refresh_materialized_views()`
 - **RLS:** Endurecimiento de 5 políticas
-- **Tipos:** `types.ts` actualizado
 
 ### 2026-04-23 — Frontend + dependencias
 - QueryClient: `staleTime: 30s`, `refetchOnWindowFocus: false`, `retry: 1`
-- Query keys corregidos para invalidación post-mutación
 - Dependencias: vite 5.4→6.4, plugin-react-swc 3.11→4.3, jsdom 20→26
 - **Resultado:** 0 vulnerabilidades (antes 5)
 
@@ -632,149 +935,99 @@ push main → quality (tsc + lint + test) → build → FTP deploy → crm.mejor
 
 ### 2026-04-24 — Fix CI/CD + scripts SQL
 - Lockfile regenerado con bun v1.3.13
-- GitHub Secrets: `FTP_HOST`, `FTP_USERNAME` configurados via API
 - Scripts SQL: `MIGRACIONES_PENDIENTES.sql`, `CRON_REFRESH_VISTAS.sql`
 
 ### 2026-04-24 — Nuevo proyecto Supabase
 - Proyecto nuevo: `fkjuswkjzaeuogctsxpw`
-- `SETUP_COMPLETO.sql` ejecutado (8 enums, 6 tablas, 5 funciones, 22+ RLS, 11 índices, 3 RPCs, 2 vistas, cron, 10 productos seed)
+- `SETUP_COMPLETO.sql` ejecutado
 - Deploy conectado al nuevo backend
 
 ### 2026-04-24 — Etapa 1: Estabilidad y confianza
-- Error boundary global (`ErrorBoundary.tsx`)
-- 32 tests unitarios (calculations, utils, ErrorBoundary)
-- CI: quality gates (tsc + lint + test) antes de deploy
-- Skeleton loading (Dashboard, List)
+- Error boundary global, 32 tests unitarios, CI quality gates, skeleton loading
 
-### 2026-04-24 — Etapa 2: Performance y confiabilidad
-- Dashboard/Notifications: 3 queries → 1 RPC cada uno
-- 7 custom hooks centralizados
-- Páginas refactorizadas para usar hooks
+### 2026-04-24 — Etapa 2: Performance
+- Dashboard/Notifications → 1 RPC cada uno, 7 custom hooks, páginas refactorizadas
 
 ### 2026-04-24 — Etapa 3: PWA + mobile
-- manifest.json, icons (192, 512, apple-touch, favicons)
-- Service Worker (network-first navegación, cache-first assets)
-- Responsive CSS (safe areas, prevent zoom, touch targets 44px)
-- Push notifications API + PWA install banner
+- manifest.json, service worker, responsive CSS, push notifications API, PWA install banner
 
 ### 2026-04-24 — Etapa 4: UX y onboarding
-- Dark mode (next-themes, light/dark/system)
-- Onboarding wizard (3 pasos: cliente → interacción → dashboard)
-- Command palette (Ctrl+K) con búsqueda global
-- Empty states mejorados
+- Dark mode, onboarding wizard, command palette, empty states
 
 ### 2026-04-24 — Etapa 5: Analytics y reportes
-- Página Reports: 6 KPIs, funnel, tendencia mensual, distribución, top productos, motivos de pérdida, revenue por provincia
-- Selector de período, exportación a PDF
-- Audit log SQL (tabla + triggers + RLS + cleanup)
+- Reports con 6 KPIs, funnel, export PDF, audit log SQL
 
-### 2026-04-25 — Consolidación de documentación
-- Fusión de `DOCUMENTACION.md` + `ANALISIS_PROFUNDO.md` en un solo archivo
-- Instrucción "documentar" integrada al inicio del documento
-- Análisis multidisciplinario condensado en sección 6
+### 2026-04-25 — Compliance legal (6.1-6.3)
+- Privacy Policy, ToS, eliminación de cuenta
 
-### 2026-04-25 — Etapa 6: Compliance legal (6.1, 6.2, 6.3)
-- **Política de Privacidad** (`/privacy`): Ley 25.326, datos recopilados, finalidad, base legal, retención, derechos del titular
-- **Términos de Servicio** (`/terms`): aceptación, descripción, cuenta, uso aceptable, propiedad de datos
-- **Eliminación de cuenta**: función SQL `request_account_deletion()` + UI en Settings con confirmación
-- **Links legales**: footer en Auth, sección "Cuenta y datos" en Settings
-- **Tipos y migraciones** actualizados
+### 2026-04-25 — Documentación operativa
+- Runbook de incidentes, guía de staging
 
-### 2026-04-25 — Etapa 6: Documentación operativa (6.7)
-- **Runbook de incidentes** (`RUNBOOK_INCIDENTES.md`): 7 escenarios comunes con diagnóstico y resolución
-- **Guía de staging** (`GUIA_STAGING.md`): configuración de environment staging + alternativas Vercel/Cloudflare
+### 2026-04-25 — Split de componentes grandes
+- Dashboard: 803→322 líneas, Interactions: 835→273 líneas
 
-### 2026-04-25 — Split de componentes grandes (5.a)
-- **Dashboard.tsx**: 803 → 32 líneas (orquestador) + 3 sub-componentes
-  - `KPICard.tsx` (35L), `OwnerView.tsx` (322L), `SellerView.tsx` (196L)
-- **Interactions.tsx**: 835 → 94 líneas (orquestador) + 3 sub-componentes
-  - `InteractionCard.tsx` (116L), `InteractionForm.tsx` (273L), `ProductLines.tsx` (70L)
-- Máximo por archivo: 322 líneas (antes 835)
+### 2026-04-25 — Pipeline Kanban
+- Vista Kanban con 5 columnas, cards con monto/productos/next_step
 
-### 2026-04-25 — Pipeline Kanban (8.a)
-- **Página `/pipeline`**: vista Kanban con 5 columnas (Presupuestos, Seguimientos, Ventas, Sin respuesta, No interesado)
-- Vista alternativa de lista agrupada por columna
-- Cards con monto, productos, next_step, fecha, indicador de vencimiento
-- Búsqueda por cliente, totales por columna
-- Link en sidebar con icono Kanban
-
-### 2026-04-25 — react-hook-form + zod (9.a)
-- **Schema de validación** (`src/lib/schemas.ts`): esquema zod para InteractionForm
-- **InteractionForm migrado**: de useState manual a react-hook-form + Controller
-- Validación por esquema: cliente, medio, resultado requeridos
-- Validación condicional: loss_reason si no_interesado, followup_scenario si seguimiento
-- Errores inline bajo cada campo
-- Dependencias nuevas: react-hook-form, @hookform/resolvers, zod
-
-### 2026-04-25 — Tests unitarios (10.c)
-- **14 nuevos tests** para schemas (zod): validación de formulario, conditional logic, enums
-- **Total: 46 tests** (era 32)
+### 2026-04-25 — react-hook-form + zod
+- InteractionForm migrado, 14 tests nuevos → total 46
 
 ### 2026-04-25 — Limpieza de tipos any
-- **107 → 38 `any` types** en todo el frontend
-- Nuevo `src/lib/types.ts`: Interaction, Client, Profile, Product, DashboardData, SellerStats
-- OwnerView: 27→2, SellerView: 19→4, Reports: 24→8, Pipeline: 9→4
-- 38 restantes son en renderizado de charts y formularios complejos (difíciles de tipar sin refactor mayor)
+- 107 → 38 `any` types, nuevo `src/lib/types.ts`
 
-### 2026-04-25 — Commits de la sesión (9 commits)
-
-| Commit | Contenido |
-|--------|-----------|
-| `e9ae237` | Consolidar docs en DOCUMENTACION.md único |
-| `23dc63a` | Etapa 6.1-6.3: Privacy, Terms, eliminación de cuenta |
-| `66d25a5` | Runbook de incidentes + guía de staging |
-| `adebe9c` | Split Dashboard (803→322) e Interactions (835→273) |
-| `bbc8b78` | Pipeline Kanban con 5 columnas |
-| `59fdf51` | react-hook-form + zod en InteractionForm |
-| `418182a` | 14 tests nuevos (schemas zod) — total 46 |
-| `12103f6` | documentar: changelog completo de la sesión |
-| `18c67e5` + `d3c4897` | Limpieza de `any` types (107→38) |
+### 2026-04-27 — Re-análisis y consolidación
+- Salida de Hostinger, solo email hola@mejoraok.com conservado
+- Documentación re-consolidada en un solo archivo
+- Análisis multidisciplinario actualizado (37 roles evaluados)
+- Plan por etapas reestructurado (8 etapas, etapa 0 añadida)
+- Comparativa de hosting: Vercel vs Cloudflare Pages vs Netlify
+- Eliminación de docs redundantes (GUIA_STAGING, RUNBOOK, PROMPT → integrados)
 
 ---
 
-## 10. Estado del proyecto
+## 13. Estado del proyecto
 
-### Completitud: ~95%
+### Completitud: ~85% (infraestructura pendiente)
 
 | Área | Estado | Detalle |
 |------|--------|---------|
 | Frontend | ✅ | React + Vite + Tailwind, code splitting, dark mode, PWA, Kanban |
 | Backend | ✅ | Supabase Auth + PG, RLS endurecido, schema completo |
 | Optimización | ✅ | 11 índices, 3 RPCs, 2 vistas materializadas |
-| CI/CD | ✅ | GitHub Actions → FTP con quality gates |
+| CI/CD | ⚠️ | Quality gates OK, deploy FTP caído (Hostinger) |
+| Hosting | 🔴 | Sin hosting activo — migrar a Vercel/CF Pages |
 | Seguridad | ✅ | 0 vulnerabilidades, secrets en GitHub, RLS granular |
-| Testing | ✅ | 46 tests unitarios (schemas, calculations, utils, ErrorBoundary), CI quality gates |
-| Tipos | 🟡 | 38 any restantes (charts, forms complejos) |
+| Testing | ✅ | 46 tests unitarios, CI quality gates |
+| Tipos | 🟡 | 38 any restantes |
 | Documentación | ✅ | Este archivo consolidado |
 | PWA/Mobile | ✅ | Service worker, manifest, icons, push prep |
 | Analytics | ✅ | Reportes con KPIs, funnel, export PDF |
 | Compliance | ✅ | Privacy Policy + ToS + eliminación de cuenta |
-| Monitoring | ⏳ | Sin Sentry, sin UptimeRobot (6.6 pendiente) |
+| Monitoring | ⏳ | Sin Sentry, sin UptimeRobot |
 
 ### Links útiles
 
 | Recurso | URL |
 |---------|-----|
-| Producción | https://crm.mejoraok.com |
-| Repositorio | https://github.com/pabloeckert/mejoracrm |
-| GitHub Actions | https://github.com/pabloeckert/mejoracrm/actions |
+| Producción | https://crm.mejoraok.com (pendiente migración) |
+| Repositorio | https://github.com/pabloeckert/MejoraCRM |
+| GitHub Actions | https://github.com/pabloeckert/MejoraCRM/actions |
 | Supabase Dashboard | https://supabase.com/dashboard/project/fkjuswkjzaeuogctsxpw |
+| Email | hola@mejoraok.com |
 
-### Métricas finales
+### Métricas
 
-| Métrica | Antes | Después |
-|---------|-------|---------|
-| Archivos en repo | ~120 | ~80 |
-| Dependencias npm | 42 | 22 |
-| Vulnerabilidades | 5 | 0 |
-| Mayor chunk JS | 1.1MB | 384KB |
-| Componentes UI | 43 | 15 |
-| Documentos | 18 archivos | 1 archivo |
-| Queries Dashboard | 3 separadas | 1 RPC |
-| Políticas RLS | 12 | 22+ |
-| Tests | 0 | 46 |
-| Páginas | 7 | 9 (+Pipeline, +Privacy, +Terms) |
-| Formularios | useState manual | react-hook-form + zod |
-| Mayor componente | 864 líneas | 322 líneas |
-| `any` types | 107 | 38 |
-| Páginas con features | 7 | 8 (+Reports) |
+| Métrica | Valor |
+|---------|-------|
+| Archivos en repo | ~80 |
+| Dependencias npm | 22 |
+| Vulnerabilidades | 0 |
+| Mayor chunk JS | 384KB |
+| Componentes UI | 15 |
+| Tests | 46 |
+| Páginas | 11 |
+| Políticas RLS | 22+ |
+| `any` types | 38 |
+| Índices DB | 11 |
+| RPCs | 4 |
+| Vistas materializadas | 2 |
