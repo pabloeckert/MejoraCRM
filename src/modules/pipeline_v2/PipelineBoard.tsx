@@ -160,7 +160,7 @@ const PipelineBoard: FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Pipeline v2</h1>
+            <h1 className="text-xl font-bold">Pipeline</h1>
             <p className="text-sm text-muted-foreground">
               {opportunities.length} oportunidades
               {hasActiveFilters && ` · ${filteredOpportunities.length} filtradas`}

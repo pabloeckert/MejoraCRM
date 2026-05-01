@@ -22,7 +22,6 @@ const items = [
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Interacciones", url: "/interactions", icon: MessageSquare },
   { title: "Pipeline", url: "/pipeline", icon: Kanban },
-  { title: "Pipeline v2", url: "/pipeline-v2", icon: Kanban },
   { title: "Reportes", url: "/reports", icon: BarChart3, roles: ["admin", "supervisor"] },
   { title: "Productos", url: "/products", icon: Package, roles: ["admin", "supervisor"] },
   { title: "Configuración", url: "/settings", icon: Settings, roles: ["admin", "supervisor"] },
