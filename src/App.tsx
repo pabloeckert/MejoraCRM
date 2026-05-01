@@ -17,6 +17,7 @@ import Products from "./pages/Products";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import Pipeline from "./pages/Pipeline";
+import { PipelineBoard } from "./modules/pipeline_v2";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/pipeline" element={<ProtectedRoute><Pipeline /></ProtectedRoute>} />
+                <Route path="/pipeline-v2" element={<ProtectedRoute><PipelineBoard /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
