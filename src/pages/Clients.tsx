@@ -31,6 +31,8 @@ const STATUS_STYLES: Record<string, string> = {
 const CHANNELS = ["WhatsApp", "Email", "Redes sociales", "Referido", "Teléfono", "Feria/Evento", "Sitio web"];
 const RUBROS = ["Forestal", "Agropecuario", "Industrial", "Construcción", "Gobierno", "Particular", "Comercio", "Otro"];
 
+const PAISES = ["Argentina", "Uruguay", "Chile", "Paraguay", "Brasil", "Bolivia", "Perú", "Colombia", "México", "España", "Otro"];
+
 const PROVINCIAS = [
   "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
   "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones",
@@ -139,6 +141,7 @@ export default function Clients() {
       channel: form.channel || null,
       address: form.address || null,
       province: form.province || null,
+      country: form.country || "Argentina",
       location: form.location || null,
       notes: form.notes || null,
       assigned_to: form.assigned_to || user?.id,
@@ -147,10 +150,10 @@ export default function Clients() {
 
   // Exportar contactos a CSV (respeta filtros activos)
   const handleExport = () => {
-    const headers = ["Nombre", "Empresa", "WhatsApp", "Email", "Rubro", "Canal de Ingreso", "Provincia", "Localidad", "Dirección", "Estado", "Observaciones"];
+    const headers = ["Nombre", "Empresa", "WhatsApp", "Email", "Rubro", "Canal de Ingreso", "País", "Provincia", "Localidad", "Dirección", "Estado", "Observaciones"];
     const rows = filtered.map((c) => [
       c.name, c.company || "", c.whatsapp || "", c.email || "",
-      c.segment || "", c.channel || "", c.province || "", c.location || "",
+      c.segment || "", c.channel || "", c.country || "Argentina", c.province || "", c.location || "",
       c.address || "", c.status, c.notes || "",
     ]);
     const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -172,6 +175,7 @@ export default function Clients() {
         <td>${c.company || "—"}</td>
         <td>${c.whatsapp || "—"}</td>
         <td>${c.segment || "—"}</td>
+        <td>${c.country || "Argentina"}</td>
         <td>${c.province || "—"}</td>
         <td>${c.status}</td>
       </tr>`).join("");
@@ -193,7 +197,7 @@ export default function Clients() {
 </style></head><body>
 <h1>Clientes — MejoraCRM</h1>
 <p class="sub">Exportado: ${new Date().toLocaleDateString("es-AR")} · ${filtered.length} registros</p>
-<table><thead><tr><th>Nombre</th><th>Empresa</th><th>WhatsApp</th><th>Rubro</th><th>Provincia</th><th>Estado</th></tr></thead>
+<table><thead><tr><th>Nombre</th><th>Empresa</th><th>WhatsApp</th><th>Rubro</th><th>País</th><th>Provincia</th><th>Estado</th></tr></thead>
 <tbody>${rows}</tbody></table>
 </body></html>`;
     const w = window.open("", "_blank");
@@ -225,6 +229,7 @@ export default function Clients() {
       const channelIdx = headers.findIndex((h) => h.includes("canal") || h.includes("channel"));
       const locationIdx = headers.findIndex((h) => h.includes("localidad") || h.includes("ciudad") || h.includes("location"));
       const addressIdx = headers.findIndex((h) => h.includes("dirección") || h.includes("direccion") || h.includes("address"));
+      const countryIdx = headers.findIndex((h) => h.includes("país") || h.includes("pais") || h.includes("country"));
       const notesIdx = headers.findIndex((h) => h.includes("observaciones") || h.includes("notas") || h.includes("notes"));
 
       const parsed: any[] = [];
@@ -249,6 +254,7 @@ export default function Clients() {
           province: provinceIdx >= 0 ? cols[provinceIdx]?.trim() || null : null,
           location: locationIdx >= 0 ? cols[locationIdx]?.trim() || null : null,
           address: addressIdx >= 0 ? cols[addressIdx]?.trim() || null : null,
+          country: countryIdx >= 0 ? cols[countryIdx]?.trim() || "Argentina" : "Argentina",
           notes: notesIdx >= 0 ? cols[notesIdx]?.trim() || null : null,
           isDuplicate: isDupe,
           assigned_to: user?.id,
@@ -543,9 +549,26 @@ export default function Clients() {
                 />
               </div>
             </div>
-            <div>
-              <Label>Dirección</Label>
-              <Input value={form.address || ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>País</Label>
+                <Select value={form.country || "Argentina"} onValueChange={(v) => setForm({ ...form, country: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAISES.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {p}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Dirección</Label>
+                <Input value={form.address || ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              </div>
             </div>
             <div>
               <Label>Observaciones</Label>
@@ -589,10 +612,10 @@ export default function Clients() {
                     <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" /> {detailClient.email}
                   </div>
                 )}
-                {(detailClient.location || detailClient.province) && (
+                {(detailClient.location || detailClient.province || detailClient.country) && (
                   <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm">
                     <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                    {[detailClient.location, detailClient.province].filter(Boolean).join(", ")}
+                    {[detailClient.location, detailClient.province, detailClient.country].filter(Boolean).join(", ")}
                   </div>
                 )}
                 {detailClient.segment && (
@@ -687,6 +710,7 @@ export default function Clients() {
                     <TableHead className="text-xs">Nombre</TableHead>
                     <TableHead className="text-xs">WhatsApp</TableHead>
                     <TableHead className="text-xs">Rubro</TableHead>
+                    <TableHead className="text-xs">País</TableHead>
                     <TableHead className="text-xs">Provincia</TableHead>
                     <TableHead className="text-xs w-20">Estado</TableHead>
                   </TableRow>
@@ -697,6 +721,7 @@ export default function Clients() {
                       <TableCell className="text-sm">{item.name}</TableCell>
                       <TableCell className="text-sm">{item.whatsapp || "—"}</TableCell>
                       <TableCell className="text-sm">{item.segment || "—"}</TableCell>
+                      <TableCell className="text-sm">{item.country || "Argentina"}</TableCell>
                       <TableCell className="text-sm">{item.province || "—"}</TableCell>
                       <TableCell>
                         {item.isDuplicate ? (

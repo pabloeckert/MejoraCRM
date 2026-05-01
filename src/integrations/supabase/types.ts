@@ -21,6 +21,7 @@ export type Database = {
           channel: string | null
           company: string | null
           contact_name: string | null
+          country: string
           created_at: string
           email: string | null
           first_contact_date: string | null
@@ -40,6 +41,7 @@ export type Database = {
           channel?: string | null
           company?: string | null
           contact_name?: string | null
+          country?: string
           created_at?: string
           email?: string | null
           first_contact_date?: string | null
@@ -59,6 +61,7 @@ export type Database = {
           channel?: string | null
           company?: string | null
           contact_name?: string | null
+          country?: string
           created_at?: string
           email?: string | null
           first_contact_date?: string | null

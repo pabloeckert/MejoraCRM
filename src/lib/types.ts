@@ -1,7 +1,7 @@
 import { Tables } from "@/integrations/supabase/types";
 
 export type Interaction = Tables<"interactions"> & {
-  clients?: { name: string; province?: string; segment?: string } | null;
+  clients?: { name: string; province?: string; segment?: string; country?: string } | null;
   interaction_lines?: Array<{
     products?: { name: string } | null;
     quantity: number;
