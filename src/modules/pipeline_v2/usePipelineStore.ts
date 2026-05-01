@@ -51,9 +51,72 @@ interface PipelineState {
   view: "kanban" | "list";
 }
 
+const MOCK_OPPORTUNITIES: PipelineOpportunity[] = [
+  {
+    id: "opp-1",
+    clientId: "c1",
+    clientName: "Tech Solutions SA",
+    amount: 15000,
+    currency: "USD",
+    stageId: "new",
+    products: ["CRM Enterprise"],
+    nextStep: "Agendar llamada de descubrimiento",
+    createdAt: "2026-04-28T10:00:00Z",
+    updatedAt: "2026-04-28T10:00:00Z",
+  },
+  {
+    id: "opp-2",
+    clientId: "c2",
+    clientName: "Distribuidora Norte",
+    amount: 8500,
+    currency: "USD",
+    stageId: "contacted",
+    products: ["CRM Pro", "Módulo Inventario"],
+    nextStep: "Enviar propuesta técnica",
+    createdAt: "2026-04-25T14:00:00Z",
+    updatedAt: "2026-04-30T09:00:00Z",
+  },
+  {
+    id: "opp-3",
+    clientId: "c3",
+    clientName: "Clínica Vida",
+    amount: 22000,
+    currency: "USD",
+    stageId: "qualified",
+    products: ["CRM Enterprise", "Módulo Pacientes"],
+    nextStep: "Demo personalizada",
+    createdAt: "2026-04-20T08:00:00Z",
+    updatedAt: "2026-05-01T11:00:00Z",
+  },
+  {
+    id: "opp-4",
+    clientId: "c4",
+    clientName: "Logística Express",
+    amount: 12000,
+    currency: "USD",
+    stageId: "proposal",
+    products: ["CRM Pro"],
+    nextStep: "Esperando firma del contrato",
+    createdAt: "2026-04-15T16:00:00Z",
+    updatedAt: "2026-05-01T15:00:00Z",
+  },
+  {
+    id: "opp-5",
+    clientId: "c5",
+    clientName: "Retail Group",
+    amount: 35000,
+    currency: "USD",
+    stageId: "won",
+    products: ["CRM Enterprise", "Módulo Inventario", "Analytics"],
+    nextStep: "Onboarding programado",
+    createdAt: "2026-03-10T09:00:00Z",
+    updatedAt: "2026-04-28T17:00:00Z",
+  },
+];
+
 const initialState: PipelineState = {
   stages: INITIAL_STAGES,
-  opportunities: [],
+  opportunities: MOCK_OPPORTUNITIES,
   view: "kanban",
 };
 

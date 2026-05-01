@@ -1,13 +1,14 @@
 /**
- * PipelineColumn — Representa una etapa/estado del funnel de ventas.
+ * PipelineColumn — Droppable stage column.
  *
- * Renderiza el header de la etapa + lista de PipelineCards.
- * Drag & drop se agregará en una micro-misión futura.
+ * Uses @dnd-kit/useDroppable to accept dragged cards.
  */
 
 import { FC } from "react";
+import { useDroppable } from "@dnd-kit/core";
 import { Badge } from "@/components/ui/badge";
 import { PipelineOpportunity } from "./usePipelineStore";
+import PipelineCard from "./PipelineCard";
 
 interface PipelineColumnProps {
   stageId: string;
@@ -16,12 +17,17 @@ interface PipelineColumnProps {
   opportunities: PipelineOpportunity[];
 }
 
-const PipelineColumn: FC<PipelineColumnProps> = ({ stageName, stageColor, opportunities }) => {
+const PipelineColumn: FC<PipelineColumnProps> = ({ stageId, stageName, stageColor, opportunities }) => {
+  const { setNodeRef, isOver } = useDroppable({ id: stageId });
   const totalAmount = opportunities.reduce((sum, o) => sum + o.amount, 0);
 
   return (
     <div className="flex-shrink-0 w-72">
-      <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+      <div
+        className={`rounded-lg border p-3 transition-colors ${
+          isOver ? "border-primary bg-primary/5" : "border-border/50 bg-muted/30"
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -38,29 +44,17 @@ const PipelineColumn: FC<PipelineColumnProps> = ({ stageName, stageColor, opport
           </div>
         </div>
 
-        {/* Cards */}
-        <div className="space-y-2 min-h-[80px] max-h-[calc(100vh-280px)] overflow-y-auto">
+        {/* Cards — droppable zone */}
+        <div
+          ref={setNodeRef}
+          className="space-y-2 min-h-[80px] max-h-[calc(100vh-280px)] overflow-y-auto"
+        >
           {opportunities.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-6">
               0 oportunidades
             </p>
           ) : (
-            opportunities.map((o) => (
-              <div
-                key={o.id}
-                className="rounded-md border border-border/50 bg-card p-3 space-y-1 cursor-pointer hover:shadow-sm transition-all"
-              >
-                <p className="text-sm font-medium truncate">{o.clientName}</p>
-                {o.amount > 0 && (
-                  <p className="text-xs font-semibold">
-                    {o.currency} {o.amount.toLocaleString()}
-                  </p>
-                )}
-                {o.nextStep && (
-                  <p className="text-xs text-muted-foreground truncate">→ {o.nextStep}</p>
-                )}
-              </div>
-            ))
+            opportunities.map((o) => <PipelineCard key={o.id} opportunity={o} />)
           )}
         </div>
       </div>
