@@ -79,3 +79,39 @@
 ### Dependencias:
 - No requiere instalación de paquetes nuevos.
 - Solo cambios en `tailwind.config.ts`, sidebar, y componentes de texto.
+
+---
+
+## Estado de cierre — Sesión 5 (2026-05-02)
+
+### Estado final
+- ✅ Pipeline v2 oficial reemplazó al pipeline viejo.
+- ✅ Rutas actualizadas (`/pipeline` → PipelineBoard).
+- ✅ Sidebar limpio (sin links duplicados).
+- ✅ Persistencia Supabase funcionando (`onDragEnd` → update `result`).
+- ✅ Filtros avanzados funcionando (búsqueda, etapa, monto, fecha).
+- ✅ Build limpio (0 errores, 3380 módulos).
+- ✅ Working tree sin cambios pendientes.
+
+### Commits generados en esta sesión
+| Hash | Mensaje |
+|---|---|
+| `fe2d0e6` | feat: reemplazo completo del Pipeline viejo → Pipeline v2 oficial |
+| `c9c525e` | feat(pipeline-v2): connect Supabase, persist DnD, add filters |
+| `6d94e9d` | feat(pipeline-v2): integrate drag & drop with @dnd-kit |
+| `575a93f` | feat(pipeline-v2): add store, route and board with 6 mock stages |
+| `f766a77` | MejoraCRM P0 |
+
+### Próxima sesión: Etapa 6 — UI + Nomenclatura + Colores
+
+1. Aplicar paleta corporativa: `#2C5CA5`, `#1C4D8C`, `#F2F2F2`, `#FFFFFF`, `#1A1A1A`, `#656565`, `#F2BC1B`.
+2. Cambiar textos globales:
+   - Dashboard → **Vista general**
+   - Pipeline → **Proceso de ventas**
+   - Lead → **Contacto**
+   - Tasa de conversión → **Éxito de ventas**
+3. Ajustar layout general (fondos, cards, tipografías).
+4. Preparar Vista General (dueño): KPIs, actividad reciente, tareas pendientes, performance por vendedor.
+5. Preparar Vista Vendedor: mis contactos, mi pipeline, seguimientos pendientes, mi performance.
+6. Unificar métricas con Reports.
+7. Dejar lista la estructura modular para Etapa 7.
