@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons";
 import { useDashboardData } from "@/hooks/useDashboard";
-import { OwnerView, SellerView } from "@/components/dashboard";
+import { OwnerViewV2, SellerViewV2 } from "@/components/dashboard";
 
 export default function Dashboard() {
   const { user, role, profile } = useAuth();
@@ -18,11 +18,11 @@ export default function Dashboard() {
   const isOwner = role === "admin" || role === "supervisor";
 
   if (isOwner) {
-    return <OwnerView interactions={interactions} clients={clients} profiles={profiles} navigate={navigate} />;
+    return <OwnerViewV2 interactions={interactions} clients={clients} profiles={profiles} navigate={navigate} />;
   }
 
   return (
-    <SellerView
+    <SellerViewV2
       interactions={interactions.filter((i: any) => i.user_id === user?.id)}
       myClients={clients.filter((c: any) => c.assigned_to === user?.id)}
       sellerName={profile?.full_name || "Vendedor"}

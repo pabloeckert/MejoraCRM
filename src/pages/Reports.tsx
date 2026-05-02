@@ -181,7 +181,7 @@ export default function Reports() {
 
 <div class="kpi-grid">
   <div class="kpi"><div class="value">$${totalVentas.toLocaleString()}</div><div class="label">Ventas logradas</div></div>
-  <div class="kpi"><div class="value">$${totalPipeline.toLocaleString()}</div><div class="label">Pipeline activo</div></div>
+  <div class="kpi"><div class="value">$${totalPipeline.toLocaleString()}</div><div class="label">Ventas en curso</div></div>
   <div class="kpi"><div class="value">${winRate}%</div><div class="label">Win rate</div></div>
   <div class="kpi"><div class="value">${avgCycle}d</div><div class="label">Ciclo promedio</div></div>
 </div>
@@ -222,10 +222,10 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
 
   const kpis = [
     { label: "Ventas logradas", value: `$${totalVentas.toLocaleString()}`, sub: `${ventas.length} ventas`, icon: DollarSign, color: "text-success", bg: "bg-success/10" },
-    { label: "Pipeline activo", value: `$${totalPipeline.toLocaleString()}`, sub: `${presupuestos.length} presupuestos`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
+    { label: "Ventas en curso", value: `$${totalPipeline.toLocaleString()}`, sub: `${presupuestos.length} presupuestos`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
     { label: "Win rate", value: `${winRate}%`, sub: `${ventas.length} de ${ventas.length + noInteresado.length}`, icon: Target, color: "text-accent", bg: "bg-accent/20" },
     { label: "Ciclo promedio", value: avgCycle > 0 ? `${avgCycle} días` : "N/A", sub: "presupuesto → venta", icon: Clock, color: "text-muted-foreground", bg: "bg-muted" },
-    { label: "Tasa conversión", value: `${conversion}%`, sub: `${ventas.length}/${presupuestos.length} presupuestos`, icon: Percent, color: "text-warning", bg: "bg-warning/10" },
+    { label: "Éxito de ventas", value: `${conversion}%`, sub: `${ventas.length}/${presupuestos.length} presupuestos`, icon: Percent, color: "text-warning", bg: "bg-warning/10" },
     { label: "Revenue perdido", value: `$${totalPerdido.toLocaleString()}`, sub: `${noInteresado.length} rechazos`, icon: Award, color: "text-destructive", bg: "bg-destructive/10" },
   ];
 
@@ -333,7 +333,7 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
                 <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={11} />
                 <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
                 <Area type="monotone" dataKey="ventas" stackId="1" stroke="hsl(142,60%,40%)" fill="hsl(142,60%,40%)" fillOpacity={0.3} name="Ventas" />
-                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="hsl(214,58%,41%)" fill="hsl(214,58%,41%)" fillOpacity={0.3} name="Pipeline" />
+                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="hsl(214,58%,41%)" fill="hsl(214,58%,41%)" fillOpacity={0.3} name="Proceso de ventas" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>

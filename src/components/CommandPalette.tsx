@@ -54,7 +54,7 @@ export function CommandPalette() {
   // Build command items
   const items: CommandItem[] = [
     // Navigation
-    { id: "nav-dashboard", label: "Dashboard", icon: LayoutGrid, action: () => goTo("/"), category: "Navegación" },
+    { id: "nav-dashboard", label: "Vista general", icon: LayoutGrid, action: () => goTo("/"), category: "Navegación" },
     { id: "nav-clients", label: "Clientes", icon: Users, action: () => goTo("/clients"), category: "Navegación" },
     { id: "nav-interactions", label: "Interacciones", icon: MessageSquare, action: () => goTo("/interactions"), category: "Navegación" },
     { id: "nav-products", label: "Productos", icon: Package, action: () => goTo("/products"), category: "Navegación" },

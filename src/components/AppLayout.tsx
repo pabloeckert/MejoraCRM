@@ -5,10 +5,11 @@ import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Vista General",
+  "/": "Vista general",
   "/clients": "Clientes",
   "/interactions": "Interacciones",
   "/products": "Productos",
+  "/pipeline": "Proceso de ventas",
   "/settings": "Configuración",
 };
 

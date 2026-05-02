@@ -23,9 +23,9 @@ const STEPS = [
   },
   {
     icon: BarChart3,
-    title: "Revisá tu Dashboard",
-    description: "El Dashboard muestra tus ventas, pipeline y seguimientos pendientes de un vistazo.",
-    cta: "Ir al Dashboard",
+    title: "Revisá tu Vista General",
+    description: "La Vista General muestra tus ventas, proceso de ventas y seguimientos pendientes de un vistazo.",
+    cta: "Ir a Vista General",
     route: "/",
     tip: "Los vendedores ven solo sus métricas. Los dueños ven todo el equipo.",
   },
