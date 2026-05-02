@@ -11,14 +11,18 @@
  * Ejecutarlo desde Supabase Dashboard → SQL Editor.
  *
  * USUARIOS DE PRUEBA:
- * ┌─────────────────────────┬──────────────────────┬────────────┐
- * │ Email                   │ Rol                  │ Ve         │
- * ├─────────────────────────┼──────────────────────┼────────────┤
- * │ admin@mejoracrm.com     │ admin (dueño)        │ Todo       │
- * │ maria@mejoracrm.com     │ vendedor             │ Sus datos  │
- * │ carlos@mejoracrm.com    │ vendedor             │ Sus datos  │
- * └─────────────────────────┴──────────────────────┴────────────┘
- * Password sugerido para demo: Demo2026!
+ * ┌──────────────────────────────┬──────────────────────┬────────────┐
+ * │ Email                        │ Rol                  │ Ve         │
+ * ├──────────────────────────────┼──────────────────────┼────────────┤
+ * │ sindygeisert@gmail.com       │ admin (dueña)        │ Todo       │
+ * │ pabloeckert@gmail.com        │ admin (dueño)        │ Todo       │
+ * │ mejoraok@gmail.com           │ vendedor             │ Sus datos  │
+ * └──────────────────────────────┴──────────────────────┴────────────┘
+ * Password para todos: T@beg2301
+ *
+ * ROLES EN EL SISTEMA:
+ * - admin / supervisor → ven OwnerViewV2 (vista completa del equipo)
+ * - vendedor → ven SellerViewV2 (solo sus datos)
  *
  * DATASET INCLUIDO:
  * - 8 clientes (Forestal, Agropecuario, Industrial, Construcción, Gobierno, Comercio)
@@ -29,13 +33,13 @@
  *   • 3 seguimientos pendientes
  *   • 3 seguimientos vencidos
  *   • 3 ventas perdidas ($1,000,000 ARS estimados)
- * - 3 perfiles (1 admin + 2 vendedores)
+ * - 3 perfiles (2 admins + 1 vendedor)
  * - 8 líneas de interacción (productos vendidos/presupuestados)
  *
  * FLUJO SUGERIDO DE NAVEGACIÓN:
  *
  * 1. LOGIN
- *    → Entrar como admin@mejoracrm.com
+ *    → Entrar como sindygeisert@gmail.com (admin)
  *    → Se ve el Onboarding Wizard (se puede cerrar)
  *
  * 2. VISTA GENERAL (Dueño)
@@ -88,7 +92,7 @@
  *
  * 9. CAMBIAR A VENDEDOR
  *    → Cerrar sesión
- *    → Entrar como maria@mejoracrm.com
+ *    → Entrar como mejoraok@gmail.com
  *    → Ver Vista General (Vendedor): sus ventas, tareas, resumen
  *    → Ver que solo ve sus interacciones
  *
@@ -107,16 +111,15 @@
  * │ Seguimientos vencidos    │ 3                          │
  * │ Total clientes           │ 8                          │
  * │ Total interacciones      │ 19                         │
- * │ Ranking #1               │ María González             │
- * │ Ranking #2               │ Carlos López               │
+ * │ Ranking #1               │ Mejora OK (vendedor)       │
  * └──────────────────────────┴────────────────────────────┘
  */
 
 /** Emails de los usuarios de demo */
 export const DEMO_USERS = {
-  admin: { email: "admin@mejoracrm.com", password: "Demo2026!", role: "admin", name: "Pablo Eckert" },
-  seller1: { email: "maria@mejoracrm.com", password: "Demo2026!", role: "vendedor", name: "María González" },
-  seller2: { email: "carlos@mejoracrm.com", password: "Demo2026!", role: "vendedor", name: "Carlos López" },
+  admin1: { email: "sindygeisert@gmail.com", password: "T@beg2301", role: "admin", name: "Sindy Geisert" },
+  admin2: { email: "pabloeckert@gmail.com", password: "T@beg2301", role: "admin", name: "Pablo Eckert" },
+  seller: { email: "mejoraok@gmail.com", password: "T@beg2301", role: "vendedor", name: "Mejora OK" },
 } as const;
 
 /** Resumen del dataset de demostración */
@@ -137,7 +140,7 @@ export const DEMO_SUMMARY = {
 
 /** Flujo de navegación sugerido para la demo */
 export const DEMO_NAVIGATION_FLOW = [
-  { step: 1, page: "Login", description: "Entrar como admin. Cerrar onboarding si aparece." },
+  { step: 1, page: "Login", description: "Entrar como sindygeisert@gmail.com (admin). Cerrar onboarding si aparece." },
   { step: 2, page: "Vista General", description: "Revisar KPIs, tendencias, ranking, gráficos." },
   { step: 3, page: "Proceso de ventas", description: "Pipeline drag & drop. Mover una card." },
   { step: 4, page: "Clientes", description: "Ver lista, filtrar, ver detalle con timeline." },
@@ -145,6 +148,6 @@ export const DEMO_NAVIGATION_FLOW = [
   { step: 6, page: "Reportes", description: "Gráficos, funnel, exportar PDF." },
   { step: 7, page: "Productos", description: "Catálogo de 5 productos." },
   { step: 8, page: "Configuración", description: "Ajustes, integraciones, PWA." },
-  { step: 9, page: "Cambiar a vendedor", description: "Logout → maria@mejoracrm.com. Ver vista reducida." },
+  { step: 9, page: "Cambiar a vendedor", description: "Logout → mejoraok@gmail.com. Ver vista reducida." },
   { step: 10, page: "Pipeline vendedor", description: "Ver solo sus oportunidades." },
 ] as const;

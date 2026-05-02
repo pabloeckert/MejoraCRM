@@ -13,26 +13,29 @@
 -- Este script asume que los usuarios ya existen en auth.users
 -- con los UUIDs definidos abajo.
 --
--- Si usás Supabase Auth con email/password, creá estos usuarios
--- desde el Dashboard → Authentication → Users:
+-- Creá estos usuarios desde el Dashboard → Authentication → Users:
 --
---   admin@mejoracrm.com    → UUID: a0000000-0000-0000-0000-000000000001
---   maria@mejoracrm.com    → UUID: a0000000-0000-0000-0000-000000000002
---   carlos@mejoracrm.com   → UUID: a0000000-0000-0000-0000-000000000003
+--   sindygeisert@gmail.com   → UUID: a0000000-0000-0000-0000-000000000001 (admin/dueña)
+--   pabloeckert@gmail.com    → UUID: a0000000-0000-0000-0000-000000000002 (admin/dueño)
+--   mejoraok@gmail.com       → UUID: a0000000-0000-0000-0000-000000000003 (vendedor)
 --
--- Luego ejecutá este script completo.
+-- Password para todos: T@beg2301
+--
+-- IMPORTANTE: Los UUIDs de auth.users los genera Supabase automáticamente.
+-- Después de crear los usuarios, copiá sus UUIDs reales y reemplazá los
+-- valores de abajo (a0000000-...) antes de ejecutar este script.
 
 -- Perfiles
 INSERT INTO profiles (id, user_id, full_name, avatar_url) VALUES
-  ('p0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Pablo Eckert', NULL),
-  ('p0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002', 'María González', NULL),
-  ('p0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000003', 'Carlos López', NULL)
+  ('p0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Sindy Geisert', NULL),
+  ('p0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002', 'Pablo Eckert', NULL),
+  ('p0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000003', 'Mejora OK', NULL)
 ON CONFLICT (id) DO NOTHING;
 
--- Roles
+-- Roles (admin = dueño, vendedor = vendedor)
 INSERT INTO user_roles (id, user_id, role) VALUES
   ('r0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'admin'),
-  ('r0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002', 'vendedor'),
+  ('r0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002', 'admin'),
   ('r0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000003', 'vendedor')
 ON CONFLICT (id) DO NOTHING;
 
@@ -51,14 +54,14 @@ ON CONFLICT (id) DO NOTHING;
 -- 3. CLIENTES (8 clientes)
 -- ─────────────────────────────────────────────
 INSERT INTO clients (id, name, company, contact_name, whatsapp, email, segment, channel, province, country, location, address, status, assigned_to, notes) VALUES
-  ('c0000000-0000-0000-0000-000000000001', 'Roberto Maidana',      'Forestal Misiones S.A.',   'Roberto Maidana',      '+54 376 4123456', 'roberto@forestalmisiones.com',  'Forestal',     'Referido',       'Misiones', 'Argentina', 'Eldorado',      'Ruta 12 km 8',              'activo',    'a0000000-0000-0000-0000-000000000002', 'Cliente principal. Compra semillas y madera.'),
-  ('c0000000-0000-0000-0000-000000000002', 'Ana Sosa',             'Estancia El Retiro',       'Ana Sosa',             '+54 375 5234567', 'ana@estanciaretiro.com.ar',     'Agropecuario', 'WhatsApp',       'Misiones', 'Argentina', 'Oberá',         'Camino Rural s/n',          'activo',    'a0000000-0000-0000-0000-000000000002', 'Interesada en reforestación.'),
+  ('c0000000-0000-0000-0000-000000000001', 'Roberto Maidana',      'Forestal Misiones S.A.',   'Roberto Maidana',      '+54 376 4123456', 'roberto@forestalmisiones.com',  'Forestal',     'Referido',       'Misiones', 'Argentina', 'Eldorado',      'Ruta 12 km 8',              'activo',    'a0000000-0000-0000-0000-000000000003', 'Cliente principal. Compra semillas y madera.'),
+  ('c0000000-0000-0000-0000-000000000002', 'Ana Sosa',             'Estancia El Retiro',       'Ana Sosa',             '+54 375 5234567', 'ana@estanciaretiro.com.ar',     'Agropecuario', 'WhatsApp',       'Misiones', 'Argentina', 'Oberá',         'Camino Rural s/n',          'activo',    'a0000000-0000-0000-0000-000000000003', 'Interesada en reforestación.'),
   ('c0000000-0000-0000-0000-000000000003', 'Luis Benítez',         'Maderas del Norte',        'Luis Benítez',         '+54 376 4345678', 'luis@maderasnorte.com',         'Industrial',   'Feria/Evento',   'Misiones', 'Argentina', 'Posadas',       'Av. Corrientes 1234',       'activo',    'a0000000-0000-0000-0000-000000000003', 'Compra madera aserrada en volumen.'),
   ('c0000000-0000-0000-0000-000000000004', 'Gabriela Romero',      'Constructora Andes',       'Gabriela Romero',      '+54 376 4456789', 'gaby@constructoraandes.com',    'Construcción', 'Email',          'Misiones', 'Argentina', 'San Martín',    'Belgrano 567',              'potencial',  'a0000000-0000-0000-0000-000000000003', 'Busca madera para estructuras.'),
-  ('c0000000-0000-0000-0000-000000000005', 'Martín Acuña',         'Gobierno de Misiones',     'Martín Acuña',         '+54 376 4567890', 'macuña@misiones.gob.ar',        'Gobierno',     'Reunión presencial', 'Misiones', 'Argentina', 'Posadas',       'Córdoba 1200',              'activo',    'a0000000-0000-0000-0000-000000000002', 'Licitación de plantines para programa provincial.'),
-  ('c0000000-0000-0000-0000-000000000006', 'Silvia Ferreyra',      'Vivero Los Pinos',         'Silvia Ferreyra',      '+54 375 4678901', 'silvia@viverolospinos.com',     'Forestal',     'Redes sociales', 'Misiones', 'Argentina', 'Puerto Iguazú', 'Av. Victoria Aguirre 890',  'activo',    'a0000000-0000-0000-0000-000000000002', 'Viverista. Compra semillas regularmente.'),
+  ('c0000000-0000-0000-0000-000000000005', 'Martín Acuña',         'Gobierno de Misiones',     'Martín Acuña',         '+54 376 4567890', 'macuña@misiones.gob.ar',        'Gobierno',     'Reunión presencial', 'Misiones', 'Argentina', 'Posadas',       'Córdoba 1200',              'activo',    'a0000000-0000-0000-0000-000000000003', 'Licitación de plantines para programa provincial.'),
+  ('c0000000-0000-0000-0000-000000000006', 'Silvia Ferreyra',      'Vivero Los Pinos',         'Silvia Ferreyra',      '+54 375 4678901', 'silvia@viverolospinos.com',     'Forestal',     'Redes sociales', 'Misiones', 'Argentina', 'Puerto Iguazú', 'Av. Victoria Aguirre 890',  'activo',    'a0000000-0000-0000-0000-000000000003', 'Viverista. Compra semillas regularmente.'),
   ('c0000000-0000-0000-0000-000000000007', 'Diego Morel',          'Agro Semillas S.R.L.',     'Diego Morel',          '+54 375 4789012', 'diego@agrosemillas.com',        'Agropecuario', 'Referido',       'Misiones', 'Argentina', 'Apóstoles',     'San Martín 345',            'potencial',  'a0000000-0000-0000-0000-000000000003', 'Nuevo contacto. Interesado en eucalipto.'),
-  ('c0000000-0000-0000-0000-000000000008', 'Laura Cáceres',        'Casa del Parquet',         'Laura Cáceres',        '+54 376 4890123', 'laura@casadelparquet.com',      'Comercio',     'Sitio web',      'Misiones', 'Argentina', 'Candelaria',    'Ruta 12 km 5',              'inactivo',  'a0000000-0000-0000-0000-000000000002', 'Dejó de responder hace 2 meses.')
+  ('c0000000-0000-0000-0000-000000000008', 'Laura Cáceres',        'Casa del Parquet',         'Laura Cáceres',        '+54 376 4890123', 'laura@casadelparquet.com',      'Comercio',     'Sitio web',      'Misiones', 'Argentina', 'Candelaria',    'Ruta 12 km 5',              'inactivo',  'a0000000-0000-0000-0000-000000000003', 'Dejó de responder hace 2 meses.')
 ON CONFLICT (id) DO NOTHING;
 
 -- ─────────────────────────────────────────────

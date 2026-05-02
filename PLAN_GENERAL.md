@@ -244,11 +244,11 @@ Nueva vista modular con 3 bloques:
 **Usuarios de prueba:**
 | Email | Rol | Ve |
 |---|---|---|
-| `admin@mejoracrm.com` | admin (dueño) | Todo el equipo |
-| `maria@mejoracrm.com` | vendedor | Solo sus datos |
-| `carlos@mejoracrm.com` | vendedor | Solo sus datos |
+| `sindygeisert@gmail.com` | admin (dueña) | Todo el equipo |
+| `pabloeckert@gmail.com` | admin (dueño) | Todo el equipo |
+| `mejoraok@gmail.com` | vendedor | Solo sus datos |
 
-Password para todos: `Demo2026!`
+Password para todos: `T@beg2301`
 
 **Dataset de demostración:**
 - 8 clientes (Forestal, Agropecuario, Industrial, Construcción, Gobierno, Comercio)
@@ -259,20 +259,20 @@ Password para todos: `Demo2026!`
   - 3 seguimientos pendientes
   - 3 seguimientos vencidos
   - 3 ventas perdidas (~$1,000,000 ARS estimados)
-- 3 perfiles (1 admin + 2 vendedores)
+- 3 perfiles (2 admins + 1 vendedor)
 - 8 líneas de interacción
 
 ### Cómo cargar los datos de demo
 
 1. Ir a Supabase Dashboard → Authentication → Users
-2. Crear 3 usuarios con los emails de arriba y password `Demo2026!`
+2. Crear 3 usuarios con los emails de arriba y password `T@beg2301`
 3. Copiar los UUIDs generados y reemplazarlos en `seed.sql` (sección 1)
 4. Ir a SQL Editor → pegar todo el contenido de `seed.sql` → ejecutar
 5. Verificar: `SELECT count(*) FROM interactions;` → debe dar 19
 
 ### Flujo de navegación sugerido para la demo
 
-1. **Login** → Entrar como admin. Cerrar onboarding.
+1. **Login** → Entrar como sindygeisert@gmail.com (admin). Cerrar onboarding.
 2. **Vista General** → KPIs, tendencias, ranking, gráficos.
 3. **Proceso de ventas** → Pipeline drag & drop. Mover una card.
 4. **Clientes** → Lista, filtros, detalle con timeline.
@@ -280,7 +280,7 @@ Password para todos: `Demo2026!`
 6. **Reportes** → Gráficos, funnel, exportar PDF.
 7. **Productos** → Catálogo.
 8. **Configuración** → Ajustes, integraciones, PWA.
-9. **Cambiar a vendedor** → Logout → maria@.ver vista reducida.
+9. **Cambiar a vendedor** → Logout → mejoraok@gmail.com. Ver vista reducida.
 10. **Pipeline vendedor** → Solo sus oportunidades.
 
 ---
@@ -294,7 +294,7 @@ El cliente debe recorrer cada sección del CRM como si fuera su día a día de t
 ### 2. Qué datos verá
 
 Con los datos de demo cargados:
-- **Vista General (dueño):** Métricas de $2.970.000 en ventas, 60% éxito, ranking de 2 vendedores, 3 seguimientos vencidos.
+- **Vista General (dueño):** Métricas de $2.970.000 en ventas, 60% éxito, ranking de vendedores, 3 seguimientos vencidos.
 - **Vista General (vendedor):** Solo las interacciones de ese vendedor. Tareas del día con seguimientos pendientes.
 - **Proceso de ventas:** Cards en diferentes etapas del pipeline. Se puede arrastrar entre columnas.
 - **Clientes:** 8 clientes con datos reales (nombres, teléfonos, rubros, provincias de Misiones).
@@ -311,8 +311,8 @@ Con los datos de demo cargados:
 - [ ] Filtrar interacciones por resultado
 - [ ] Exportar clientes a CSV
 - [ ] Exportar reportes a PDF
-- [ ] Ver la vista de vendedor (login como maria@)
-- [ ] Ver la vista de dueño (login como admin@)
+- [ ] Ver la vista de vendedor (login como mejoraok@gmail.com)
+- [ ] Ver la vista de dueño (login como sindygeisert@gmail.com)
 
 ### 4. Qué decisiones puede tomar
 
