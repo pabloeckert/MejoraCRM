@@ -228,3 +228,155 @@ Nueva vista modular con 3 bloques:
 3. Filtros avanzados (fecha, resultado, vendedor, producto)
 4. Mejoras al PipelineBoard (detalle de oportunidad)
 5. Integración de notificaciones inteligentes
+
+---
+
+## Sesión 7 — Modo Demo + Datos de Prueba + Checklist ✅
+
+### Modo Demo
+
+**Archivos creados:**
+| Archivo | Descripción |
+|---|---|
+| `supabase/seed.sql` | Script SQL completo para cargar datos de demostración |
+| `src/demo/demoData.ts` | Documentación del dataset, usuarios y flujo de navegación |
+
+**Usuarios de prueba:**
+| Email | Rol | Ve |
+|---|---|---|
+| `admin@mejoracrm.com` | admin (dueño) | Todo el equipo |
+| `maria@mejoracrm.com` | vendedor | Solo sus datos |
+| `carlos@mejoracrm.com` | vendedor | Solo sus datos |
+
+Password para todos: `Demo2026!`
+
+**Dataset de demostración:**
+- 8 clientes (Forestal, Agropecuario, Industrial, Construcción, Gobierno, Comercio)
+- 5 productos (semillas pino/eucalipto, madera pino/eucalipto, servicio forestal)
+- 19 interacciones:
+  - 6 ventas cerradas (~$2,970,000 ARS + $7,500 USD)
+  - 4 presupuestos en curso (~$2,510,000 ARS + $15,000 USD)
+  - 3 seguimientos pendientes
+  - 3 seguimientos vencidos
+  - 3 ventas perdidas (~$1,000,000 ARS estimados)
+- 3 perfiles (1 admin + 2 vendedores)
+- 8 líneas de interacción
+
+### Cómo cargar los datos de demo
+
+1. Ir a Supabase Dashboard → Authentication → Users
+2. Crear 3 usuarios con los emails de arriba y password `Demo2026!`
+3. Copiar los UUIDs generados y reemplazarlos en `seed.sql` (sección 1)
+4. Ir a SQL Editor → pegar todo el contenido de `seed.sql` → ejecutar
+5. Verificar: `SELECT count(*) FROM interactions;` → debe dar 19
+
+### Flujo de navegación sugerido para la demo
+
+1. **Login** → Entrar como admin. Cerrar onboarding.
+2. **Vista General** → KPIs, tendencias, ranking, gráficos.
+3. **Proceso de ventas** → Pipeline drag & drop. Mover una card.
+4. **Clientes** → Lista, filtros, detalle con timeline.
+5. **Interacciones** → Historial, crear nueva.
+6. **Reportes** → Gráficos, funnel, exportar PDF.
+7. **Productos** → Catálogo.
+8. **Configuración** → Ajustes, integraciones, PWA.
+9. **Cambiar a vendedor** → Logout → maria@.ver vista reducida.
+10. **Pipeline vendedor** → Solo sus oportunidades.
+
+---
+
+## Guía de Validación del Cliente
+
+### 1. Qué debe probar
+
+El cliente debe recorrer cada sección del CRM como si fuera su día a día de trabajo. No es necesario seguir un orden estricto, pero se recomienda el flujo de arriba.
+
+### 2. Qué datos verá
+
+Con los datos de demo cargados:
+- **Vista General (dueño):** Métricas de $2.970.000 en ventas, 60% éxito, ranking de 2 vendedores, 3 seguimientos vencidos.
+- **Vista General (vendedor):** Solo las interacciones de ese vendedor. Tareas del día con seguimientos pendientes.
+- **Proceso de ventas:** Cards en diferentes etapas del pipeline. Se puede arrastrar entre columnas.
+- **Clientes:** 8 clientes con datos reales (nombres, teléfonos, rubros, provincias de Misiones).
+- **Interacciones:** 19 registros con distintos resultados (venta, presupuesto, seguimiento, rechazo).
+- **Reportes:** Gráficos de funnel, tendencia mensual, top productos, motivos de pérdida.
+
+### 3. Qué flujos recorrer
+
+- [ ] Crear un cliente nuevo desde el formulario
+- [ ] Registrar una interacción (presupuesto con líneas de producto)
+- [ ] Ver el detalle de un cliente y su historial
+- [ ] Mover una card en el pipeline (drag & drop)
+- [ ] Filtrar clientes por estado/provincia
+- [ ] Filtrar interacciones por resultado
+- [ ] Exportar clientes a CSV
+- [ ] Exportar reportes a PDF
+- [ ] Ver la vista de vendedor (login como maria@)
+- [ ] Ver la vista de dueño (login como admin@)
+
+### 4. Qué decisiones puede tomar
+
+- ¿Los KPIs mostrados son los que necesitás ver?
+- ¿Falta alguna métrica importante?
+- ¿Los nombres de las secciones son claros?
+- ¿El pipeline refleja tu proceso de ventas real?
+- ¿Necesitás más etapas en el pipeline?
+- ¿Los campos del formulario de interacción son los correctos?
+- ¿Necesitás campos adicionales en los clientes?
+
+### 5. Qué mejoras puede sugerir
+
+- Cambios en colores, tipografías o layout
+- Nuevos KPIs o métricas
+- Cambios en la nomenclatura
+- Nuevos campos en formularios
+- Integraciones adicionales
+- Reportes personalizados
+- Flujos de trabajo específicos de su negocio
+
+---
+
+## Checklist de Validación
+
+### Navegación y estructura
+- [ ] Vista general carga correctamente (admin)
+- [ ] Vista general carga correctamente (vendedor)
+- [ ] Proceso de ventas carga con cards
+- [ ] Clientes muestra la lista
+- [ ] Interacciones muestra el historial
+- [ ] Reportes muestra gráficos
+- [ ] Productos muestra catálogo
+- [ ] Configuración carga correctamente
+
+### Datos de demo
+- [ ] Métricas coinciden con datos de prueba
+- [ ] Ranking muestra 2 vendedores
+- [ ] Pipeline muestra cards en todas las etapas
+- [ ] Clientes tienen datos completos (nombre, empresa, rubro, provincia)
+- [ ] Interacciones muestran todos los resultados
+- [ ] Reportes muestran gráficos con datos
+
+### Funcionalidad
+- [ ] Drag & drop actualiza Supabase
+- [ ] Filtros de clientes funcionan (estado, provincia, búsqueda)
+- [ ] Filtros de interacciones funcionan (resultado, búsqueda)
+- [ ] Crear cliente funciona
+- [ ] Crear interacción funciona (con líneas de producto)
+- [ ] Ver detalle de cliente + timeline funciona
+- [ ] Exportar CSV funciona
+- [ ] Exportar PDF funciona
+- [ ] Command palette (⌘K) funciona
+
+### UI y nomenclatura
+- [ ] Navegación coherente (sidebar, títulos, rutas)
+- [ ] Nomenclatura correcta: "Vista general", "Proceso de ventas", "Ventas en curso", "Éxito de ventas", "Contactos sin seguimiento"
+- [ ] Colores corporativos aplicados (sidebar azul #2C5CA5, acento amarillo #F2BC1B)
+- [ ] Fondo general gris #F2F2F2, cards blancas #FFFFFF
+- [ ] Texto principal #1A1A1A, texto secundario #656565
+- [ ] Responsive en mobile
+
+### Roles
+- [ ] Admin ve todo (reportes, productos, configuración)
+- [ ] Vendedor NO ve reportes, productos ni configuración
+- [ ] Vendedor solo ve sus propias interacciones en Vista General
+- [ ] Sidebar oculta items según rol
