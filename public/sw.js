@@ -1,8 +1,8 @@
 // MejoraCRM Service Worker — v1.0.0
 // Strategy: Network-first for API, Cache-first for static assets
 
-const CACHE_NAME = "mejoracrm-v1";
-const STATIC_CACHE = "mejoracrm-static-v1";
+const CACHE_NAME = "mejoracrm-v2";
+const STATIC_CACHE = "mejoracrm-static-v2";
 
 // Static assets to pre-cache on install
 const PRECACHE_URLS = [

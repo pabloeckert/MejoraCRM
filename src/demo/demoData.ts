@@ -18,7 +18,7 @@
  * │ pabloeckert@gmail.com        │ admin (dueño)        │ Todo       │
  * │ mejoraok@gmail.com           │ vendedor             │ Sus datos  │
  * └──────────────────────────────┴──────────────────────┴────────────┘
- * Password para todos: T@beg2301
+ * Password para todos: [CONFIDENCIAL — usar credenciales del admin]
  *
  * ROLES EN EL SISTEMA:
  * - admin / supervisor → ven OwnerViewV2 (vista completa del equipo)
