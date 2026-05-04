@@ -1,17 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DEMO_MODE } from "@/contexts/AuthContext";
+import { DEMO_INTERACTIONS, DEMO_CLIENTS, DEMO_PROFILES } from "@/demo/demoData";
 
 /**
  * Dashboard data via single RPC call.
- * Replaces 3 separate queries (interactions + clients + profiles).
+ * In demo mode, returns mock data instead.
  *
  * Returns: { interactions: [...], clients: [...], profiles: [...] }
- * Each interaction includes: client object, interaction_lines with product details.
  */
 export function useDashboardData() {
   return useQuery({
-    queryKey: ["dashboard-data"],
+    queryKey: ["dashboard-data", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
+      if (DEMO_MODE) {
+        return {
+          interactions: DEMO_INTERACTIONS as any[],
+          clients: DEMO_CLIENTS as any[],
+          profiles: DEMO_PROFILES as any[],
+        };
+      }
+
       const { data, error } = await supabase.rpc("get_dashboard_data");
       if (error) throw error;
 

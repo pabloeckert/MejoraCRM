@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/AppLayout";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth, DEMO_MODE } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -25,9 +25,9 @@ import { ReactNode } from "react";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000, // 30s — evita refetch innecesario al cambiar de pestaña
-      refetchOnWindowFocus: false, // no refetch al volver al tab
-      retry: 1, // un solo reintento en caso de error
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });
@@ -74,8 +74,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <PWAInstallBanner />
-            <OnboardingWizard />
-            <CommandPalette />
+              <OnboardingWizard />
+              <CommandPalette />
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

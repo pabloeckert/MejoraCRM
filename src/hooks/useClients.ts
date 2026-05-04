@@ -1,21 +1,20 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DEMO_MODE } from "@/contexts/AuthContext";
+import { DEMO_CLIENTS } from "@/demo/demoData";
 import type { Database } from "@/integrations/supabase/types";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 
 const PAGE_SIZE = 50;
 
-/**
- * Paginated clients list. Returns the first PAGE_SIZE clients ordered by name.
- * Call `loadMore()` to fetch the next page (appends to the existing data).
- */
 export function useClientsPaginated() {
   const queryClient = useQueryClient();
 
   const query = useQuery<Client[]>({
-    queryKey: ["clients", "paginated"],
+    queryKey: ["clients", "paginated", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
+      if (DEMO_MODE) return DEMO_CLIENTS as any[];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -30,10 +29,10 @@ export function useClientsPaginated() {
   });
 
   const loadMore = () => {
+    if (DEMO_MODE) return;
     const current = query.data ?? [];
-    if (current.length % PAGE_SIZE !== 0) return; // already at end
+    if (current.length % PAGE_SIZE !== 0) return;
     const nextPage = Math.floor(current.length / PAGE_SIZE);
-    // Prefetch next page
     queryClient.prefetchQuery({
       queryKey: ["clients", "paginated"],
       queryFn: async () => {
@@ -53,11 +52,11 @@ export function useClientsPaginated() {
   return { ...query, loadMore };
 }
 
-/** Full client list (no pagination) — used when you need ALL clients (e.g. filters, counts). */
 export function useAllClients() {
   return useQuery<Client[]>({
-    queryKey: ["clients"],
+    queryKey: ["clients", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
+      if (DEMO_MODE) return DEMO_CLIENTS as any[];
       const { data, error } = await supabase.from("clients").select("*").order("name");
       if (error) throw error;
       return data ?? [];
@@ -65,11 +64,11 @@ export function useAllClients() {
   });
 }
 
-/** Minimal client list (id + name) for pickers/dropdowns. */
 export function useClientsMinimal() {
   return useQuery({
-    queryKey: ["clients-min"],
+    queryKey: ["clients-min", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
+      if (DEMO_MODE) return DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
       const { data, error } = await supabase
         .from("clients")
         .select("id, name")

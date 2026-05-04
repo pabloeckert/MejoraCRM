@@ -1,9 +1,13 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { DEMO_OWNER, DEMO_SELLER } from "@/demo/demoData";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
+
+/** Set to true to bypass Supabase auth and use demo data */
+export const DEMO_MODE = true;
 
 interface AuthContextType {
   user: User | null;
@@ -12,6 +16,10 @@ interface AuthContextType {
   profile: { full_name: string; avatar_url: string | null } | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  /** Demo mode only — toggle between owner and seller */
+  demoRole: "admin" | "vendedor";
+  toggleDemoRole: () => void;
+  isDemo: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,9 +29,38 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
+  demoRole: "admin",
+  toggleDemoRole: () => {},
+  isDemo: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
+
+/* ── Demo mock objects ────────────────────────────────────────── */
+
+function makeDemoUser(id: string, email: string): User {
+  return {
+    id,
+    email,
+    app_metadata: {},
+    user_metadata: {},
+    aud: "authenticated",
+    created_at: new Date().toISOString(),
+    role: "authenticated",
+  } as User;
+}
+
+function makeDemoSession(user: User): Session {
+  return {
+    access_token: "demo-token",
+    refresh_token: "demo-refresh",
+    expires_in: 3600,
+    token_type: "bearer",
+    user,
+  } as Session;
+}
+
+/* ── Provider ─────────────────────────────────────────────────── */
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -31,7 +68,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<AppRole | null>(null);
   const [profile, setProfile] = useState<{ full_name: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [demoRole, setDemoRole] = useState<"admin" | "vendedor">("admin");
 
+  /* ── Demo mode init ──────────────────────────────────────── */
+  useEffect(() => {
+    if (!DEMO_MODE) return;
+    const demo = demoRole === "admin" ? DEMO_OWNER : DEMO_SELLER;
+    const u = makeDemoUser(demo.id, demo.email);
+    setUser(u);
+    setSession(makeDemoSession(u));
+    setRole(demo.role as AppRole);
+    setProfile({ full_name: demo.full_name, avatar_url: null });
+    setLoading(false);
+  }, [demoRole]);
+
+  /* ── Real Supabase auth (only when DEMO_MODE = false) ────── */
   const fetchUserData = async (userId: string) => {
     const [roleRes, profileRes] = await Promise.all([
       supabase.rpc("get_user_role", { _user_id: userId }),
@@ -42,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (DEMO_MODE) return;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
@@ -69,15 +122,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (!DEMO_MODE) {
+      await supabase.auth.signOut();
+    }
     setUser(null);
     setSession(null);
     setRole(null);
     setProfile(null);
   };
 
+  const toggleDemoRole = useCallback(() => {
+    setDemoRole((prev) => (prev === "admin" ? "vendedor" : "admin"));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, session, role, profile, loading, signOut }}>
+    <AuthContext.Provider value={{
+      user, session, role, profile, loading, signOut,
+      demoRole, toggleDemoRole, isDemo: DEMO_MODE,
+    }}>
       {children}
     </AuthContext.Provider>
   );

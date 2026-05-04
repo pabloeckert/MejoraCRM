@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { DemoRoleToggle } from "@/components/DemoRoleToggle";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -27,7 +28,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <SidebarTrigger />
               <span className="ml-3 text-sm font-medium text-muted-foreground">{title}</span>
             </div>
-            <NotificationsPanel />
+            <div className="flex items-center gap-2">
+              <DemoRoleToggle />
+              <NotificationsPanel />
+            </div>
           </header>
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             {children}
