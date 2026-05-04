@@ -21,7 +21,7 @@ export default function Terms() {
 
           <h2>1. Aceptación de los términos</h2>
           <p>
-            Al acceder y utilizar <strong>MejoraCRM</strong> (disponible en <a href="https://crm.mejoraok.com">crm.mejoraok.com</a>), usted acepta estar sujeto a estos Términos de Servicio. Si no está de acuerdo con alguno de estos términos, no utilice el servicio.
+            Al acceder y utilizar <strong>MejoraCRM</strong> (disponible en <a href="https://mejoracrm.vercel.app">mejoracrm.vercel.app</a>), usted acepta estar sujeto a estos Términos de Servicio. Si no está de acuerdo con alguno de estos términos, no utilice el servicio.
           </p>
 
           <h2>2. Descripción del servicio</h2>

@@ -21,7 +21,7 @@ export default function Privacy() {
 
           <h2>1. Responsable del tratamiento</h2>
           <p>
-            <strong>Mejora Continua®</strong> (en adelante, "la Empresa") es responsable del tratamiento de los datos personales recopilados a través de la plataforma <strong>MejoraCRM</strong>, disponible en <a href="https://crm.mejoraok.com">crm.mejoraok.com</a>.
+            <strong>Mejora Continua®</strong> (en adelante, "la Empresa") es responsable del tratamiento de los datos personales recopilados a través de la plataforma <strong>MejoraCRM</strong>, disponible en <a href="https://mejoracrm.vercel.app">mejoracrm.vercel.app</a>.
           </p>
           <p>
             Para consultas sobre privacidad y protección de datos, contactar a: <strong>privacidad@mejoraok.com</strong>
