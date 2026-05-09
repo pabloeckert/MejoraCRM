@@ -14,18 +14,23 @@ Duración estimada: 1 semana
 - index.html — Google Fonts (Inter como fallback)
 - src/assets/ — reemplazar logos
 
-### Colores a configurar:
+### Colores extraidos del logo MC (Guía de Estilo 2026):
 ```
-primary: #7B2D8E (púrpura eléctrico — ajustar desde logo)
+primary (púrpura/magenta): #8B2D6B (gradiente del M en el logo)
+accent (dorado/mostaza): #F2BC1B (gradiente del C y texto "comunidad de negocios")
 background: #FFFFFF (blanco puro)
 background-alt: #F2F2F2 (gris plata)
 foreground: #000000 (negro)
-muted: #656565 (gris plomo)
-accent: #D4A843 (dorado — ajustar desde logo)
-destructive: #D93D4A (rojo alerta — del manual anterior)
+muted: #656565 (gris plomo — texto secundario)
+destructive: #D93D4A (rojo alerta)
 success: #2E7D32 (verde para ventas logradas)
-warning: #F29422 (naranja para ventas en curso)
+warning: #F29422 (naranja — también del logo, para ventas en curso)
 ```
+
+Nota: El logo tiene un gradiente púrpura→naranja→dorado. Para la UI usamos:
+- Botones principales: púrpura #8B2D6B
+- Acentos/highlights: dorado #F2BC1B  
+- Estados de venta: verde/amarillo/naranja/rojo
 
 ### Tipografía:
 - Cargar Bw Modelica si está disponible

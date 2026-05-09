@@ -38,13 +38,16 @@ CTO: Asistente IA (sesión con Pablo Eckert)
 
 Fuente: GUÍA DE ESTILO 2026 — MEJORA CONTINUA
 
-### Paleta CRM 2026
+### Paleta CRM 2026 (extraída del logo MC)
 - Fondo base: Blanco Puro #FFFFFF
 - Fondo alternativo: Gris Plata #F2F2F2
-- Títulos / Botones: Púrpura Eléctrico / Magenta (definir hex exacto desde logos)
+- Títulos / Botones: Púrpura/Magenta #8B2D6B (gradiente del M en logo)
+- Acentos de lujo: Dorado/Mostaza #F2BC1B (gradiente del C en logo)
 - Texto de lectura: Gris Plomo #656565
-- Acentos de lujo: Dorado / Mostaza (definir hex exacto desde logos)
 - Texto principal: Negro #000000
+- Warning/Ventas en curso: Naranja #F29422
+- Error/Destructive: Rojo #D93D4A
+- Success/Ventas logradas: Verde #2E7D32
 
 ### Lo que NO va (Guía de Estilo 2026)
 - Fondos negros
