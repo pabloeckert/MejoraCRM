@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, MessageCircle } from "lucide-react";
+import { Plus, Search, MessageCircle, Calendar } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { useInteractionsPaginated } from "@/hooks/useInteractions";
@@ -12,6 +12,32 @@ import { useClientsMinimal } from "@/hooks/useClients";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { useClientPresupuestos } from "@/hooks/useInteractions";
 import { InteractionCard, InteractionForm, RESULT_LABELS, type Result } from "@/components/interactions";
+import { startOfMonth, subMonths, startOfWeek, startOfDay, subDays } from "date-fns";
+
+type Period = "all" | "hoy" | "semana" | "mes" | "trimestre" | "semestre" | "año";
+
+const PERIOD_LABELS: Record<Period, string> = {
+  all: "Todos",
+  hoy: "Hoy",
+  semana: "Esta semana",
+  mes: "Este mes",
+  trimestre: "Trimestre",
+  semestre: "Semestre",
+  año: "Año",
+};
+
+function getPeriodStart(period: Period): Date | null {
+  const now = new Date();
+  switch (period) {
+    case "hoy": return startOfDay(now);
+    case "semana": return startOfWeek(now, { weekStartsOn: 1 });
+    case "mes": return startOfMonth(now);
+    case "trimestre": return subMonths(now, 3);
+    case "semestre": return subMonths(now, 6);
+    case "año": return new Date(now.getFullYear(), 0, 1);
+    default: return null;
+  }
+}
 
 export default function Interactions() {
   const { user } = useAuth();
@@ -19,6 +45,7 @@ export default function Interactions() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [resultFilter, setResultFilter] = useState("all");
+  const [period, setPeriod] = useState<Period>("all");
   const [formClientId, setFormClientId] = useState<string | undefined>();
   const [formResult, setFormResult] = useState<string | undefined>();
 
@@ -29,15 +56,20 @@ export default function Interactions() {
     formClientId && (formResult === "venta" || formResult === "seguimiento") ? formClientId : undefined
   );
 
-  if (isLoading) return <ListSkeleton />;
+  const periodStart = getPeriodStart(period);
 
-  const filtered = interactions.filter((i: any) => {
-    const matchSearch = !search || i.clients?.name?.toLowerCase().includes(search.toLowerCase());
-    const matchResult = resultFilter === "all" || i.result === resultFilter;
-    return matchSearch && matchResult;
-  });
+  const filtered = useMemo(() => {
+    return interactions.filter((i: any) => {
+      const matchSearch = !search || i.clients?.name?.toLowerCase().includes(search.toLowerCase());
+      const matchResult = resultFilter === "all" || i.result === resultFilter;
+      const matchPeriod = !periodStart || new Date(i.interaction_date) >= periodStart;
+      return matchSearch && matchResult && matchPeriod;
+    });
+  }, [interactions, search, resultFilter, periodStart]);
 
   const overdueCount = interactions.filter((i: any) => i.follow_up_date && new Date(i.follow_up_date) < new Date()).length;
+
+  if (isLoading) return <ListSkeleton />;
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -45,7 +77,7 @@ export default function Interactions() {
         <div>
           <h1 className="text-xl font-bold">Interacciones</h1>
           <p className="text-sm text-muted-foreground">
-            {interactions.length} registros
+            {filtered.length} registros
             {overdueCount > 0 && <span className="text-destructive ml-2 font-medium">• {overdueCount} seguimientos vencidos</span>}
           </p>
         </div>
@@ -54,13 +86,35 @@ export default function Interactions() {
         </Button>
       </div>
 
+      {/* Filters row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por cliente..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
+
+        {/* Period filter pills */}
+        <div className="flex gap-1 flex-wrap">
+          {(["all", "hoy", "semana", "mes", "trimestre", "semestre", "año"] as Period[]).map((p) => (
+            <Button
+              key={p}
+              variant={period === p ? "default" : "outline"}
+              size="sm"
+              className="h-8 text-xs px-2.5"
+              onClick={() => setPeriod(p)}
+            >
+              {p === "all" ? "Todos" : PERIOD_LABELS[p]}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Result filter */}
+      <div className="flex gap-2">
         <Select value={resultFilter} onValueChange={setResultFilter}>
-          <SelectTrigger className="w-48 h-9"><SelectValue placeholder="Resultados" /></SelectTrigger>
+          <SelectTrigger className="w-48 h-9">
+            <SelectValue placeholder="Resultados" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos los resultados</SelectItem>
             {Constants.public.Enums.interaction_result.map((r) => (

@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Search, Package } from "lucide-react";
+import { Plus, Pencil, Search, Package, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { useProducts } from "@/hooks/useProducts";
@@ -49,6 +49,100 @@ export default function Products() {
   const canManage = role === "admin" || role === "supervisor";
 
   const { data: products = [] } = useProducts();
+
+  // CSV Import state
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<any[]>([]);
+  const [importDuplicates, setImportDuplicates] = useState(0);
+
+  // Download CSV template
+  const handleDownloadTemplate = () => {
+    const headers = ["Nombre", "Descripción", "Categoría", "Unidad (código)", "Moneda", "Precio"];
+    const example = ["Semillas de pino", "Semillas de alta germinación", "Forestal", "kg", "ARS", "4250"];
+    const units = ["u=Unidad", "kg=Kilogramo", "tn=Tonelada", "m3=Metro cúbico", "m2=Metro cuadrado", "ml=Metro lineal", "ha=Hectárea", "lt=Litro", "hr=Hora", "servicio=Servicio"];
+    const csv = [headers, example].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+    const notes = `\n\n# Unidades válidas: ${units.join(", ")}`;
+    const blob = new Blob(["\ufeff" + csv + notes], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "plantilla_productos_mejoracrm.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Plantilla descargada");
+  };
+
+  // Import CSV
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#"));
+      if (lines.length < 2) return toast.error("El archivo está vacío");
+      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+
+      const nameIdx = headers.findIndex((h) => h.includes("nombre") || h.includes("name"));
+      if (nameIdx === -1) return toast.error("No se encontró columna 'Nombre'");
+
+      const descIdx = headers.findIndex((h) => h.includes("descripción") || h.includes("descripcion") || h.includes("description"));
+      const catIdx = headers.findIndex((h) => h.includes("categoría") || h.includes("categoria") || h.includes("category"));
+      const unitIdx = headers.findIndex((h) => h.includes("unidad") || h.includes("unit"));
+      const currencyIdx = headers.findIndex((h) => h.includes("moneda") || h.includes("currency"));
+      const priceIdx = headers.findIndex((h) => h.includes("precio") || h.includes("price"));
+
+      const existingNames = new Set(products.map((p) => p.name.toLowerCase()));
+      const parsed: any[] = [];
+      let dupes = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+        const name = cols[nameIdx]?.trim();
+        if (!name) continue;
+
+        const unitCode = unitIdx >= 0 ? cols[unitIdx]?.trim().toLowerCase() : "u";
+        const unit = UNITS.find((u) => u.value === unitCode);
+        const isDupe = existingNames.has(name.toLowerCase());
+        if (isDupe) dupes++;
+
+        parsed.push({
+          name,
+          description: descIdx >= 0 ? cols[descIdx]?.trim() || null : null,
+          category: catIdx >= 0 ? cols[catIdx]?.trim() || null : null,
+          unit: unit?.value || "u",
+          unit_label: unit?.label || "Unidad",
+          currency: (currencyIdx >= 0 ? cols[currencyIdx]?.trim().toUpperCase() : "ARS") as "ARS" | "USD" | "EUR",
+          price: priceIdx >= 0 ? Number(cols[priceIdx]) || null : null,
+          active: true,
+          isDuplicate: isDupe,
+        });
+      }
+
+      setImportPreview(parsed);
+      setImportDuplicates(dupes);
+      setImportDialogOpen(true);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const importMutation = useMutation({
+    mutationFn: async (items: any[]) => {
+      const toInsert = items.filter((i) => !i.isDuplicate).map(({ isDuplicate, ...rest }) => rest);
+      if (toInsert.length === 0) return;
+      const { error } = await supabase.from("products").insert(toInsert);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      setImportDialogOpen(false);
+      setImportPreview([]);
+      const count = importPreview.filter((i) => !i.isDuplicate).length;
+      toast.success(`${count} producto${count !== 1 ? "s" : ""} importado${count !== 1 ? "s" : ""}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const upsertMutation = useMutation({
     mutationFn: async (p: ProductInsert & { id?: string }) => {
@@ -119,9 +213,20 @@ export default function Products() {
           <h1 className="text-xl font-bold">Productos</h1>
           <p className="text-sm text-muted-foreground">{products.length} productos en catálogo</p>
         </div>
-        <Button onClick={openNew} className="h-9">
-          <Plus className="h-4 w-4 mr-1" /> Nuevo producto
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-9" onClick={handleDownloadTemplate}>
+            <Download className="h-4 w-4 mr-1" /> Plantilla
+          </Button>
+          <label>
+            <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
+              <span><Upload className="h-4 w-4 mr-1" /> Importar</span>
+            </Button>
+            <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+          </label>
+          <Button onClick={openNew} className="h-9">
+            <Plus className="h-4 w-4 mr-1" /> Nuevo producto
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -306,6 +411,74 @@ export default function Products() {
             </Button>
             <Button onClick={handleSave} disabled={upsertMutation.isPending}>
               {editing ? "Guardar cambios" : "Crear producto"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import preview dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Previsualizar importación</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex gap-3 text-sm">
+              <Badge variant="outline" className="bg-success/10 text-success">
+                {importPreview.filter((i) => !i.isDuplicate).length} nuevos
+              </Badge>
+              {importDuplicates > 0 && (
+                <Badge variant="outline" className="bg-warning/10 text-warning">
+                  {importDuplicates} posibles duplicados
+                </Badge>
+              )}
+            </div>
+            {importDuplicates > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Los duplicados (mismo nombre) se marcarán y no se importarán.
+              </p>
+            )}
+            <div className="border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="text-xs">Nombre</TableHead>
+                    <TableHead className="text-xs">Categoría</TableHead>
+                    <TableHead className="text-xs">Unidad</TableHead>
+                    <TableHead className="text-xs text-right">Precio</TableHead>
+                    <TableHead className="text-xs w-20">Estado</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {importPreview.map((item, i) => (
+                    <TableRow key={i} className={item.isDuplicate ? "opacity-40 bg-warning/5" : ""}>
+                      <TableCell className="text-sm">{item.name}</TableCell>
+                      <TableCell className="text-sm">{item.category || "—"}</TableCell>
+                      <TableCell className="text-sm">{item.unit_label}</TableCell>
+                      <TableCell className="text-sm text-right">
+                        {item.price != null ? `${item.currency} ${Number(item.price).toLocaleString()}` : "—"}
+                      </TableCell>
+                      <TableCell>
+                        {item.isDuplicate ? (
+                          <Badge variant="outline" className="text-xs text-warning">Dup</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-success">OK</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={() => importMutation.mutate(importPreview)}
+              disabled={importMutation.isPending || importPreview.filter((i) => !i.isDuplicate).length === 0}
+            >
+              <Upload className="h-4 w-4 mr-1" />
+              Importar {importPreview.filter((i) => !i.isDuplicate).length} productos
             </Button>
           </DialogFooter>
         </DialogContent>
