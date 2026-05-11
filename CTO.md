@@ -84,6 +84,8 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Cotización con upload de proforma (JPG/PNG/PDF drag & drop)
 - Tests unitarios (Vitest + Testing Library, 30 tests)
 - CI/CD (GitHub Actions: lint → typecheck → test → build)
+- WhatsApp link de formulario (generador de links wa.me)
+- Exportación Excel (.xlsx) en Clientes, Interacciones, Productos
 - Reportes básicos
 - Módulo Productos básico
 - Settings
@@ -99,11 +101,9 @@ Minimalista, Tecnológico, Rápido y Brillante
 ### NO implementado (requerido por docs)
 - Conectar Supabase real (DEMO_MODE = false, migraciones, seed data)
 - Google Calendar sync (OAuth flow)
-- WhatsApp link de formulario (form mobile 3 campos)
-- Exportación Excel (.xlsx)
-- Dashboard vendedor operativo (refinamiento)
 - Escaneo de tarjetas (OCR)
 - Asistente IA
+- Dashboard vendedor operativo (refinamiento)
 - Multi-tenant (cada empresa su BD aislada)
 - Sistema de trial/planes
 
@@ -268,7 +268,6 @@ Para continuar en la próxima sesión, decir **"continuemos"** y el CTO:
 
 #### Features que faltan:
 - [ ] Google Calendar sync (necesita OAuth credentials de Google Cloud)
-- [ ] Exportación Excel (.xlsx) — instalar librería `xlsx` o `exceljs`
 - [ ] Escaneo de tarjetas (OCR)
 - [ ] Asistente IA
 
