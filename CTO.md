@@ -295,6 +295,10 @@ a74a773 docs: Sprint 2 completado
 6174f83 feat: Sprint 3 — Tests + CI/CD
 96cf864 docs: Sprint 3 progreso
 27cd6d7 feat: WhatsApp link generator
+329c203 feat: exportación Excel (.xlsx)
+219e5d0 docs: documentación completa para retomar sesión
+28c080d docs: Sprint 3 progreso
+e3905e4 docs: SETUP.md — guía para conectar Supabase
 ```
 
 ### Stack actual:
