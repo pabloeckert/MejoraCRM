@@ -16,7 +16,7 @@ import { KPICard } from "./KPICard";
 import type { Interaction, Client, Profile, SellerStats } from "@/lib/types";
 
 const COLORS = [
-  "hsl(214,58%,41%)",
+  "hsl(325,50%,36%)",
   "hsl(45,74%,60%)",
   "hsl(142,60%,40%)",
   "hsl(2,52%,53%)",
@@ -281,7 +281,7 @@ export function OwnerView({ interactions, clients, profiles, navigate }: OwnerVi
                 ventas.forEach((v) => { if (v.interaction_lines) v.interaction_lines.forEach((l) => { const name = l.products?.name || "Sin nombre"; productSales[name] = (productSales[name] || 0) + (l.line_total || l.quantity * l.unit_price || 0); }); });
                 const productData = Object.entries(productSales).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
                 return productData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(325,50%,36%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
                 ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>;
               })()}
             </CardContent>

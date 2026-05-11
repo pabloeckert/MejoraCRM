@@ -6,11 +6,10 @@ import { DemoRoleToggle } from "@/components/DemoRoleToggle";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Vista general",
+  "/": "Vista General",
   "/clients": "Clientes",
   "/interactions": "Interacciones",
   "/products": "Productos",
-  "/pipeline": "Proceso de ventas",
   "/settings": "Configuración",
 };
 

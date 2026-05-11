@@ -1,10 +1,10 @@
-import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3, Kanban } from "lucide-react";
+import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logoImg from "@/assets/logo-white.png";
+import logoImg from "@/assets/branding/miro_fondo_blanco.png";
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,6 @@ const items = [
   { title: "Vista General", url: "/", icon: LayoutGrid },
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Interacciones", url: "/interactions", icon: MessageSquare },
-  { title: "Proceso de ventas", url: "/pipeline", icon: Kanban },
   { title: "Reportes", url: "/reports", icon: BarChart3, roles: ["admin", "supervisor"] },
   { title: "Productos", url: "/products", icon: Package, roles: ["admin", "supervisor"] },
   { title: "Configuración", url: "/settings", icon: Settings, roles: ["admin", "supervisor"] },

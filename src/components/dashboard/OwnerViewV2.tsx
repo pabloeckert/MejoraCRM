@@ -16,7 +16,7 @@ import { KPICard } from "./KPICard";
 import type { Interaction, Client, Profile } from "@/lib/types";
 
 const COLORS = [
-  "hsl(214,58%,41%)",
+  "hsl(325,50%,36%)",
   "hsl(45,74%,60%)",
   "hsl(142,60%,40%)",
   "hsl(2,52%,53%)",
@@ -510,7 +510,7 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Ventas por producto</CardTitle></CardHeader>
             <CardContent className="h-64">
               {productData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(214,58%,41%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(325,50%,36%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
               ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>}
             </CardContent>
           </Card>

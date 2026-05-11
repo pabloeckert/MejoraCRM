@@ -29,10 +29,10 @@ export default function Terms() {
             MejoraCRM es una plataforma de gestión de relaciones con clientes (CRM) que permite:
           </p>
           <ul>
-            <li>Gestionar un catálogo de clientes y leads</li>
+            <li>Gestionar un catálogo de clientes y contactos</li>
             <li>Registrar interacciones comerciales (presupuestos, ventas, seguimientos)</li>
             <li>Administrar un catálogo de productos y servicios</li>
-            <li>Visualizar reportes y estadísticas del pipeline de ventas</li>
+            <li>Visualizar reportes y estadísticas del proceso de ventas</li>
             <li>Recibir notificaciones sobre seguimientos programados</li>
           </ul>
 

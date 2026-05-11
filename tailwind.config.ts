@@ -63,7 +63,7 @@ export default {
         brand: {
           gold: "hsl(var(--brand-gold))",
           red: "hsl(var(--brand-red))",
-          blue: "hsl(var(--brand-blue))",
+          purple: "hsl(var(--brand-purple))",
           gray: "hsl(var(--brand-gray))",
           black: "hsl(var(--brand-black))",
         },
