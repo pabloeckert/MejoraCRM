@@ -15,6 +15,8 @@ import { startOfMonth, subMonths, format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { useDashboardData } from "@/hooks/useDashboard";
 import { ListSkeleton } from "@/components/skeletons";
+import { exportInteractionsExcel } from "@/lib/excelExport";
+import { FileSpreadsheet } from "lucide-react";
 
 const COLORS = [
   "hsl(325,50%,36%)",
@@ -253,6 +255,10 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
           <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
             <Download className="h-4 w-4 mr-1" />
             PDF
+          </Button>
+          <Button variant="outline" size="sm" className="h-9" onClick={() => exportInteractionsExcel(interactions)}>
+            <FileSpreadsheet className="h-4 w-4 mr-1" />
+            Excel
           </Button>
         </div>
       </div>

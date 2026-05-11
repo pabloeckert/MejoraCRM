@@ -11,12 +11,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { useAllClients } from "@/hooks/useClients";
 import { useAllInteractions } from "@/hooks/useInteractions";
+import { exportClientsExcel } from "@/lib/excelExport";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
@@ -322,6 +323,10 @@ export default function Clients() {
           <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
             <Download className="h-4 w-4 mr-1" />
             PDF
+          </Button>
+          <Button variant="outline" size="sm" className="h-9" onClick={() => exportClientsExcel(filtered)}>
+            <FileSpreadsheet className="h-4 w-4 mr-1" />
+            Excel
           </Button>
           <label>
             <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
