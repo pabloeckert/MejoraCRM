@@ -14,6 +14,7 @@ import { Check, ArrowLeft, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Constants } from "@/integrations/supabase/types";
 import { ProductLines } from "./ProductLines";
+import { ProformaUpload } from "./ProformaUpload";
 import { RESULT_LABELS, RESULT_STYLES, RESULT_ICONS, MEDIUM_LABELS, type Result } from "./InteractionCard";
 import { interactionSchema, type InteractionFormData, type LineFormData } from "@/lib/schemas";
 
@@ -49,6 +50,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   const [lines, setLines] = useState<LineFormData[]>([]);
   const [step, setStep] = useState<WizardStep>("cliente");
   const [searchClient, setSearchClient] = useState("");
+  const [proformaFile, setProformaFile] = useState<File | null>(null);
 
   const { control, handleSubmit, watch, reset, trigger, formState: { errors } } = useForm<InteractionFormData>({
     resolver: zodResolver(interactionSchema),
@@ -133,6 +135,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
       setLines([]);
       setStep("cliente");
       setSearchClient("");
+      setProformaFile(null);
       toast.success("Interacción registrada");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -151,7 +154,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   const linesTotal = useMemo(() => lines.reduce((s, l) => s + l.quantity * l.unit_price, 0), [lines]);
 
   const handleOpenChange = (v: boolean) => {
-    if (!v) { reset(); setLines([]); setStep("cliente"); setSearchClient(""); }
+    if (!v) { reset(); setLines([]); setStep("cliente"); setSearchClient(""); setProformaFile(null); }
     onOpenChange(v);
   };
 
@@ -314,10 +317,17 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                   {(quotePath || "catalogo") === "catalogo" ? (
                     <ProductLines lines={lines} products={products} addLine={addLine} removeLine={removeLine} updateLine={updateLine} onProductPick={onProductPick} total={linesTotal} currency={watch("currency") || "ARS"} onCurrencyChange={(c) => {}} />
                   ) : (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div><Label>Moneda</Label><Controller name="currency" control={control} render={({ field }) => (<Select value={field.value || "ARS"} onValueChange={field.onChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["ARS", "USD", "EUR"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>)} /></div>
-                      <div><Label>Monto total</Label><Controller name="total_amount" control={control} render={({ field }) => (<Input type="number" value={field.value || ""} onChange={(e) => field.onChange(Number(e.target.value) || null)} />)} /></div>
-                      <div className="col-span-2"><Label>URL del adjunto (opcional)</Label><Controller name="attachment_url" control={control} render={({ field }) => (<Input value={field.value || ""} onChange={(e) => field.onChange(e.target.value || null)} placeholder="https://..." />)} /></div>
+                    <div className="space-y-3">
+                      <ProformaUpload
+                        value={watch("attachment_url")}
+                        onChange={(url) => control._formValues.attachment_url = url}
+                        file={proformaFile}
+                        onFileChange={setProformaFile}
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div><Label>Moneda</Label><Controller name="currency" control={control} render={({ field }) => (<Select value={field.value || "ARS"} onValueChange={field.onChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["ARS", "USD", "EUR"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>)} /></div>
+                        <div><Label>Monto total</Label><Controller name="total_amount" control={control} render={({ field }) => (<Input type="number" value={field.value || ""} onChange={(e) => field.onChange(Number(e.target.value) || null)} />)} /></div>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -2,3 +2,4 @@ export { InteractionCard, RESULT_LABELS, RESULT_STYLES, RESULT_ICONS, MEDIUM_LAB
 export type { Result } from "./InteractionCard";
 export { InteractionForm } from "./InteractionForm";
 export { ProductLines } from "./ProductLines";
+export { ProformaUpload } from "./ProformaUpload";
