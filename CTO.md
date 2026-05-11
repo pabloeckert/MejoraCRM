@@ -82,6 +82,8 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Motivo de rechazo obligatorio (validación zod)
 - Módulo Productos completo (CRUD, unidades, CSV import con plantilla)
 - Cotización con upload de proforma (JPG/PNG/PDF drag & drop)
+- Tests unitarios (Vitest + Testing Library, 30 tests)
+- CI/CD (GitHub Actions: lint → typecheck → test → build)
 - Reportes básicos
 - Módulo Productos básico
 - Settings
@@ -95,14 +97,15 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Filtros de búsqueda en clientes
 
 ### NO implementado (requerido por docs)
+- Conectar Supabase real (DEMO_MODE = false, migraciones, seed data)
+- Google Calendar sync (OAuth flow)
+- WhatsApp link de formulario (form mobile 3 campos)
+- Exportación Excel (.xlsx)
 - Dashboard vendedor operativo (refinamiento)
-- Google Calendar sync
-- WhatsApp link de formulario
 - Escaneo de tarjetas (OCR)
 - Asistente IA
 - Multi-tenant (cada empresa su BD aislada)
 - Sistema de trial/planes
-- Tests y CI/CD
 
 ---
 
@@ -165,8 +168,8 @@ Tareas:
    - Layout: Resultados Directos → Gestión Comercial → Rendimiento Equipo → Análisis
    - Métricas según documento de Ajustes CRM
 
-### Sprint 3 — Conexión y Producción (2 semanas)
-Estado: PENDIENTE (después de Sprint 2)
+### Sprint 3 — Conexión y Producción (2 semanas) ← EN PROGRESO
+Estado: Tests + CI/CD completos (commit 6174f83). Pendiente: Supabase real, Calendar, WhatsApp, Excel.
 
 Tareas:
 1. Conectar Supabase real
