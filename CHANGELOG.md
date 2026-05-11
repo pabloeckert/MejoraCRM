@@ -1,5 +1,33 @@
 # Changelog — MejoraCRM
 
+## 2026-05-12
+
+### Sesión completa: Sprints 1, 2 y 3 parcial
+
+**Sprint 1 — Identidad y Lenguaje** ✅
+- Paleta MC 2026: púrpura #8B2D6B, dorado #F2BC1B, blanco puro
+- Logo MC isotipo en sidebar
+- Tipografía: Bw Modelica + Inter (Google Fonts)
+- Pipeline eliminado de sidebar y rutas
+- Lenguaje humano en toda la app
+
+**Sprint 2 — Core de Interacciones** ✅
+- InteractionForm → wizard 4 pasos (Cliente → Resultado → Detalles → Medio)
+- Filtros de período en Interacciones (hoy/semana/mes/trimestre/semestre/año)
+- CSV import en Productos con plantilla descargable
+- Upload de proforma (JPG/PNG/PDF drag & drop)
+- Validaciones: loss_reason obligatorio, followup_scenario obligatorio
+
+**Sprint 3 — Conexión y Producción** 🔄
+- Tests unitarios: 30 tests (Vitest + Testing Library)
+- CI/CD: GitHub Actions (lint → typecheck → test → build)
+- WhatsApp link generator
+- Pendiente: Supabase real, Google Calendar, Excel export
+
+Commits: `90e238c` → `27cd6d7` (9 commits)
+
+---
+
 ## 2026-05-05
 
 ### Limpieza del repositorio

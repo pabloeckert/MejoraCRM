@@ -235,21 +235,74 @@ Tareas:
 
 ## 7. Decisiones CTO Pendientes
 
-1. Hex exactos de púrpura y dorado (extraer de logos o definir)
+1. ~~Hex exactos de púrpura y dorado~~ → RESUELTO: #8B2D6B (púrpura), #F2BC1B (dorado)
 2. Supabase: ¿tenemos credenciales? (Pablo dice que puede revisar)
 3. ¿Necesitamos crear proyecto Supabase nuevo o usar el existente?
 4. ¿El dominio crm.mejoraok.com sigue apuntando a Vercel?
 5. ¿Queremos mantener el multi-tenant o empezar single-tenant?
+6. Número de WhatsApp del negocio para el link (se puede configurar después)
 
 ---
 
 ## 8. Cómo Retomar
 
-Para continuar en la próxima sesión, decir "continuemos" y el CTO:
+Para continuar en la próxima sesión, decir **"continuemos"** y el CTO:
 
 1. Lee este CTO.md para contexto completo
-2. Lee memory/YYYY-MM-DD.md para estado actual
-3. Pregunta qué sprint ejecutar (por defecto: Sprint 1)
+2. Lee `memory/YYYY-MM-DD.md` (hoy + ayer) para estado actual
+3. Pregunta qué ejecutar (ver abajo: "Qué falta")
 4. Arranca a codear
 
-El CTO siempre tiene acceso al repo y a todos los documentos en /docs/.
+### Qué falta (priorizado)
+
+#### Para salir de DEMO_MODE (lo más importante):
+- [ ] **Credenciales de Supabase** — Pablo debe copiar del dashboard de Supabase:
+  - `VITE_SUPABASE_URL` (Settings → API → Project URL)
+  - `VITE_SUPABASE_PUBLISHABLE_KEY` (Settings → API → anon public)
+  - `VITE_SUPABASE_PROJECT_ID` (Settings → General)
+- [ ] Copiar `.env.example` → `.env` y llenar las credenciales
+- [ ] Correr migraciones: `npx supabase db push` o ejecutar SQLs en el dashboard
+- [ ] Cargar seed data (productos, clientes de ejemplo)
+- [ ] Cambiar `DEMO_MODE = false` en `src/contexts/AuthContext.tsx`
+- [ ] Testear login real con Supabase Auth
+
+#### Features que faltan:
+- [ ] Google Calendar sync (necesita OAuth credentials de Google Cloud)
+- [ ] Exportación Excel (.xlsx) — instalar librería `xlsx` o `exceljs`
+- [ ] Escaneo de tarjetas (OCR)
+- [ ] Asistente IA
+
+#### Mejoras pendientes:
+- [ ] Dashboard vendedor: refinamiento según docs
+- [ ] Tests de componentes (solo hay tests de lógica pura)
+- [ ] Preview deployments en PRs (Vercel lo hace automático si está conectado)
+
+### Estado actual de los Sprints:
+
+| Sprint | Estado | Qué se hizo |
+|---|---|---|
+| Sprint 1 | ✅ COMPLETADO | Identidad MC 2026, lenguaje humano, Pipeline eliminado |
+| Sprint 2 | ✅ COMPLETADO | Wizard interacciones, filtros período, CSV productos, upload proforma |
+| Sprint 3 | 🔄 EN PROGRESO | Tests (30), CI/CD, WhatsApp link. Pendiente: Supabase real |
+
+### Commits de esta sesión (2026-05-12):
+```
+90e238c feat: Sprint 1 — Identidad Visual MC 2026 + Lenguaje humano
+fbf9b89 docs: Sprint 1 completado
+0da21bd feat: Sprint 2 — Wizard de interacciones + Filtros + CSV productos
+1c2f09d docs: Sprint 2 progreso
+29f63df feat: cotización con upload de proforma
+a74a773 docs: Sprint 2 completado
+6174f83 feat: Sprint 3 — Tests + CI/CD
+96cf864 docs: Sprint 3 progreso
+27cd6d7 feat: WhatsApp link generator
+```
+
+### Stack actual:
+- Frontend: React 18 + TypeScript + Vite
+- UI: Tailwind CSS + shadcn/ui
+- Backend: Supabase (Auth + PostgreSQL) — en modo DEMO
+- Tests: Vitest + Testing Library
+- Deploy: Vercel (mejoracrm.vercel.app)
+- CI/CD: GitHub Actions
+- Package Manager: npm (bun también funciona)
