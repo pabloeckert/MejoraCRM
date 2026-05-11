@@ -81,6 +81,7 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Filtros de período en Interacciones (hoy/semana/mes/trimestre/semestre/año)
 - Motivo de rechazo obligatorio (validación zod)
 - Módulo Productos completo (CRUD, unidades, CSV import con plantilla)
+- Cotización con upload de proforma (JPG/PNG/PDF drag & drop)
 - Reportes básicos
 - Módulo Productos básico
 - Settings
@@ -94,7 +95,6 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Filtros de búsqueda en clientes
 
 ### NO implementado (requerido por docs)
-- Cotización en Interacciones (subir JPG/PNG/PDF de proforma)
 - Dashboard vendedor operativo (refinamiento)
 - Google Calendar sync
 - WhatsApp link de formulario
@@ -133,8 +133,8 @@ Tareas:
    - Dueño/admin: acceso completo
 5. Actualizar demo data para reflejar flujo nuevo
 
-### Sprint 2 — Core de Interacciones (2 semanas) ← EN PROGRESO
-Estado: Tareas 1, 2, 3, 4 completas (commit 0da21bd)
+### Sprint 2 — Core de Interacciones (2 semanas) ← COMPLETADO
+Estado: ✅ COMPLETADO (commits 0da21bd, 1c2f09d, 29f63df)
 
 Tareas:
 1. Rediseñar flujo de Interacciones (resultado-first)
