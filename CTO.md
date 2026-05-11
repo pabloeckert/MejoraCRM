@@ -1,6 +1,6 @@
 # CTO.md — Estado del Proyecto y Roadmap
 
-Última actualización: 2026-05-10
+Última actualización: 2026-05-12
 CTO: Asistente IA (sesión con Pablo Eckert)
 
 ---
@@ -72,6 +72,9 @@ Minimalista, Tecnológico, Rápido y Brillante
 ## 4. Funcionalidades Actuales (Código)
 
 ### Implementado
+- Identidad visual MC 2026 (colores púrpura/dorado, logo MC, tipografía Inter+Bw Modelica)
+- Pipeline eliminado del sidebar y rutas
+- Lenguaje humano en toda la app (sin "pipeline", "lead")
 - Dashboard con vista Dueño/Vendedor (toggleable en demo)
 - CRUD Clientes (con import CSV, export CSV/PDF)
 - Interacciones con líneas de productos
@@ -89,9 +92,6 @@ Minimalista, Tecnológico, Rápido y Brillante
 - Filtros de búsqueda en clientes
 
 ### NO implementado (requerido por docs)
-- Identidad visual MC 2026 (colores, logo, tipografía)
-- Renombrar lenguaje técnico → humano
-- Eliminar Pipeline como sección independiente
 - Flujo de Interacciones resultado-first (Manual Técnico v2)
 - Módulo Productos completo (unidades de medida, importación CSV)
 - Filtros de período (día/semana/mes/trimestre/semestre/año)
@@ -110,8 +110,8 @@ Minimalista, Tecnológico, Rápido y Brillante
 
 ## 5. Roadmap por Sprints
 
-### Sprint 1 — Identidad y Lenguaje (1 semana) ← APROBADO
-Estado: PENDIENTE
+### Sprint 1 — Identidad y Lenguaje (1 semana) ← COMPLETADO
+Estado: ✅ COMPLETADO (commit 90e238c, 2026-05-12)
 
 Tareas:
 1. Aplicar identidad visual MC 2026

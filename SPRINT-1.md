@@ -1,8 +1,8 @@
 # Sprint 1 — Identidad y Lenguaje
 
-Estado: PENDIENTE
-Inicio: Próxima sesión
-Duración estimada: 1 semana
+Estado: ✅ COMPLETADO
+Inicio: 2026-05-12
+Commit: 90e238c
 
 ---
 
