@@ -16,6 +16,7 @@ import Interactions from "./pages/Interactions";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import WhatsAppLink from "./pages/WhatsAppLink";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -67,6 +68,7 @@ const App = () => (
                 <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="/whatsapp-link" element={<ProtectedRoute><WhatsAppLink /></ProtectedRoute>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<NotFound />} />

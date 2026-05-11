@@ -1,4 +1,4 @@
-import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3 } from "lucide-react";
+import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3, MessageCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ const items = [
   { title: "Interacciones", url: "/interactions", icon: MessageSquare },
   { title: "Reportes", url: "/reports", icon: BarChart3, roles: ["admin", "supervisor"] },
   { title: "Productos", url: "/products", icon: Package, roles: ["admin", "supervisor"] },
+  { title: "Link WhatsApp", url: "/whatsapp-link", icon: MessageCircle, roles: ["admin", "supervisor"] },
   { title: "Configuración", url: "/settings", icon: Settings, roles: ["admin", "supervisor"] },
 ];
 
