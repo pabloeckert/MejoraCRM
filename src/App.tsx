@@ -9,18 +9,20 @@ import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { CommandPalette } from "@/components/CommandPalette";
+import { lazy, Suspense, ReactNode } from "react";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Clients from "./pages/Clients";
-import Interactions from "./pages/Interactions";
-import Products from "./pages/Products";
-import Settings from "./pages/Settings";
-import Reports from "./pages/Reports";
-import WhatsAppLink from "./pages/WhatsAppLink";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
-import { ReactNode } from "react";
+
+// Lazy load pages for code splitting
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Clients = lazy(() => import("./pages/Clients"));
+const Interactions = lazy(() => import("./pages/Interactions"));
+const Products = lazy(() => import("./pages/Products"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Reports = lazy(() => import("./pages/Reports"));
+const WhatsAppLink = lazy(() => import("./pages/WhatsAppLink"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,17 +34,21 @@ const queryClient = new QueryClient({
   },
 });
 
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
+    return <PageLoader />;
   }
   if (!user) return <Navigate to="/auth" replace />;
-  return <AppLayout>{children}</AppLayout>;
+  return <AppLayout><Suspense fallback={<PageLoader />}>{children}</Suspense></AppLayout>;
 }
 
 function PublicRoute({ children }: { children: ReactNode }) {

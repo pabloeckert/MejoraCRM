@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,7 @@ export default function Clients() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importPreview, setImportPreview] = useState<any[]>([]);
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
-  const fileInputRef = useState<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: clients = [], isLoading } = useAllClients();
 
@@ -183,47 +184,46 @@ export default function Clients() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const text = evt.target?.result as string;
-      const lines = text.split("\n").filter((l) => l.trim());
-      if (lines.length < 2) return toast.error("El archivo está vacío");
-      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
-      const nameIdx = headers.findIndex((h) => h.includes("nombre") || h.includes("name"));
+      const { headers, rows } = parseCSV(text);
+      if (rows.length === 0) return toast.error("El archivo está vacío");
+
+      const nameIdx = findHeader(headers, "nombre", "name");
       if (nameIdx === -1) return toast.error("No se encontró columna 'Nombre'");
 
-      const waIdx = headers.findIndex((h) => h.includes("whatsapp") || h.includes("teléfono") || h.includes("telefono") || h.includes("phone"));
-      const emailIdx = headers.findIndex((h) => h.includes("email") || h.includes("correo"));
-      const companyIdx = headers.findIndex((h) => h.includes("empresa") || h.includes("company"));
-      const segmentIdx = headers.findIndex((h) => h.includes("rubro") || h.includes("segmento") || h.includes("rubro"));
-      const provinceIdx = headers.findIndex((h) => h.includes("provincia") || h.includes("province"));
-      const channelIdx = headers.findIndex((h) => h.includes("canal") || h.includes("channel"));
-      const locationIdx = headers.findIndex((h) => h.includes("localidad") || h.includes("ciudad") || h.includes("location"));
-      const addressIdx = headers.findIndex((h) => h.includes("dirección") || h.includes("direccion") || h.includes("address"));
-      const countryIdx = headers.findIndex((h) => h.includes("país") || h.includes("pais") || h.includes("country"));
-      const notesIdx = headers.findIndex((h) => h.includes("observaciones") || h.includes("notas") || h.includes("notes"));
+      const waIdx = findHeader(headers, "whatsapp", "teléfono", "telefono", "phone");
+      const emailIdx = findHeader(headers, "email", "correo");
+      const companyIdx = findHeader(headers, "empresa", "company");
+      const segmentIdx = findHeader(headers, "rubro", "segmento", "segment");
+      const provinceIdx = findHeader(headers, "provincia", "province");
+      const channelIdx = findHeader(headers, "canal", "channel");
+      const locationIdx = findHeader(headers, "localidad", "ciudad", "location");
+      const addressIdx = findHeader(headers, "dirección", "direccion", "address");
+      const countryIdx = findHeader(headers, "país", "pais", "country");
+      const notesIdx = findHeader(headers, "observaciones", "notas", "notes");
 
       const parsed: any[] = [];
       const existingNames = new Set(clients.map((c) => c.name.toLowerCase()));
       const existingWhatsapps = new Set(clients.map((c) => c.whatsapp?.toLowerCase()).filter(Boolean));
       let dupes = 0;
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-        const name = cols[nameIdx]?.trim();
+      for (const cols of rows) {
+        const name = getField(cols, nameIdx);
         if (!name) continue;
-        const whatsapp = waIdx >= 0 ? cols[waIdx]?.trim() : "";
+        const whatsapp = getField(cols, waIdx);
         const isDupe = existingNames.has(name.toLowerCase()) || (whatsapp && existingWhatsapps.has(whatsapp.toLowerCase()));
         if (isDupe) dupes++;
         parsed.push({
           name,
-          company: companyIdx >= 0 ? cols[companyIdx]?.trim() || null : null,
+          company: getField(cols, companyIdx),
           whatsapp: whatsapp || null,
-          email: emailIdx >= 0 ? cols[emailIdx]?.trim() || null : null,
-          segment: segmentIdx >= 0 ? cols[segmentIdx]?.trim() || null : null,
-          channel: channelIdx >= 0 ? cols[channelIdx]?.trim() || null : null,
-          province: provinceIdx >= 0 ? cols[provinceIdx]?.trim() || null : null,
-          location: locationIdx >= 0 ? cols[locationIdx]?.trim() || null : null,
-          address: addressIdx >= 0 ? cols[addressIdx]?.trim() || null : null,
-          country: countryIdx >= 0 ? cols[countryIdx]?.trim() || "Argentina" : "Argentina",
-          notes: notesIdx >= 0 ? cols[notesIdx]?.trim() || null : null,
+          email: getField(cols, emailIdx),
+          segment: getField(cols, segmentIdx),
+          channel: getField(cols, channelIdx),
+          province: getField(cols, provinceIdx),
+          location: getField(cols, locationIdx),
+          address: getField(cols, addressIdx),
+          country: getField(cols, countryIdx) || "Argentina",
+          notes: getField(cols, notesIdx),
           isDuplicate: isDupe,
           assigned_to: user?.id,
           status: "potencial" as const,

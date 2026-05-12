@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,41 +65,39 @@ export default function Products() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const text = evt.target?.result as string;
-      const lines = text.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#"));
-      if (lines.length < 2) return toast.error("El archivo está vacío");
-      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+      const { headers, rows } = parseCSV(text);
+      if (rows.length === 0) return toast.error("El archivo está vacío");
 
-      const nameIdx = headers.findIndex((h) => h.includes("nombre") || h.includes("name"));
+      const nameIdx = findHeader(headers, "nombre", "name");
       if (nameIdx === -1) return toast.error("No se encontró columna 'Nombre'");
 
-      const descIdx = headers.findIndex((h) => h.includes("descripción") || h.includes("descripcion") || h.includes("description"));
-      const catIdx = headers.findIndex((h) => h.includes("categoría") || h.includes("categoria") || h.includes("category"));
-      const unitIdx = headers.findIndex((h) => h.includes("unidad") || h.includes("unit"));
-      const currencyIdx = headers.findIndex((h) => h.includes("moneda") || h.includes("currency"));
-      const priceIdx = headers.findIndex((h) => h.includes("precio") || h.includes("price"));
+      const descIdx = findHeader(headers, "descripción", "descripcion", "description");
+      const catIdx = findHeader(headers, "categoría", "categoria", "category");
+      const unitIdx = findHeader(headers, "unidad", "unit");
+      const currencyIdx = findHeader(headers, "moneda", "currency");
+      const priceIdx = findHeader(headers, "precio", "price");
 
       const existingNames = new Set(products.map((p) => p.name.toLowerCase()));
       const parsed: any[] = [];
       let dupes = 0;
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-        const name = cols[nameIdx]?.trim();
+      for (const cols of rows) {
+        const name = getField(cols, nameIdx);
         if (!name) continue;
 
-        const unitCode = unitIdx >= 0 ? cols[unitIdx]?.trim().toLowerCase() : "u";
+        const unitCode = getField(cols, unitIdx)?.toLowerCase() || "u";
         const unit = UNITS.find((u) => u.value === unitCode);
         const isDupe = existingNames.has(name.toLowerCase());
         if (isDupe) dupes++;
 
         parsed.push({
           name,
-          description: descIdx >= 0 ? cols[descIdx]?.trim() || null : null,
-          category: catIdx >= 0 ? cols[catIdx]?.trim() || null : null,
+          description: getField(cols, descIdx),
+          category: getField(cols, catIdx),
           unit: unit?.value || "u",
           unit_label: unit?.label || "Unidad",
-          currency: (currencyIdx >= 0 ? cols[currencyIdx]?.trim().toUpperCase() : "ARS") as "ARS" | "USD" | "EUR",
-          price: priceIdx >= 0 ? Number(cols[priceIdx]) || null : null,
+          currency: (getField(cols, currencyIdx)?.toUpperCase() || "ARS") as "ARS" | "USD" | "EUR",
+          price: priceIdx >= 0 ? Number(getField(cols, priceIdx)) || null : null,
           active: true,
           isDuplicate: isDupe,
         });
