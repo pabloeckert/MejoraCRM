@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAllClients } from "@/hooks/useClients";
 import { useAllInteractions } from "@/hooks/useInteractions";
+import { RESULT_LABELS } from "@/lib/constants";
 
 interface CommandItem {
   id: string;
@@ -64,33 +65,34 @@ export function CommandPalette() {
     { id: "action-new-client", label: "Nuevo cliente", icon: UserPlus, action: () => goTo("/clients"), category: "Acciones" },
     { id: "action-new-interaction", label: "Nueva interacción", icon: Plus, action: () => goTo("/interactions"), category: "Acciones" },
 
-    // Clients (dynamic)
-    ...clients.slice(0, 20).map((c) => ({
+    // Clients (dynamic) — search by name, company, province, segment
+    ...clients.slice(0, 30).map((c) => ({
       id: `client-${c.id}`,
       label: c.name,
-      description: c.company || c.province || undefined,
+      description: [c.company, c.province, c.segment].filter(Boolean).join(" · ") || undefined,
       icon: Users,
       action: () => goTo("/clients"),
       category: "Clientes",
     })),
 
-    // Recent interactions (dynamic)
-    ...interactions.slice(0, 10).map((i: any) => ({
+    // Recent interactions (dynamic) — search by client name, result, notes
+    ...interactions.slice(0, 15).map((i: any) => ({
       id: `interaction-${i.id}`,
       label: i.clients?.name || "Interacción",
-      description: `${i.result} · ${new Date(i.interaction_date).toLocaleDateString()}`,
+      description: `${RESULT_LABELS[i.result] || i.result} · ${new Date(i.interaction_date).toLocaleDateString()}${i.notes ? ` · ${i.notes.slice(0, 40)}` : ""}`,
       icon: FileText,
       action: () => goTo("/interactions"),
       category: "Interacciones recientes",
     })),
   ];
 
-  // Filter by query
+  // Filter by query — search across label, description, and category
   const filtered = query.trim()
     ? items.filter(
         (item) =>
           item.label.toLowerCase().includes(query.toLowerCase()) ||
-          (item.description || "").toLowerCase().includes(query.toLowerCase())
+          (item.description || "").toLowerCase().includes(query.toLowerCase()) ||
+          item.category.toLowerCase().includes(query.toLowerCase())
       )
     : items;
 
@@ -126,7 +128,7 @@ export function CommandPalette() {
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 py-1.5">
                   {category}
                 </p>
-                {items.slice(0, 5).map((item) => (
+                {items.slice(0, 8).map((item) => (
                   <button
                     key={item.id}
                     className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-muted/50 transition-colors"
