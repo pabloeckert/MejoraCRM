@@ -45,7 +45,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   const [searchClient, setSearchClient] = useState("");
   const [proformaFile, setProformaFile] = useState<File | null>(null);
 
-  const { control, handleSubmit, watch, reset, trigger, formState: { errors } } = useForm<InteractionFormData>({
+  const { control, handleSubmit, watch, reset, trigger, setValue, formState: { errors } } = useForm<InteractionFormData>({
     resolver: zodResolver(interactionSchema),
     defaultValues: {
       client_id: "", medium: undefined as any, result: undefined as any,
@@ -233,7 +233,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => { control._formValues.client_id = c.id; trigger("client_id"); }}
+                    onClick={() => { setValue("client_id", c.id); trigger("client_id"); }}
                     className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                       clientId === c.id
                         ? "border-primary bg-primary/5 ring-1 ring-primary/20"
@@ -308,12 +308,12 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                     )} />
                   </div>
                   {(quotePath || "catalogo") === "catalogo" ? (
-                    <ProductLines lines={lines} products={products} addLine={addLine} removeLine={removeLine} updateLine={updateLine} onProductPick={onProductPick} total={linesTotal} currency={watch("currency") || "ARS"} onCurrencyChange={(c) => {}} />
+                    <ProductLines lines={lines} products={products} addLine={addLine} removeLine={removeLine} updateLine={updateLine} onProductPick={onProductPick} total={linesTotal} currency={watch("currency") || "ARS"} onCurrencyChange={(c) => setValue("currency", c)} />
                   ) : (
                     <div className="space-y-3">
                       <ProformaUpload
                         value={watch("attachment_url")}
-                        onChange={(url) => control._formValues.attachment_url = url}
+                        onChange={(url) => setValue("attachment_url", url)}
                         file={proformaFile}
                         onFileChange={setProformaFile}
                       />
@@ -337,7 +337,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                       </Select>
                     )} />
                   </div>
-                  <ProductLines lines={lines} products={products} addLine={addLine} removeLine={removeLine} updateLine={updateLine} onProductPick={onProductPick} total={linesTotal} currency={watch("currency") || "ARS"} onCurrencyChange={(c) => {}} />
+                  <ProductLines lines={lines} products={products} addLine={addLine} removeLine={removeLine} updateLine={updateLine} onProductPick={onProductPick} total={linesTotal} currency={watch("currency") || "ARS"} onCurrencyChange={(c) => setValue("currency", c)} />
                 </div>
               )}
 
