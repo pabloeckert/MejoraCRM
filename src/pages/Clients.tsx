@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download, FileSpreadsheet, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
@@ -44,7 +44,7 @@ export default function Clients() {
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: clients = [], isLoading } = useAllClients();
+  const { data: clients = [], isLoading, error, refetch } = useAllClients();
 
   // Client-specific interactions (for detail view)
   const { data: clientInteractions = [] } = useQuery({
@@ -254,6 +254,19 @@ export default function Clients() {
   });
 
   if (isLoading) return <ListSkeleton />;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+        <div className="p-3 rounded-full bg-destructive/10"><AlertCircle className="h-8 w-8 text-destructive" /></div>
+        <div>
+          <h2 className="text-lg font-semibold">Error al cargar clientes</h2>
+          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()}><RefreshCw className="h-4 w-4 mr-1" /> Reintentar</Button>
+      </div>
+    );
+  }
 
   const filtered = clients.filter((c) => {
     const matchSearch =

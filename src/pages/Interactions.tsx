@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, MessageCircle, Calendar } from "lucide-react";
+import { Plus, Search, MessageCircle, Calendar, AlertCircle, RefreshCw } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { useInteractionsPaginated } from "@/hooks/useInteractions";
@@ -49,7 +49,7 @@ export default function Interactions() {
   const [formClientId, setFormClientId] = useState<string | undefined>();
   const [formResult, setFormResult] = useState<string | undefined>();
 
-  const { data: interactions = [], isLoading } = useInteractionsPaginated();
+  const { data: interactions = [], isLoading, error, refetch } = useInteractionsPaginated();
   const { data: clients = [] } = useClientsMinimal();
   const { data: products = [] } = useActiveProducts();
   const { data: presupuestos = [] } = useClientPresupuestos(
@@ -70,6 +70,19 @@ export default function Interactions() {
   const overdueCount = interactions.filter((i: any) => i.follow_up_date && new Date(i.follow_up_date) < new Date()).length;
 
   if (isLoading) return <ListSkeleton />;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+        <div className="p-3 rounded-full bg-destructive/10"><AlertCircle className="h-8 w-8 text-destructive" /></div>
+        <div>
+          <h2 className="text-lg font-semibold">Error al cargar interacciones</h2>
+          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()}><RefreshCw className="h-4 w-4 mr-1" /> Reintentar</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 animate-fade-in">
