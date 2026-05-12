@@ -24,7 +24,6 @@ export default function Dashboard() {
   return (
     <SellerViewV2
       interactions={interactions.filter((i: any) => i.user_id === user?.id)}
-      myClients={clients.filter((c: any) => c.assigned_to === user?.id)}
       sellerName={profile?.full_name || "Vendedor"}
       navigate={navigate}
     />

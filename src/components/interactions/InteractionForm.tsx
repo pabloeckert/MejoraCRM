@@ -17,14 +17,11 @@ import { ProductLines } from "./ProductLines";
 import { ProformaUpload } from "./ProformaUpload";
 import { RESULT_LABELS, RESULT_STYLES, RESULT_ICONS, MEDIUM_LABELS, type Result } from "./InteractionCard";
 import { interactionSchema, type InteractionFormData, type LineFormData } from "@/lib/schemas";
+import { NEGOTIATION_LABELS, FOLLOWUP_SCENARIOS, LOSS_REASONS } from "@/lib/constants";
 
-const NEGOTIATION_LABELS: Record<string, string> = {
-  con_interes: "Con interés", sin_respuesta: "Sin respuesta", revisando: "Está revisando", pidio_cambios: "Pidió cambios",
-};
+type WizardStep = "cliente" | "resultado" | "detalles" | "medio";
 
-const FOLLOWUP_SCENARIOS: Record<string, string> = {
-  vinculado: "Sobre presupuesto cargado", independiente: "Seguimiento independiente", historico: "Sobre presupuesto histórico (no cargado)",
-};
+const STEP_ORDER: WizardStep[] = ["cliente", "resultado", "detalles", "medio"];
 
 interface InteractionFormProps {
   open: boolean;
@@ -33,10 +30,6 @@ interface InteractionFormProps {
   products: any[];
   presupuestos: any[];
 }
-
-type WizardStep = "cliente" | "resultado" | "detalles" | "medio";
-
-const STEP_ORDER: WizardStep[] = ["cliente", "resultado", "detalles", "medio"];
 const STEP_LABELS: Record<WizardStep, string> = {
   cliente: "Cliente",
   resultado: "Resultado",
@@ -400,13 +393,9 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                       <Select value={field.value || ""} onValueChange={field.onChange}>
                         <SelectTrigger><SelectValue placeholder="Seleccionar motivo" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Precio">Precio</SelectItem>
-                          <SelectItem value="Falta de financiación">Falta de financiación</SelectItem>
-                          <SelectItem value="Tiempo de entrega">Tiempo de entrega</SelectItem>
-                          <SelectItem value="Logística">Logística</SelectItem>
-                          <SelectItem value="Compró a la competencia">Compró a la competencia</SelectItem>
-                          <SelectItem value="Necesidad no confirmada">Necesidad no confirmada</SelectItem>
-                          <SelectItem value="Otro">Otro</SelectItem>
+                          {LOSS_REASONS.map((r) => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     )} />

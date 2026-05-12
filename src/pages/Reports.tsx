@@ -17,15 +17,7 @@ import { useDashboardData } from "@/hooks/useDashboard";
 import { ListSkeleton } from "@/components/skeletons";
 import { exportInteractionsExcel } from "@/lib/excelExport";
 import { FileSpreadsheet } from "lucide-react";
-
-const COLORS = [
-  "hsl(325,50%,36%)",
-  "hsl(45,74%,60%)",
-  "hsl(142,60%,40%)",
-  "hsl(2,52%,53%)",
-  "hsl(280,40%,50%)",
-  "hsl(0,0%,40%)",
-];
+import { CHART_COLORS } from "@/lib/constants";
 
 type Period = "mes" | "trimestre" | "semestre" | "año";
 
@@ -89,9 +81,9 @@ export default function Reports() {
 
   // Funnel data
   const funnelData = [
-    { stage: "Interacciones", count: periodInts.length, color: COLORS[0] },
-    { stage: "Presupuestos", count: presupuestos.length, color: COLORS[1] },
-    { stage: "Ventas", count: ventas.length, color: COLORS[2] },
+    { stage: "Interacciones", count: periodInts.length, color: CHART_COLORS[0] },
+    { stage: "Presupuestos", count: presupuestos.length, color: CHART_COLORS[1] },
+    { stage: "Ventas", count: ventas.length, color: CHART_COLORS[2] },
   ];
 
   // Monthly trend (last 6 months)
@@ -165,17 +157,17 @@ export default function Reports() {
 <html><head><meta charset="utf-8"><title>Reportes — MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:32px;color:#1a1a1a;max-width:900px;margin:0 auto}
-  h1{color:#2C5CA5;font-size:20px;margin-bottom:4px}
+  h1{color:#8B2D6B;font-size:20px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:24px}
   .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
   .kpi{background:#f9f9f9;border-radius:8px;padding:16px;text-align:center}
-  .kpi .value{font-size:24px;font-weight:bold;color:#2C5CA5}
+  .kpi .value{font-size:24px;font-weight:bold;color:#8B2D6B}
   .kpi .label{font-size:11px;color:#656565;margin-top:4px}
   table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px}
-  th{background:#2C5CA5;color:#fff;padding:8px;text-align:left}
+  th{background:#8B2D6B;color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   .section{margin-bottom:32px}
-  .section h2{font-size:14px;color:#2C5CA5;margin-bottom:12px;border-bottom:2px solid #2C5CA5;padding-bottom:4px}
+  .section h2{font-size:14px;color:#8B2D6B;margin-bottom:12px;border-bottom:2px solid #8B2D6B;padding-bottom:4px}
   @media print{body{padding:0}}
 </style></head><body>
 <h1>Reportes — MejoraCRM</h1>
@@ -358,7 +350,7 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={resultData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={65} innerRadius={30} strokeWidth={2}>
-                    {resultData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {resultData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                   </Pie>
                   <RTooltip />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
@@ -402,7 +394,7 @@ ${lossData.map((l) => `<tr><td>${l.name}</td><td>${l.value}</td></tr>`).join("")
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={lossData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={65} innerRadius={30} strokeWidth={2}>
-                    {lossData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {lossData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                   </Pie>
                   <RTooltip />
                   <Legend wrapperStyle={{ fontSize: 10 }} />

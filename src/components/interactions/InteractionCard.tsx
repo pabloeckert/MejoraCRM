@@ -5,33 +5,13 @@ import {
   FileText, ShoppingCart, Clock, X,
 } from "lucide-react";
 import { isBefore, differenceInDays } from "date-fns";
-import { Constants } from "@/integrations/supabase/types";
-
-type Result = "presupuesto" | "venta" | "seguimiento" | "sin_respuesta" | "no_interesado";
-
-const MEDIUM_LABELS: Record<string, string> = {
-  whatsapp: "WhatsApp", llamada: "Llamada", email: "Email",
-  reunion_presencial: "Reunión presencial", reunion_virtual: "Reunión virtual",
-  md_instagram: "MD Instagram", md_facebook: "MD Facebook", md_linkedin: "MD LinkedIn", visita_campo: "Visita a campo",
-};
+import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
+import type { Result } from "@/lib/constants";
 
 const MEDIUM_ICONS: Record<string, any> = {
   whatsapp: MessageCircle, llamada: Phone, email: Mail,
   reunion_presencial: Video, reunion_virtual: Video,
   md_instagram: Globe, md_facebook: Globe, md_linkedin: Globe, visita_campo: Globe,
-};
-
-const RESULT_LABELS: Record<Result, string> = {
-  presupuesto: "Envié un presupuesto", venta: "Cerré una venta",
-  seguimiento: "Hice un seguimiento", sin_respuesta: "Sin respuesta", no_interesado: "No le interesó",
-};
-
-const RESULT_STYLES: Record<Result, string> = {
-  presupuesto: "bg-primary/10 text-primary border-primary/20",
-  venta: "bg-success/10 text-success border-success/20",
-  seguimiento: "bg-accent/20 text-accent-foreground border-accent/30",
-  sin_respuesta: "bg-muted text-muted-foreground border-border",
-  no_interesado: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 const RESULT_ICONS: Record<Result, any> = {
@@ -112,5 +92,6 @@ export function InteractionCard({ interaction: i, index, onNavigate }: Interacti
   );
 }
 
-export { RESULT_LABELS, RESULT_STYLES, RESULT_ICONS, MEDIUM_LABELS, MEDIUM_ICONS };
+export { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS };
+export { RESULT_ICONS, MEDIUM_ICONS };
 export type { Result };

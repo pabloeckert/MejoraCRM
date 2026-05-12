@@ -7,24 +7,16 @@ import {
 } from "lucide-react";
 import { isBefore, isToday, differenceInDays, startOfMonth, format } from "date-fns";
 import { es } from "date-fns/locale";
+import { RESULT_LABELS } from "@/lib/constants";
 import type { Interaction } from "@/lib/types";
-
-const RESULT_LABELS: Record<string, string> = {
-  presupuesto: "Envié un presupuesto",
-  venta: "Cerré una venta",
-  seguimiento: "Hice un seguimiento",
-  sin_respuesta: "Sin respuesta",
-  no_interesado: "No le interesó",
-};
 
 interface SellerViewV2Props {
   interactions: Interaction[];
-  myClients: Interaction[];
   sellerName: string;
   navigate: (path: string) => void;
 }
 
-export function SellerViewV2({ interactions, myClients, sellerName, navigate }: SellerViewV2Props) {
+export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV2Props) {
   const monthStart = startOfMonth(new Date());
   const monthInts = interactions.filter((i) => new Date(i.interaction_date) >= monthStart);
 

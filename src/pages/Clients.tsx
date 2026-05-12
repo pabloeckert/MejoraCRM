@@ -18,46 +18,13 @@ import { ListSkeleton } from "@/components/skeletons";
 import { useAllClients } from "@/hooks/useClients";
 import { useAllInteractions } from "@/hooks/useInteractions";
 import { exportClientsExcel } from "@/lib/excelExport";
+import {
+  STATUS_LABELS, STATUS_STYLES, MEDIUM_LABELS, RESULT_LABELS, RESULT_STYLES,
+  CHANNELS, RUBROS, PAISES, PROVINCIAS,
+} from "@/lib/constants";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
-
-const STATUS_LABELS: Record<string, string> = { activo: "Activo", potencial: "Potencial", inactivo: "Inactivo" };
-const STATUS_STYLES: Record<string, string> = {
-  activo: "bg-success/10 text-success border-success/20",
-  potencial: "bg-primary/10 text-primary border-primary/20",
-  inactivo: "bg-muted text-muted-foreground border-border",
-};
-
-const CHANNELS = ["WhatsApp", "Email", "Redes sociales", "Referido", "Teléfono", "Feria/Evento", "Sitio web"];
-const RUBROS = ["Forestal", "Agropecuario", "Industrial", "Construcción", "Gobierno", "Particular", "Comercio", "Otro"];
-
-const PAISES = ["Argentina", "Uruguay", "Chile", "Paraguay", "Brasil", "Bolivia", "Perú", "Colombia", "México", "España", "Otro"];
-
-const PROVINCIAS = [
-  "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
-  "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones",
-  "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis", "Santa Cruz",
-  "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán",
-];
-
-const MEDIUM_LABELS: Record<string, string> = {
-  whatsapp: "WhatsApp", llamada: "Llamada", email: "Email",
-  reunion_presencial: "R. presencial", reunion_virtual: "R. virtual",
-  md_instagram: "Instagram", md_facebook: "Facebook", md_linkedin: "LinkedIn",
-  visita_campo: "Visita campo",
-};
-const RESULT_LABELS: Record<string, string> = {
-  presupuesto: "Envié un presupuesto", venta: "Cerré una venta", seguimiento: "Hice un seguimiento",
-  sin_respuesta: "Sin respuesta", no_interesado: "No le interesó",
-};
-const RESULT_STYLES: Record<string, string> = {
-  presupuesto: "bg-primary/10 text-primary border-primary/20",
-  venta: "bg-success/10 text-success border-success/20",
-  seguimiento: "bg-accent/20 text-accent-foreground border-accent/30",
-  sin_respuesta: "bg-muted text-muted-foreground border-border",
-  no_interesado: "bg-destructive/10 text-destructive border-destructive/20",
-};
 
 export default function Clients() {
   const { user, role } = useAuth();
@@ -184,10 +151,10 @@ export default function Clients() {
 <html><head><meta charset="utf-8"><title>Clientes - MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:20px;color:#1a1a1a}
-  h1{color:#2C5CA5;font-size:18px;margin-bottom:4px}
+  h1{color:#8B2D6B;font-size:18px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;font-size:12px}
-  th{background:#2C5CA5;color:#fff;padding:8px;text-align:left}
+  th{background:#8B2D6B;color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   tr:nth-child(even){background:#f9f9f9}
   .badge{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}

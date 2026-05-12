@@ -13,24 +13,8 @@ import {
 import { isBefore, differenceInDays, startOfMonth, subMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { KPICard } from "./KPICard";
+import { RESULT_LABELS, CHART_COLORS } from "@/lib/constants";
 import type { Interaction, Client, Profile } from "@/lib/types";
-
-const COLORS = [
-  "hsl(325,50%,36%)",
-  "hsl(45,74%,60%)",
-  "hsl(142,60%,40%)",
-  "hsl(2,52%,53%)",
-  "hsl(280,40%,50%)",
-  "hsl(0,0%,40%)",
-];
-
-const RESULT_LABELS: Record<string, string> = {
-  presupuesto: "Envié un presupuesto",
-  venta: "Cerré una venta",
-  seguimiento: "Hice un seguimiento",
-  sin_respuesta: "Sin respuesta",
-  no_interesado: "No le interesó",
-};
 
 interface OwnerViewV2Props {
   interactions: Interaction[];
@@ -500,7 +484,7 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Motivos de pérdida</CardTitle></CardHeader>
             <CardContent className="h-64">
               {lossData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={lossData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{lossData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><RTooltip /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={lossData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{lossData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}</Pie><RTooltip /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
               ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin rechazos en el período</div>}
             </CardContent>
           </Card>
@@ -530,7 +514,7 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Distribución por rubro</CardTitle></CardHeader>
             <CardContent className="h-64">
               {rubroData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={rubroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{rubroData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={rubroData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>{rubroData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}</Pie><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer>
               ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas por rubro</div>}
             </CardContent>
           </Card>
@@ -544,7 +528,7 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={resultData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={36} strokeWidth={2}>
-                    {resultData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {resultData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                   </Pie>
                   <RTooltip />
                   <Legend wrapperStyle={{ fontSize: 11 }} />

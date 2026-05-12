@@ -17,25 +17,10 @@ import { Plus, Pencil, Search, Package, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { useProducts } from "@/hooks/useProducts";
+import { UNITS, CURRENCIES, CURRENCY_SYMBOLS } from "@/lib/constants";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
-
-const UNITS: { value: string; label: string }[] = [
-  { value: "u", label: "Unidad" },
-  { value: "kg", label: "Kilogramo" },
-  { value: "tn", label: "Tonelada" },
-  { value: "m3", label: "Metro cúbico" },
-  { value: "m2", label: "Metro cuadrado" },
-  { value: "ml", label: "Metro lineal" },
-  { value: "ha", label: "Hectárea" },
-  { value: "lt", label: "Litro" },
-  { value: "hr", label: "Hora" },
-  { value: "servicio", label: "Servicio" },
-];
-
-const CURRENCIES: ("ARS" | "USD" | "EUR")[] = ["ARS", "USD", "EUR"];
-const CURRENCY_SYMBOLS: Record<string, string> = { ARS: "$", USD: "USD", EUR: "€" };
 
 export default function Products() {
   const { role } = useAuth();
