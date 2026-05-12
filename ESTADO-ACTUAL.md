@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `c1aa23e` — feat: DEMO_MODE configurable + tests
+- **Último commit remoto:** `3e04566` — feat: búsqueda mejorada en CommandPalette
 - **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 32+
+- **Commits totales:** 34+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -56,6 +56,18 @@ Usuario: Pablo
 ### Tests Ampliados (67 → 87) ✅
 - `constants.test.ts` — 14 tests
 - `InteractionCard.test.ts` — 6 tests
+
+### Fase 8: Tests de Componentes React ✅
+- `test/test-utils.tsx` — renderWithProviders()
+- `ErrorBoundary.test.tsx` — 5 tests
+- `KPICard.test.tsx` — 4 tests
+- `NavLink.test.tsx` — 4 tests
+- **Total: 87 → 100 tests**
+
+### Fase 9: Búsqueda Full-Text ✅
+- CommandPalette: búsqueda扩展 (nombre, empresa, provincia, segmento, resultado, notas)
+- 30 clientes, 15 interacciones indexados
+- 8 resultados por categoría
 
 ## Sprints Completados
 

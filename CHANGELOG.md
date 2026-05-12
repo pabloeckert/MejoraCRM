@@ -93,6 +93,26 @@
 - `src/lib/constants.test.ts` — 14 tests (status, channels, rubros, provincias, units, currencies, brand colors)
 - `src/components/interactions/InteractionCard.test.ts` — 6 tests (exports, consistencia)
 
+### Fase 8: Tests de Componentes React ✅
+
+**Test utilities:**
+- `src/test/test-utils.tsx` — renderWithProviders() con QueryClient + BrowserRouter
+
+**Component tests (87 → 100):**
+- `ErrorBoundary.test.tsx` — 5 tests (render children, error state, details, buttons, fallback)
+- `KPICard.test.tsx` — 4 tests (render, click, stagger, icon)
+- `NavLink.test.tsx` — 4 tests (text, anchor, className, activeClassName)
+
+### Fase 9: Búsqueda Full-Text ✅
+
+**CommandPalette mejorada:**
+- Búsqueda扩展: label + description + category
+- Clientes: busca por nombre, empresa, provincia, segmento
+- Interacciones: busca por cliente, resultado, notas
+- Más resultados: 30 clientes, 15 interacciones
+- 8 resultados por categoría
+- RESULT_LABELS para nombres humanos
+
 ---
 
 ## 2026-05-12
