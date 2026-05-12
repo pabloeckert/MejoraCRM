@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `3e04566` — feat: búsqueda mejorada en CommandPalette
+- **Último commit remoto:** `650c15d` — docs: CONTINUACION.md actualizado
 - **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 34+
+- **Commits totales:** 38+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -69,6 +69,14 @@ Usuario: Pablo
 - 30 clientes, 15 interacciones indexados
 - 8 resultados por categoría
 
+### Fase 6: Conexión Supabase Real ✅
+- **Conexión verificada** con credenciales reales
+- Login: pabloeckert@gmail.com ✅
+- Dashboard RPC: 19 interacciones, 8 clientes ✅
+- Productos: 5 registros reales ✅
+- Usuarios: 3 (2 admin, 1 vendedor) ✅
+- DEMO_MODE=false en .env
+
 ## Sprints Completados
 
 ### Sprint 1 — Identidad y Lenguaje ✅
@@ -100,9 +108,10 @@ Usuario: Pablo
 - Package Manager: Bun
 
 ## Modo Actual
-- **DEMO_MODE = true** (en `src/contexts/AuthContext.tsx`)
-- Login bypass con datos mock
-- Toggle Dueño/Vendedor en header
+- **DEMO_MODE = false** (en `.env`)
+- Conectado a Supabase real (fkjuswkjzaeuogctsxpw)
+- Login con Supabase Auth
+- Datos reales en PostgreSQL
 
 ## Deuda Técnica Crítica
 1. ~~CSV parser roto~~ ✅ RESUELTO
@@ -130,9 +139,10 @@ Usuario: Pablo
 6. ~~Edición de interacciones~~ ✅
 7. ~~Paginación real~~ ✅
 8. ~~DEMO_MODE configurable~~ ✅
-9. Conectar Supabase real (credenciales + migraciones)
-10. Google Calendar sync
-11. Tests de componentes React
+9. ~~Conectar Supabase real~~ ✅
+10. Deploy a producción (Vercel + env vars)
+11. Google Calendar sync
+12. Tests E2E
 
 ## Notas para Continuación
 - Git configurado pero sin credenciales de push
