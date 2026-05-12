@@ -57,6 +57,18 @@
 - Clients.tsx: estado de error con UI
 - Patrón consistente: AlertCircle + mensaje + botón reintentar
 
+### Fase 5: Edición de Interacciones ✅
+
+**Feature: CRUD completo de interacciones**
+- InteractionForm: modo edición con prop 'interaction'
+- Pre-fill de formulario con datos existentes
+- Carga de líneas de productos existentes
+- Mutación: INSERT (crear) / UPDATE (editar)
+- Reemplazo de líneas: DELETE old + INSERT new
+- InteractionCard: botón lápiz para editar
+- Interactions.tsx: estado editingInteraction
+- Wizard salta paso 'cliente' en edición (no se puede cambiar)
+
 ---
 
 ## 2026-05-12

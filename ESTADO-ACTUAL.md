@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `dffbd46` — feat: error handling en páginas principales
+- **Último commit remoto:** `729271c` — feat: edición de interacciones (CRUD completo)
 - **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 26+
+- **Commits totales:** 28+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -34,6 +34,13 @@ Usuario: Pablo
 - **OwnerViewV2.tsx** migrado a businessLogic.ts (~400L → ~300L)
 - **Error handling** en Dashboard, Interactions, Clients
 - **Neto:** -312 líneas de código duplicado eliminadas
+
+### Fase 5: Edición de Interacciones ✅
+- **InteractionForm** soporta modo edición (prop 'interaction')
+- Pre-fill de formulario + líneas de productos existentes
+- Mutación: INSERT (crear) / UPDATE (editar)
+- **InteractionCard** con botón lápiz para editar
+- **Interactions.tsx** con estado editingInteraction
 
 ## Sprints Completados
 
@@ -71,13 +78,13 @@ Usuario: Pablo
 - Toggle Dueño/Vendedor en header
 
 ## Deuda Técnica Crítica
-1. ~~CSV parser roto~~ ✅ RESUELTO (src/lib/csvParser.ts)
+1. ~~CSV parser roto~~ ✅ RESUELTO
 2. Sin paginación real (carga todo en memoria)
-3. Sin edición de interacciones (solo crear)
+3. ~~Sin edición de interacciones~~ ✅ RESUELTO (CRUD completo)
 4. DEMO_MODE hardcodeado (debe ser env var)
-5. ~~Archivos monolíticos~~ ✅ PARCIAL (Reports y OwnerViewV2 reducidos, Clients y InteractionForm pendientes)
-6. ~~Cálculos duplicados~~ ✅ RESUELTO (src/lib/businessLogic.ts)
-7. ~~Sin error handling~~ ✅ RESUELTO (UI de error en páginas principales)
+5. ~~Archivos monolíticos~~ ✅ PARCIAL (Reports y OwnerViewV2 reducidos)
+6. ~~Cálculos duplicados~~ ✅ RESUELTO
+7. ~~Sin error handling~~ ✅ RESUELTO
 
 ## Archivos Clave
 - `AUDITORIA-PROFUNDA.md` — Análisis completo (NUEVO)
@@ -93,10 +100,10 @@ Usuario: Pablo
 3. ~~Extraer cálculos compartidos~~ ✅
 4. ~~Descomponer Reports y OwnerViewV2~~ ✅
 5. ~~Error handling en páginas~~ ✅
-6. Edición de interacciones (CRUD completo)
+6. ~~Edición de interacciones~~ ✅
 7. Conectar Supabase real (credenciales + migraciones)
-8. Google Calendar sync
-9. Paginación real
+8. Paginación real
+9. Google Calendar sync
 
 ## Notas para Continuación
 - Git configurado pero sin credenciales de push
