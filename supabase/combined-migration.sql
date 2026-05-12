@@ -192,7 +192,19 @@ CREATE TABLE IF NOT EXISTS public.audit_log (
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
--- PASO 3: Índices
+-- PASO 3: Asegurar columnas faltantes (por si la tabla ya existía)
+-- =====================================================
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS country TEXT NOT NULL DEFAULT 'Argentina';
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS province TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS status public.client_status NOT NULL DEFAULT 'potencial';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS unit TEXT NOT NULL DEFAULT 'u';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS unit_label TEXT NOT NULL DEFAULT 'Unidad';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS currency public.currency_code NOT NULL DEFAULT 'ARS';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- =====================================================
+-- PASO 4: Índices
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_interactions_client ON public.interactions(client_id);
 CREATE INDEX IF NOT EXISTS idx_interactions_user ON public.interactions(user_id);
