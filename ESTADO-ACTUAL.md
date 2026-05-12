@@ -1,7 +1,7 @@
 # ESTADO-ACTUAL.md — Estado del Proyecto al 2026-05-13
 
-Última sesión: 2026-05-13 04:39 GMT+8
-Agente: Pepe (OpenClaw)
+Última sesión: 2026-05-13 06:38 GMT+8
+Agente: OpenClaw
 Usuario: Pablo
 
 ---
@@ -9,9 +9,19 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit:** `d52d786` — fix: InteractionForm use setValue instead of control._formValues hack
-- **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 20+
+- **Último commit remoto:** `9565f91` — docs: estado actual del proyecto + flag de continuación
+- **Commits locales pendientes:** 1 (análisis profundo)
+- **Remote:** origin/main
+
+## Trabajo Realizado (Esta Sesión)
+
+### Fase 1: Auditoría Técnica Profunda ✅
+- Análisis completo de todo el código fuente (~75 archivos, ~8,500 líneas)
+- Documentación de arquitectura, módulos, base de datos
+- Identificación de deuda técnica (16 issues)
+- Análisis de seguridad, rendimiento, testing
+- Recomendaciones priorizadas para próximos pasos
+- **Archivo creado:** `AUDITORIA-PROFUNDA.md`
 
 ## Sprints Completados
 
@@ -48,22 +58,31 @@ Usuario: Pablo
 - Login bypass con datos mock
 - Toggle Dueño/Vendedor en header
 
-## Archivos Clave
-- `CTO.md` — documentación técnica completa
-- `CHANGELOG.md` — historial de cambios
-- `SPRINT-1.md` — detalle sprint 1
-- `SETUP.md` — guía de setup
-- `.env.example` — template de variables de entorno
+## Deuda Técnica Crítica
+1. CSV parser roto (split por coma no maneja comillas)
+2. Sin paginación real (carga todo en memoria)
+3. Sin edición de interacciones (solo crear)
+4. DEMO_MODE hardcodeado (debe ser env var)
+5. Archivos monolíticos (Clients 578L, Reports 490L, InteractionForm 400+L, OwnerViewV2 400+L)
+6. Cálculos duplicados (KPIs en OwnerViewV2 Y Reports)
 
-## Próximos Pasos
-1. Configurar Supabase real (correr migraciones + seed)
-2. Cambiar DEMO_MODE a false
-3. Configurar dominio crm.mejoraok.com en Vercel
-4. Google Calendar integration
-5. Tests E2E (Playwright o similar)
+## Archivos Clave
+- `AUDITORIA-PROFUNDA.md` — Análisis completo (NUEVO)
+- `CTO.md` — Documentación técnica completa
+- `CHANGELOG.md` — Historial de cambios
+- `SPRINT-1.md` — Detalle sprint 1
+- `SETUP.md` — Guía de setup
+- `.env.example` — Template de variables de entorno
+
+## Próximos Pasos (Priorizado)
+1. Fix CSV parser (usar Papa Parse)
+2. Lazy loading de rutas (React.lazy)
+3. Descomponer archivos monolíticos
+4. Conectar Supabase real (credenciales + migraciones)
+5. Edición de interacciones
+6. Google Calendar sync
 
 ## Notas para Continuación
-- El token de GitHub fue compartido en chat — debe ser revocado y reemplazado
-- Las credenciales de git NO quedaron guardadas en el server (se limpiaron después del push)
-- Para futuros pushes autónomos: Pablo debe configurar `git config credential.helper store` en el server
-- MejoraCRM tiene node_modules excluido del repo — ejecutar `bun install` después de clonar
+- Git configurado pero sin credenciales de push
+- Para pushes autónomos: Pablo debe configurar acceso al repo
+- `bun install` después de clonar (node_modules excluido del repo)
