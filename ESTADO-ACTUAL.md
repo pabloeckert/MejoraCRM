@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `6399597` — refactor: extraer lógica de negocio compartida
+- **Último commit remoto:** `dffbd46` — feat: error handling en páginas principales
 - **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 23+
+- **Commits totales:** 26+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -25,15 +25,15 @@ Usuario: Pablo
 
 ### Fase 2: Fix Issues Críticos ✅
 - **CSV Parser robusto** — `src/lib/csvParser.ts` (19 tests)
-  - Maneja comillas, comas internas, quotes escapados, UTF-8 BOM
-  - Migrados Clients.tsx y Products.tsx
 - **Lazy loading de rutas** — React.lazy + Suspense en App.tsx
-  - Cada página es un chunk separado
 - **Lógica de negocio compartida** — `src/lib/businessLogic.ts` (18 tests)
-  - 12 funciones puras: KPIs, tendencias, rankings, filtros
-  - Elimina duplicación OwnerViewV2/Reports
 - **Tests:** 30 → 67 (+37 nuevos)
-- **Build:** OK, pages como chunks separados
+
+### Fase 4: Mejoras de Código ✅
+- **Reports.tsx** migrado a businessLogic.ts (490L → ~320L)
+- **OwnerViewV2.tsx** migrado a businessLogic.ts (~400L → ~300L)
+- **Error handling** en Dashboard, Interactions, Clients
+- **Neto:** -312 líneas de código duplicado eliminadas
 
 ## Sprints Completados
 
@@ -75,8 +75,9 @@ Usuario: Pablo
 2. Sin paginación real (carga todo en memoria)
 3. Sin edición de interacciones (solo crear)
 4. DEMO_MODE hardcodeado (debe ser env var)
-5. Archivos monolíticos (Clients 578L, Reports 490L, InteractionForm 400+L, OwnerViewV2 400+L)
+5. ~~Archivos monolíticos~~ ✅ PARCIAL (Reports y OwnerViewV2 reducidos, Clients y InteractionForm pendientes)
 6. ~~Cálculos duplicados~~ ✅ RESUELTO (src/lib/businessLogic.ts)
+7. ~~Sin error handling~~ ✅ RESUELTO (UI de error en páginas principales)
 
 ## Archivos Clave
 - `AUDITORIA-PROFUNDA.md` — Análisis completo (NUEVO)
@@ -90,10 +91,12 @@ Usuario: Pablo
 1. ~~Fix CSV parser~~ ✅
 2. ~~Lazy loading de rutas~~ ✅
 3. ~~Extraer cálculos compartidos~~ ✅
-4. Descomponer archivos monolíticos (Clients, Reports, InteractionForm, OwnerViewV2)
-5. Conectar Supabase real (credenciales + migraciones)
-6. Edición de interacciones
-7. Google Calendar sync
+4. ~~Descomponer Reports y OwnerViewV2~~ ✅
+5. ~~Error handling en páginas~~ ✅
+6. Edición de interacciones (CRUD completo)
+7. Conectar Supabase real (credenciales + migraciones)
+8. Google Calendar sync
+9. Paginación real
 
 ## Notas para Continuación
 - Git configurado pero sin credenciales de push

@@ -43,6 +43,20 @@
 - Build: OK con chunks separados
 - TypeScript: 0 errores
 
+### Fase 4: Mejoras de Código ✅
+
+**Refactor: Reports.tsx y OwnerViewV2.tsx**
+- Migrados a usar businessLogic.ts
+- Reports.tsx: 490L → ~320L (-170L)
+- OwnerViewV2.tsx: ~400L → ~300L (-100L)
+- Neto: -312 líneas de código duplicado eliminadas
+
+**Error handling en páginas**
+- Dashboard.tsx: estado de error con UI
+- Interactions.tsx: estado de error con UI
+- Clients.tsx: estado de error con UI
+- Patrón consistente: AlertCircle + mensaje + botón reintentar
+
 ---
 
 ## 2026-05-12
