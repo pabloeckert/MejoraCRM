@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `fecbe2b` — feat: paginación real con infinite scroll
+- **Último commit remoto:** `c1aa23e` — feat: DEMO_MODE configurable + tests
 - **Remote:** origin/main — sincronizado ✅
-- **Commits totales:** 30+
+- **Commits totales:** 32+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -47,6 +47,15 @@ Usuario: Pablo
 - **useClientsInfinite()** con useInfiniteQuery (50/página)
 - **useInteractionsInfinite()** con useInfiniteQuery (50/página)
 - Auto-carga al scroll en Clientes e Interacciones
+
+### DEMO_MODE Configurable ✅
+- `VITE_DEMO_MODE` env var (default: true)
+- Para activar Supabase real: `VITE_DEMO_MODE=false`
+- .env.example y SETUP.md actualizados
+
+### Tests Ampliados (67 → 87) ✅
+- `constants.test.ts` — 14 tests
+- `InteractionCard.test.ts` — 6 tests
 
 ## Sprints Completados
 
@@ -87,7 +96,7 @@ Usuario: Pablo
 1. ~~CSV parser roto~~ ✅ RESUELTO
 2. ~~Sin paginación real~~ ✅ RESUELTO (infinite scroll)
 3. ~~Sin edición de interacciones~~ ✅ RESUELTO (CRUD completo)
-4. DEMO_MODE hardcodeado (debe ser env var)
+4. ~~DEMO_MODE hardcodeado~~ ✅ RESUELTO (VITE_DEMO_MODE env var)
 5. ~~Archivos monolíticos~~ ✅ PARCIAL (Reports y OwnerViewV2 reducidos)
 6. ~~Cálculos duplicados~~ ✅ RESUELTO
 7. ~~Sin error handling~~ ✅ RESUELTO
@@ -108,9 +117,10 @@ Usuario: Pablo
 5. ~~Error handling en páginas~~ ✅
 6. ~~Edición de interacciones~~ ✅
 7. ~~Paginación real~~ ✅
-8. Conectar Supabase real (credenciales + migraciones)
-9. Google Calendar sync
-10. Tests de componentes
+8. ~~DEMO_MODE configurable~~ ✅
+9. Conectar Supabase real (credenciales + migraciones)
+10. Google Calendar sync
+11. Tests de componentes React
 
 ## Notas para Continuación
 - Git configurado pero sin credenciales de push

@@ -79,6 +79,20 @@
 - En modo DEMO: carga todo (sin paginación)
 - Hooks originales mantenidos para compatibilidad
 
+### DEMO_MODE Configurable ✅
+
+**DEMO_MODE ahora es variable de entorno:**
+- Lee `VITE_DEMO_MODE` env var (default: true)
+- Para activar Supabase real: `VITE_DEMO_MODE=false`
+- .env.example actualizado
+- SETUP.md actualizado
+
+### Tests Ampliados (67 → 87) ✅
+
+**Nuevos archivos de test:**
+- `src/lib/constants.test.ts` — 14 tests (status, channels, rubros, provincias, units, currencies, brand colors)
+- `src/components/interactions/InteractionCard.test.ts` — 6 tests (exports, consistencia)
+
 ---
 
 ## 2026-05-12
