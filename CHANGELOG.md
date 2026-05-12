@@ -69,6 +69,16 @@
 - Interactions.tsx: estado editingInteraction
 - Wizard salta paso 'cliente' en edición (no se puede cambiar)
 
+### Fase 7: Paginación Real ✅
+
+**Feature: Infinite scroll en Clientes e Interacciones**
+- InfiniteScrollTrigger.tsx: componente reutilizable con IntersectionObserver
+- useClientsInfinite(): useInfiniteQuery con paginación de 50 registros
+- useInteractionsInfinite(): useInfiniteQuery con paginación de 50 registros
+- Auto-carga cuando el usuario scrollea cerca del final
+- En modo DEMO: carga todo (sin paginación)
+- Hooks originales mantenidos para compatibilidad
+
 ---
 
 ## 2026-05-12
