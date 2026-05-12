@@ -69,10 +69,16 @@ supabase/migrations/20260422130107_*.sql
 
 ## Paso 6: Desactivar modo demo
 
-Editá `src/contexts/AuthContext.tsx`:
+Editá `.env`:
+
+```
+VITE_DEMO_MODE=false
+```
+
+O si preferís editarlo en código, en `src/contexts/AuthContext.tsx`:
 
 ```typescript
-export const DEMO_MODE = false;  // ← Cambiar de true a false
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE !== "false";
 ```
 
 ## Paso 7: Probar

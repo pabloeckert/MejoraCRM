@@ -6,8 +6,9 @@ import { DEMO_OWNER, DEMO_SELLER } from "@/demo/demoData";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
-/** Set to true to bypass Supabase auth and use demo data */
-export const DEMO_MODE = true;
+/** Set to true to bypass Supabase auth and use demo data.
+ *  Controlled by VITE_DEMO_MODE env var, defaults to true for safety. */
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE !== "false";
 
 interface AuthContextType {
   user: User | null;
