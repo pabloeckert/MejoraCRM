@@ -9,9 +9,9 @@ Usuario: Pablo
 ## Estado del Repo
 
 - **Branch:** main
-- **Último commit remoto:** `9565f91` — docs: estado actual del proyecto + flag de continuación
-- **Commits locales pendientes:** 1 (análisis profundo)
-- **Remote:** origin/main
+- **Último commit remoto:** `6399597` — refactor: extraer lógica de negocio compartida
+- **Remote:** origin/main — sincronizado ✅
+- **Commits totales:** 23+
 
 ## Trabajo Realizado (Esta Sesión)
 
@@ -22,6 +22,18 @@ Usuario: Pablo
 - Análisis de seguridad, rendimiento, testing
 - Recomendaciones priorizadas para próximos pasos
 - **Archivo creado:** `AUDITORIA-PROFUNDA.md`
+
+### Fase 2: Fix Issues Críticos ✅
+- **CSV Parser robusto** — `src/lib/csvParser.ts` (19 tests)
+  - Maneja comillas, comas internas, quotes escapados, UTF-8 BOM
+  - Migrados Clients.tsx y Products.tsx
+- **Lazy loading de rutas** — React.lazy + Suspense en App.tsx
+  - Cada página es un chunk separado
+- **Lógica de negocio compartida** — `src/lib/businessLogic.ts` (18 tests)
+  - 12 funciones puras: KPIs, tendencias, rankings, filtros
+  - Elimina duplicación OwnerViewV2/Reports
+- **Tests:** 30 → 67 (+37 nuevos)
+- **Build:** OK, pages como chunks separados
 
 ## Sprints Completados
 
@@ -59,12 +71,12 @@ Usuario: Pablo
 - Toggle Dueño/Vendedor en header
 
 ## Deuda Técnica Crítica
-1. CSV parser roto (split por coma no maneja comillas)
+1. ~~CSV parser roto~~ ✅ RESUELTO (src/lib/csvParser.ts)
 2. Sin paginación real (carga todo en memoria)
 3. Sin edición de interacciones (solo crear)
 4. DEMO_MODE hardcodeado (debe ser env var)
 5. Archivos monolíticos (Clients 578L, Reports 490L, InteractionForm 400+L, OwnerViewV2 400+L)
-6. Cálculos duplicados (KPIs en OwnerViewV2 Y Reports)
+6. ~~Cálculos duplicados~~ ✅ RESUELTO (src/lib/businessLogic.ts)
 
 ## Archivos Clave
 - `AUDITORIA-PROFUNDA.md` — Análisis completo (NUEVO)
@@ -75,12 +87,13 @@ Usuario: Pablo
 - `.env.example` — Template de variables de entorno
 
 ## Próximos Pasos (Priorizado)
-1. Fix CSV parser (usar Papa Parse)
-2. Lazy loading de rutas (React.lazy)
-3. Descomponer archivos monolíticos
-4. Conectar Supabase real (credenciales + migraciones)
-5. Edición de interacciones
-6. Google Calendar sync
+1. ~~Fix CSV parser~~ ✅
+2. ~~Lazy loading de rutas~~ ✅
+3. ~~Extraer cálculos compartidos~~ ✅
+4. Descomponer archivos monolíticos (Clients, Reports, InteractionForm, OwnerViewV2)
+5. Conectar Supabase real (credenciales + migraciones)
+6. Edición de interacciones
+7. Google Calendar sync
 
 ## Notas para Continuación
 - Git configurado pero sin credenciales de push

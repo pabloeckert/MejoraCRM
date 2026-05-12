@@ -297,14 +297,14 @@ Runtime: Bun
 ## 8. DEUDA TÉCNICA IDENTIFICADA
 
 ### 8.1 Críticas (afectan funcionalidad)
-1. **CSV parser roto** — `split(",")` no maneja comas dentro de campos entrecomillados
+1. ~~**CSV parser roto** — `split(",")` no maneja comas dentro de campos entrecomillados~~ ✅ RESUELTO
 2. **Sin paginación real** — Carga todos los registros en memoria
 3. **Sin edición de interacciones** — Solo se pueden crear, no editar
 4. **DEMO_MODE hardcodeado** — Debe ser variable de entorno
 
 ### 8.2 Altas (afectan mantenibilidad)
 5. **Archivos monolíticos** — Clients.tsx (578), Reports.tsx (490), InteractionForm.tsx (400+), OwnerViewV2.tsx (400+)
-6. **Cálculos duplicados** — KPIs calculados en OwnerViewV2 Y Reports separadamente
+6. ~~**Cálculos duplicados** — KPIs calculados en OwnerViewV2 Y Reports separadamente~~ ✅ RESUELTO
 7. **No hay state management** — Todo local, sin forma de compartir estado entre componentes
 8. **Tests insuficientes** — 0% cobertura en componentes y hooks
 
@@ -402,13 +402,20 @@ Runtime: Bun
 
 | Métrica | Valor |
 |---|---|
-| Archivos TS/TSX | ~75 |
-| Líneas de código | ~8,500 |
+| Archivos TS/TSX | ~78 |
+| Líneas de código | ~9,500 |
 | Componentes React | ~30 |
 | Hooks custom | 8 |
 | Páginas | 11 |
-| Tests | 30 |
+| Tests | 67 |
 | Migraciones DB | 11 |
 | Dependencias | 30 |
 | Dev dependencies | 16 |
 | Bundle chunks | 6 (vendor-react, vendor-query, vendor-ui, vendor-charts, vendor-supabase, main) |
+
+### Archivos nuevos desde auditoría:
+- `src/lib/csvParser.ts` — Parser CSV robusto
+- `src/lib/csvParser.test.ts` — 19 tests
+- `src/lib/businessLogic.ts` — Lógica de negocio compartida
+- `src/lib/businessLogic.test.ts` — 18 tests
+- `AUDITORIA-PROFUNDA.md` — Este documento
