@@ -16,7 +16,8 @@ import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Down
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
-import { useAllClients } from "@/hooks/useClients";
+import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
+import { useAllClients, useClientsInfinite, flattenClientPages } from "@/hooks/useClients";
 import { useAllInteractions } from "@/hooks/useInteractions";
 import { exportClientsExcel } from "@/lib/excelExport";
 import {
@@ -44,7 +45,8 @@ export default function Clients() {
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: clients = [], isLoading, error, refetch } = useAllClients();
+  const { data: clientsInfinite, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useClientsInfinite();
+  const clients = flattenClientPages(clientsInfinite);
 
   // Client-specific interactions (for detail view)
   const { data: clientInteractions = [] } = useQuery({
@@ -439,6 +441,12 @@ export default function Clients() {
           </Table>
         </CardContent>
       </Card>
+
+      <InfiniteScrollTrigger
+        hasNextPage={!!hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
 
       {/* Form dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

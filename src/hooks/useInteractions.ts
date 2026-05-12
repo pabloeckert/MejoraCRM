@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { DEMO_INTERACTIONS } from "@/demo/demoData";
@@ -11,11 +11,13 @@ const PAGE_SIZE = 50;
 const INTERACTIONS_SELECT =
   "*, clients(name), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))";
 
-export function useInteractionsPaginated() {
-  const queryClient = useQueryClient();
-
-  const query = useQuery({
-    queryKey: ["interactions", "paginated", DEMO_MODE ? "demo" : "live"],
+/**
+ * Infinite scroll hook for interactions.
+ * Returns: { data (flat array), fetchNextPage, hasNextPage, isFetchingNextPage, ... }
+ */
+export function useInteractionsInfinite() {
+  return useInfiniteQuery({
+    queryKey: ["interactions-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
       if (DEMO_MODE) return DEMO_INTERACTIONS as any[];
       const from = (pageParam as number) * PAGE_SIZE;
@@ -28,34 +30,52 @@ export function useInteractionsPaginated() {
       if (error) throw error;
       return data ?? [];
     },
-    initialData: [],
+    getNextPageParam: (lastPage, allPages) => {
+      if (DEMO_MODE) return undefined;
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length;
+    },
+    initialPageParam: 0,
+    staleTime: 30_000,
   });
-
-  const loadMore = () => {
-    if (DEMO_MODE) return;
-    const current = query.data ?? [];
-    if (current.length % PAGE_SIZE !== 0) return;
-    const nextPage = Math.floor(current.length / PAGE_SIZE);
-    queryClient.prefetchQuery({
-      queryKey: ["interactions", "paginated"],
-      queryFn: async () => {
-        const from = nextPage * PAGE_SIZE;
-        const to = from + PAGE_SIZE - 1;
-        const { data, error } = await supabase
-          .from("interactions")
-          .select(INTERACTIONS_SELECT)
-          .order("interaction_date", { ascending: false })
-          .range(from, to);
-        if (error) throw error;
-        return data ?? [];
-      },
-    });
-  };
-
-  return { ...query, loadMore };
 }
 
-export function useAllInteractions() {
+/**
+ * Flatten infinite query pages into a single array.
+ */
+export function flattenInteractionPages(data: { pages: any[][] } | undefined): any[] {
+  if (!data?.pages) return [];
+  return data.pages.flat();
+}
+
+// Keep existing hooks for compatibility
+export { useInteractionsPaginated, useAllInteractions, useClientPresupuestos };
+
+function useInteractionsPaginated() {
+  return useInfiniteQuery({
+    queryKey: ["interactions-infinite", DEMO_MODE ? "demo" : "live"],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (DEMO_MODE) return DEMO_INTERACTIONS as any[];
+      const from = (pageParam as number) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const { data, error } = await supabase
+        .from("interactions")
+        .select(INTERACTIONS_SELECT)
+        .order("interaction_date", { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      return data ?? [];
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (DEMO_MODE) return undefined;
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length;
+    },
+    initialPageParam: 0,
+  });
+}
+
+function useAllInteractions() {
   return useQuery({
     queryKey: ["interactions", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
@@ -70,7 +90,7 @@ export function useAllInteractions() {
   });
 }
 
-export function useClientPresupuestos(clientId: string | undefined) {
+function useClientPresupuestos(clientId: string | undefined) {
   return useQuery({
     queryKey: ["interactions-presupuestos", clientId, DEMO_MODE ? "demo" : "live"],
     enabled: !!clientId,

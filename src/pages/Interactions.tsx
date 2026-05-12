@@ -7,11 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, MessageCircle, Calendar, AlertCircle, RefreshCw } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
-import { useInteractionsPaginated } from "@/hooks/useInteractions";
+import { useInteractionsInfinite, flattenInteractionPages } from "@/hooks/useInteractions";
 import { useClientsMinimal } from "@/hooks/useClients";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { useClientPresupuestos } from "@/hooks/useInteractions";
 import { InteractionCard, InteractionForm, RESULT_LABELS, type Result } from "@/components/interactions";
+import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
 import { startOfMonth, subMonths, startOfWeek, startOfDay, subDays } from "date-fns";
 
 type Period = "all" | "hoy" | "semana" | "mes" | "trimestre" | "semestre" | "año";
@@ -50,7 +51,8 @@ export default function Interactions() {
   const [formClientId, setFormClientId] = useState<string | undefined>();
   const [formResult, setFormResult] = useState<string | undefined>();
 
-  const { data: interactions = [], isLoading, error, refetch } = useInteractionsPaginated();
+  const { data: interactionsInfinite, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInteractionsInfinite();
+  const interactions = flattenInteractionPages(interactionsInfinite);
   const { data: clients = [] } = useClientsMinimal();
   const { data: products = [] } = useActiveProducts();
   const { data: presupuestos = [] } = useClientPresupuestos(
@@ -158,6 +160,12 @@ export default function Interactions() {
           </div>
         )}
       </div>
+
+      <InfiniteScrollTrigger
+        hasNextPage={!!hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
 
       <InteractionForm
         open={dialogOpen}
