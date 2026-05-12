@@ -43,6 +43,7 @@ export default function Interactions() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingInteraction, setEditingInteraction] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [resultFilter, setResultFilter] = useState("all");
   const [period, setPeriod] = useState<Period>("all");
@@ -139,7 +140,16 @@ export default function Interactions() {
 
       <div className="space-y-2">
         {filtered.map((i: any, idx: number) => (
-          <InteractionCard key={i.id} interaction={i} index={idx} onNavigate={navigate} />
+          <InteractionCard
+            key={i.id}
+            interaction={i}
+            index={idx}
+            onNavigate={navigate}
+            onEdit={(interaction) => {
+              setEditingInteraction(interaction);
+              setDialogOpen(true);
+            }}
+          />
         ))}
         {filtered.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
@@ -151,10 +161,14 @@ export default function Interactions() {
 
       <InteractionForm
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) setEditingInteraction(null);
+          setDialogOpen(open);
+        }}
         clients={clients}
         products={products}
         presupuestos={presupuestos}
+        interaction={editingInteraction}
       />
     </div>
   );

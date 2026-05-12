@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   MessageCircle, Phone, Mail, Globe, Video, AlertCircle,
-  FileText, ShoppingCart, Clock, X,
+  FileText, ShoppingCart, Clock, X, Pencil,
 } from "lucide-react";
 import { isBefore, differenceInDays } from "date-fns";
 import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
@@ -22,9 +22,10 @@ interface InteractionCardProps {
   interaction: any;
   index: number;
   onNavigate: (path: string) => void;
+  onEdit?: (interaction: any) => void;
 }
 
-export function InteractionCard({ interaction: i, index, onNavigate }: InteractionCardProps) {
+export function InteractionCard({ interaction: i, index, onNavigate, onEdit }: InteractionCardProps) {
   const MediumIcon = MEDIUM_ICONS[i.medium] || MessageCircle;
   const ResultIcon = RESULT_ICONS[i.result as Result] || FileText;
   const isOverdue = i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date());
@@ -78,12 +79,23 @@ export function InteractionCard({ interaction: i, index, onNavigate }: Interacti
             {i.next_step && <p className="text-sm mt-1">→ {i.next_step}</p>}
             {i.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{i.notes}</p>}
           </div>
-          <div className="text-right shrink-0">
-            <p className="text-xs text-muted-foreground">{new Date(i.interaction_date).toLocaleDateString()}</p>
-            {i.follow_up_date && (
-              <p className={`text-xs mt-0.5 ${isOverdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
-                Seg: {i.follow_up_date}
-              </p>
+          <div className="text-right shrink-0 flex items-start gap-1">
+            <div>
+              <p className="text-xs text-muted-foreground">{new Date(i.interaction_date).toLocaleDateString()}</p>
+              {i.follow_up_date && (
+                <p className={`text-xs mt-0.5 ${isOverdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  Seg: {i.follow_up_date}
+                </p>
+              )}
+            </div>
+            {onEdit && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(i); }}
+                className="p-1 rounded hover:bg-muted/50 transition-colors"
+                title="Editar interacción"
+              >
+                <Pencil className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+              </button>
             )}
           </div>
         </div>

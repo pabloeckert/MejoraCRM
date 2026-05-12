@@ -29,6 +29,8 @@ interface InteractionFormProps {
   clients: any[];
   products: any[];
   presupuestos: any[];
+  /** If provided, the form enters edit mode for this interaction */
+  interaction?: any;
 }
 const STEP_LABELS: Record<WizardStep, string> = {
   cliente: "Cliente",
@@ -37,17 +39,37 @@ const STEP_LABELS: Record<WizardStep, string> = {
   medio: "Contacto",
 };
 
-export function InteractionForm({ open, onOpenChange, clients, products, presupuestos }: InteractionFormProps) {
+export function InteractionForm({ open, onOpenChange, clients, products, presupuestos, interaction }: InteractionFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [lines, setLines] = useState<LineFormData[]>([]);
-  const [step, setStep] = useState<WizardStep>("cliente");
+  const isEditing = !!interaction;
+  const [step, setStep] = useState<WizardStep>(isEditing ? "resultado" : "cliente");
   const [searchClient, setSearchClient] = useState("");
   const [proformaFile, setProformaFile] = useState<File | null>(null);
 
   const { control, handleSubmit, watch, reset, trigger, setValue, formState: { errors } } = useForm<InteractionFormData>({
     resolver: zodResolver(interactionSchema),
-    defaultValues: {
+    defaultValues: interaction ? {
+      client_id: interaction.client_id || "",
+      medium: interaction.medium || undefined as any,
+      result: interaction.result || undefined as any,
+      quote_path: interaction.quote_path || "catalogo",
+      currency: interaction.currency || "ARS",
+      total_amount: interaction.total_amount || null,
+      attachment_url: interaction.attachment_url || null,
+      reference_quote_id: interaction.reference_quote_id || null,
+      followup_scenario: interaction.followup_scenario || null,
+      followup_motive: interaction.followup_motive || null,
+      negotiation_state: interaction.negotiation_state || null,
+      historic_quote_amount: interaction.historic_quote_amount || null,
+      historic_quote_date: interaction.historic_quote_date || null,
+      loss_reason: interaction.loss_reason || null,
+      estimated_loss: interaction.estimated_loss || null,
+      next_step: interaction.next_step || null,
+      follow_up_date: interaction.follow_up_date || null,
+      notes: interaction.notes || null,
+    } : {
       client_id: "", medium: undefined as any, result: undefined as any,
       quote_path: "catalogo", currency: "ARS", total_amount: null, attachment_url: null,
       reference_quote_id: null, followup_scenario: null, followup_motive: null,
@@ -68,6 +90,17 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   }, [clients, searchClient]);
 
   const selectedClient = clients.find((c) => c.id === clientId);
+
+  // Load existing lines when editing
+  useMemo(() => {
+    if (interaction?.interaction_lines?.length > 0) {
+      setLines(interaction.interaction_lines.map((l: any) => ({
+        product_id: l.product_id || "",
+        quantity: l.quantity || 0,
+        unit_price: l.unit_price || 0,
+      })));
+    }
+  }, [interaction]);
 
   const createMutation = useMutation({
     mutationFn: async (data: InteractionFormData) => {
@@ -105,17 +138,39 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
         payload.currency = data.currency || "ARS";
       }
 
-      const { data: created, error } = await supabase.from("interactions").insert(payload).select("id").single();
-      if (error) throw error;
+      if (isEditing && interaction) {
+        // UPDATE existing interaction
+        const { error } = await supabase.from("interactions").update(payload).eq("id", interaction.id);
+        if (error) throw error;
 
-      if ((data.result === "presupuesto" || data.result === "venta") && lines.length > 0 && created) {
-        const linesPayload = lines.filter((l) => l.product_id && l.quantity > 0).map((l) => ({
-          interaction_id: created.id, product_id: l.product_id, quantity: l.quantity,
-          unit_price: l.unit_price, line_total: l.quantity * l.unit_price,
-        }));
-        if (linesPayload.length > 0) {
-          const { error: lerr } = await supabase.from("interaction_lines").insert(linesPayload);
-          if (lerr) throw lerr;
+        // Replace lines: delete old, insert new
+        if (data.result === "presupuesto" || data.result === "venta") {
+          await supabase.from("interaction_lines").delete().eq("interaction_id", interaction.id);
+          if (lines.length > 0) {
+            const linesPayload = lines.filter((l) => l.product_id && l.quantity > 0).map((l) => ({
+              interaction_id: interaction.id, product_id: l.product_id, quantity: l.quantity,
+              unit_price: l.unit_price, line_total: l.quantity * l.unit_price,
+            }));
+            if (linesPayload.length > 0) {
+              const { error: lerr } = await supabase.from("interaction_lines").insert(linesPayload);
+              if (lerr) throw lerr;
+            }
+          }
+        }
+      } else {
+        // CREATE new interaction
+        const { data: created, error } = await supabase.from("interactions").insert(payload).select("id").single();
+        if (error) throw error;
+
+        if ((data.result === "presupuesto" || data.result === "venta") && lines.length > 0 && created) {
+          const linesPayload = lines.filter((l) => l.product_id && l.quantity > 0).map((l) => ({
+            interaction_id: created.id, product_id: l.product_id, quantity: l.quantity,
+            unit_price: l.unit_price, line_total: l.quantity * l.unit_price,
+          }));
+          if (linesPayload.length > 0) {
+            const { error: lerr } = await supabase.from("interaction_lines").insert(linesPayload);
+            if (lerr) throw lerr;
+          }
         }
       }
     },
@@ -126,10 +181,10 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
       onOpenChange(false);
       reset();
       setLines([]);
-      setStep("cliente");
+      setStep(isEditing ? "resultado" : "cliente");
       setSearchClient("");
       setProformaFile(null);
-      toast.success("Interacción registrada");
+      toast.success(isEditing ? "Interacción actualizada" : "Interacción registrada");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -147,7 +202,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   const linesTotal = useMemo(() => lines.reduce((s, l) => s + l.quantity * l.unit_price, 0), [lines]);
 
   const handleOpenChange = (v: boolean) => {
-    if (!v) { reset(); setLines([]); setStep("cliente"); setSearchClient(""); setProformaFile(null); }
+    if (!v) { reset(); setLines([]); setStep(isEditing ? "resultado" : "cliente"); setSearchClient(""); setProformaFile(null); }
     onOpenChange(v);
   };
 
@@ -158,6 +213,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   };
 
   const currentStepIdx = STEP_ORDER.indexOf(step);
+  const effectiveSteps = isEditing ? STEP_ORDER.filter((s) => s !== "cliente") : STEP_ORDER;
   const canGoNext = () => {
     if (step === "cliente") return !!clientId;
     if (step === "resultado") return !!result;
@@ -195,21 +251,21 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar interacción</DialogTitle>
+          <DialogTitle>{isEditing ? "Editar interacción" : "Registrar interacción"}</DialogTitle>
           {/* Step indicator */}
           <div className="flex items-center gap-1 mt-3">
-            {STEP_ORDER.map((s, i) => (
+            {effectiveSteps.map((s, i) => (
               <div key={s} className="flex items-center gap-1 flex-1">
                 <div className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  i < currentStepIdx ? "bg-primary" : i === currentStepIdx ? "bg-primary/60" : "bg-muted"
+                  effectiveSteps.indexOf(step) > i ? "bg-primary" : effectiveSteps.indexOf(step) === i ? "bg-primary/60" : "bg-muted"
                 }`} />
               </div>
             ))}
           </div>
           <div className="flex justify-between mt-1">
-            {STEP_ORDER.map((s, i) => (
+            {effectiveSteps.map((s, i) => (
               <span key={s} className={`text-[10px] ${
-                i === currentStepIdx ? "text-primary font-semibold" : "text-muted-foreground"
+                effectiveSteps.indexOf(step) === i ? "text-primary font-semibold" : "text-muted-foreground"
               }`}>{STEP_LABELS[s]}</span>
             ))}
           </div>
@@ -444,7 +500,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
 
         <DialogFooter className="flex justify-between">
           <div>
-            {currentStepIdx > 0 && (
+            {effectiveSteps.indexOf(step) > 0 && (
               <Button variant="ghost" type="button" onClick={goBack}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> Atrás
               </Button>
@@ -454,7 +510,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
             <Button variant="outline" type="button" onClick={() => handleOpenChange(false)}>Cancelar</Button>
             {step === "medio" ? (
               <Button onClick={handleSubmit(onSubmit)} disabled={createMutation.isPending}>
-                <Check className="h-4 w-4 mr-1" /> Registrar
+                <Check className="h-4 w-4 mr-1" /> {isEditing ? "Guardar cambios" : "Registrar"}
               </Button>
             ) : (
               <Button type="button" onClick={goNext} disabled={!canGoNext()}>
