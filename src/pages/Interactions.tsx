@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, MessageCircle, Calendar, AlertCircle, RefreshCw } from "lucide-react";
+import { Plus, Search, MessageCircle, AlertCircle, RefreshCw } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { useInteractionsInfinite, flattenInteractionPages, useDeleteInteraction } from "@/hooks/useInteractions";
@@ -13,7 +13,7 @@ import { useActiveProducts } from "@/hooks/useProducts";
 import { useClientPresupuestos } from "@/hooks/useInteractions";
 import { InteractionCard, InteractionForm, RESULT_LABELS, type Result } from "@/components/interactions";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
-import { startOfMonth, subMonths, startOfWeek, startOfDay, subDays } from "date-fns";
+import { startOfMonth, subMonths, startOfWeek, startOfDay } from "date-fns";
 
 type Period = "all" | "hoy" | "semana" | "mes" | "trimestre" | "semestre" | "año";
 
