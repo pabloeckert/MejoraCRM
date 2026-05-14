@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Command *)",
+      "PowerShell(bun run *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Test-Path \"C:\\\\Github\\\\MejoraCRM\\\\node_modules\"; \\(Get-ChildItem \"C:\\\\Github\\\\MejoraCRM\\\\node_modules\" -ErrorAction SilentlyContinue | Measure-Object\\).Count)",
+      "PowerShell(git *)"
+    ]
+  }
+}
