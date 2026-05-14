@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   MessageCircle, Phone, Mail, Globe, Video, AlertCircle,
-  FileText, ShoppingCart, Clock, X, Pencil,
+  FileText, ShoppingCart, Clock, X, Pencil, Trash2,
 } from "lucide-react";
 import { isBefore, differenceInDays } from "date-fns";
 import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
@@ -23,9 +24,11 @@ interface InteractionCardProps {
   index: number;
   onNavigate: (path: string) => void;
   onEdit?: (interaction: any) => void;
+  onDelete?: (interaction: any) => void;
 }
 
-export function InteractionCard({ interaction: i, index, onNavigate, onEdit }: InteractionCardProps) {
+export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onDelete }: InteractionCardProps) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const MediumIcon = MEDIUM_ICONS[i.medium] || MessageCircle;
   const ResultIcon = RESULT_ICONS[i.result as Result] || FileText;
   const isOverdue = i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date());
@@ -88,7 +91,7 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit }: I
                 </p>
               )}
             </div>
-            {onEdit && (
+            {onEdit && !confirmDelete && (
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(i); }}
                 className="p-1 rounded hover:bg-muted/50 transition-colors"
@@ -96,6 +99,32 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit }: I
               >
                 <Pencil className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
               </button>
+            )}
+            {onDelete && (
+              confirmDelete ? (
+                <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => { onDelete(i); setConfirmDelete(false); }}
+                    className="px-1.5 py-0.5 text-[10px] rounded bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors"
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="px-1.5 py-0.5 text-[10px] rounded hover:bg-muted/50 transition-colors text-muted-foreground"
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
+                  className="p-1 rounded hover:bg-muted/50 transition-colors"
+                  title="Eliminar interacción"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                </button>
+              )
             )}
           </div>
         </div>

@@ -12,12 +12,12 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download, FileSpreadsheet, AlertCircle, RefreshCw } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Phone, Mail, MapPin, Building2, Upload, Download, FileSpreadsheet, AlertCircle, RefreshCw, UserX } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
-import { useAllClients, useClientsInfinite, flattenClientPages } from "@/hooks/useClients";
+import { useAllClients, useClientsInfinite, flattenClientPages, useDeactivateClient } from "@/hooks/useClients";
 import { useAllInteractions } from "@/hooks/useInteractions";
 import { exportClientsExcel } from "@/lib/excelExport";
 import {
@@ -40,6 +40,7 @@ export default function Clients() {
   const [form, setForm] = useState<Partial<ClientInsert>>({});
 
   const canDelete = role === "admin";
+  const deactivateMutation = useDeactivateClient();
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importPreview, setImportPreview] = useState<any[]>([]);
   const [importDuplicates, setImportDuplicates] = useState<number>(0);
@@ -426,6 +427,20 @@ export default function Clients() {
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
+                      {canDelete && c.status !== "inactivo" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          title="Marcar como inactivo"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deactivateMutation.mutate(c.id);
+                          }}
+                        >
+                          <UserX className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

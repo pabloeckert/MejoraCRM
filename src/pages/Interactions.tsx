@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, MessageCircle, Calendar, AlertCircle, RefreshCw } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
-import { useInteractionsInfinite, flattenInteractionPages } from "@/hooks/useInteractions";
+import { useInteractionsInfinite, flattenInteractionPages, useDeleteInteraction } from "@/hooks/useInteractions";
 import { useClientsMinimal } from "@/hooks/useClients";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { useClientPresupuestos } from "@/hooks/useInteractions";
@@ -52,6 +52,7 @@ export default function Interactions() {
   const [formResult, setFormResult] = useState<string | undefined>();
 
   const { data: interactionsInfinite, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInteractionsInfinite();
+  const deleteMutation = useDeleteInteraction();
   const interactions = flattenInteractionPages(interactionsInfinite);
   const { data: clients = [] } = useClientsMinimal();
   const { data: products = [] } = useActiveProducts();
@@ -151,6 +152,7 @@ export default function Interactions() {
               setEditingInteraction(interaction);
               setDialogOpen(true);
             }}
+            onDelete={(interaction) => deleteMutation.mutate(interaction.id)}
           />
         ))}
         {filtered.length === 0 && (

@@ -1,8 +1,9 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { DEMO_INTERACTIONS } from "@/demo/demoData";
 import type { Database } from "@/integrations/supabase/types";
+import { toast } from "sonner";
 
 type Interaction = Database["public"]["Tables"]["interactions"]["Row"];
 
@@ -37,6 +38,24 @@ export function useInteractionsInfinite() {
     },
     initialPageParam: 0,
     staleTime: 30_000,
+  });
+}
+
+export function useDeleteInteraction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (DEMO_MODE) return;
+      const { error } = await supabase.from("interactions").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["interactions"] });
+      queryClient.invalidateQueries({ queryKey: ["interactions-infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
+      toast.success("Interacción eliminada");
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 }
 

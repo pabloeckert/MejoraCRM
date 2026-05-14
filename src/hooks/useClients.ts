@@ -1,4 +1,5 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { DEMO_CLIENTS } from "@/demo/demoData";
@@ -43,6 +44,24 @@ export function useClientsInfinite() {
 export function flattenClientPages(data: { pages: Client[][] } | undefined): Client[] {
   if (!data?.pages) return [];
   return data.pages.flat();
+}
+
+export function useDeactivateClient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (DEMO_MODE) return;
+      const { error } = await supabase.from("clients").update({ status: "inactivo" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
+      toast.success("Cliente marcado como inactivo");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 }
 
 // Keep existing hooks for compatibility
