@@ -5,7 +5,11 @@
       "PowerShell(bun run *)",
       "PowerShell(Get-ChildItem *)",
       "PowerShell(Test-Path \"C:\\\\Github\\\\MejoraCRM\\\\node_modules\"; \\(Get-ChildItem \"C:\\\\Github\\\\MejoraCRM\\\\node_modules\" -ErrorAction SilentlyContinue | Measure-Object\\).Count)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
