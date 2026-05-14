@@ -1,3 +1,4 @@
+﻿import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 
@@ -12,7 +13,7 @@ interface KPICardProps {
   index?: number;
 }
 
-export function KPICard({ label, value, sub, icon: Icon, color, bg, onClick, index = 0 }: KPICardProps) {
+export const KPICard = memo(function KPICard({ label, value, sub, icon: Icon, color, bg, onClick, index = 0 }: KPICardProps) {
   return (
     <Card
       className={`animate-slide-up stagger-${index + 1} opacity-0 cursor-pointer hover:shadow-md transition-all duration-200 group border-border/50`}
@@ -32,4 +33,4 @@ export function KPICard({ label, value, sub, icon: Icon, color, bg, onClick, ind
       </CardContent>
     </Card>
   );
-}
+});
