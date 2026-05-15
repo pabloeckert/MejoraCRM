@@ -33,93 +33,94 @@
 
 @layer base {
   :root {
-    /* MC 2026 — Blanco Puro / Gris Plata */
+    /* MC — Blanco Puro */
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 0 0% 5%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover-foreground: 0 0% 5%;
 
-    /* Primary: Púrpura/Magenta #8B2D6B */
-    --primary: 325 50% 36%;
+    /* Primary: Azul Marino MC #020659 */
+    --primary: 237 96% 18%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 214 30% 94%;
+    --secondary-foreground: 237 96% 18%;
 
-    /* Muted: Gris Plomo #656565 */
+    /* Muted: Gris Plomo */
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
 
-    /* Accent: Dorado/Mostaza #F2BC1B */
-    --accent: 45 89% 53%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent: Amarillo MC #F2BB16 */
+    --accent: 45 89% 52%;
+    --accent-foreground: 0 0% 5%;
 
-    /* Destructive: Rojo #D93D4A */
-    --destructive: 354 63% 54%;
+    /* Destructive: Rojo MC #D9072D */
+    --destructive: 349 94% 44%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 325 50% 36%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 237 96% 18%;
 
     --radius: 0.625rem;
 
-    /* Sidebar: Púrpura #8B2D6B */
-    --sidebar-background: 325 50% 36%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 45 89% 53%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    /* Ítem activo: púrpura más oscuro */
-    --sidebar-accent: 325 55% 28%;
+    /* Sidebar: Azul Marino MC #020659 */
+    --sidebar-background: 237 96% 18%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 45 89% 52%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    /* Ítem activo: azul medio */
+    --sidebar-accent: 214 67% 28%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 325 45% 30%;
-    --sidebar-ring: 45 89% 53%;
+    --sidebar-border: 237 80% 24%;
+    --sidebar-ring: 45 89% 52%;
 
-    /* Indicadores MC 2026 */
+    /* Indicadores */
     --success: 122 44% 34%;
     --success-foreground: 0 0% 100%;
     --warning: 28 89% 54%;
     --warning-foreground: 0 0% 100%;
 
-    --brand-gold: 45 89% 53%;
-    --brand-red: 354 63% 54%;
-    --brand-purple: 325 50% 36%;
+    --brand-navy: 237 96% 18%;
+    --brand-blue: 214 67% 33%;
+    --brand-gold: 45 89% 52%;
+    --brand-red: 349 94% 44%;
     --brand-gray: 0 0% 40%;
-    --brand-black: 0 0% 0%;
+    --brand-black: 0 0% 5%;
   }
 
   .dark {
-    --background: 325 30% 8%;
+    --background: 237 40% 7%;
     --foreground: 0 0% 92%;
-    --card: 325 25% 12%;
+    --card: 237 35% 11%;
     --card-foreground: 0 0% 92%;
-    --popover: 325 25% 12%;
+    --popover: 237 35% 11%;
     --popover-foreground: 0 0% 92%;
-    --primary: 325 50% 50%;
+    --primary: 214 67% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 325 20% 16%;
+    --secondary: 237 30% 16%;
     --secondary-foreground: 0 0% 92%;
-    --muted: 325 20% 16%;
+    --muted: 237 30% 16%;
     --muted-foreground: 0 0% 55%;
-    --accent: 45 74% 55%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 354 63% 54%;
+    --accent: 45 89% 55%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 349 80% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 325 20% 18%;
-    --input: 325 20% 18%;
-    --ring: 325 50% 50%;
-    --sidebar-background: 325 30% 10%;
+    --border: 237 25% 20%;
+    --input: 237 25% 20%;
+    --ring: 214 67% 55%;
+    --sidebar-background: 237 60% 10%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 45 74% 60%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 325 40% 20%;
+    --sidebar-primary: 45 89% 55%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 214 50% 20%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 325 30% 18%;
-    --sidebar-ring: 45 74% 60%;
+    --sidebar-border: 237 40% 16%;
+    --sidebar-ring: 45 89% 55%;
   }
 }
 

@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logoImg from "@/assets/branding/miro_fondo_blanco.png";
+import logoImg from "@/assets/branding/MC_Logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -40,7 +40,9 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <div className={`flex flex-col items-center px-3 py-4 ${collapsed ? "" : "gap-1"}`}>
-            <img src={logoImg} alt="Mejora Continua" className={`object-contain shrink-0 ${collapsed ? "h-7" : "h-10"}`} />
+            <div className={`bg-white rounded-lg flex items-center justify-center shrink-0 ${collapsed ? "h-8 w-8 p-0.5" : "h-12 w-12 p-1"}`}>
+              <img src={logoImg} alt="Mejora Continua" className="object-contain w-full h-full" />
+            </div>
             {!collapsed && (
               <p
                 className="text-[11px] font-bold text-sidebar-accent-foreground tracking-[0.25em] uppercase"

@@ -127,22 +127,22 @@ export const LOSS_REASONS = [
 /* ── Chart Colors ────────────────────────────────────────────── */
 
 export const CHART_COLORS = [
-  "hsl(325,50%,36%)",  // púrpura MC
-  "hsl(45,74%,60%)",   // dorado MC
-  "hsl(142,60%,40%)",  // verde
-  "hsl(2,52%,53%)",    // rojo
-  "hsl(280,40%,50%)",  // violeta
-  "hsl(0,0%,40%)",     // gris
+  "#020659",  // azul marino MC
+  "#F2BB16",  // amarillo MC
+  "#2E7D32",  // verde
+  "#D9072D",  // rojo MC
+  "#1C4D8C",  // azul medio MC
+  "#656565",  // gris
 ];
 
 /* ── Brand Colors (for PDF/print) ────────────────────────────── */
 
 export const BRAND = {
-  primary: "#8B2D6B",     // púrpura MC
-  accent: "#F2BC1B",      // dorado MC
+  primary: "#020659",     // azul marino MC
+  secondary: "#1C4D8C",   // azul medio MC
+  accent: "#F2BB16",      // amarillo MC
+  destructive: "#D9072D", // rojo MC
   success: "#2E7D32",
-  warning: "#F29422",
-  destructive: "#D93D4A",
   muted: "#656565",
   background: "#FFFFFF",
   backgroundAlt: "#F2F2F2",
