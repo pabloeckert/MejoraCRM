@@ -29,3 +29,9 @@ package-lock.json
 *.sln
 *.sw?
 .vercel
+
+# Claude Code local settings
+.claude/
+
+# Documentos internos / no subir al repo
+docs/
