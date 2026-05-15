@@ -20,73 +20,120 @@ bun test src/lib/businessLogic.test.ts
 
 ## Variables de entorno
 
-Copiar `.env.example` → `.env` y completar:
+Copiar `.env.example` → `.env`:
 
 ```
-VITE_SUPABASE_URL=
-VITE_SUPABASE_PUBLISHABLE_KEY=
-VITE_SUPABASE_PROJECT_ID=
+VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGci...
 VITE_DEMO_MODE=true   # false para conectar Supabase real
 ```
 
-Con `VITE_DEMO_MODE=true` (valor por defecto), la app carga datos de `src/demo/demoData.ts` sin necesitar credenciales Supabase.
+Con `VITE_DEMO_MODE=true` (valor por defecto) la app usa datos de `src/demo/demoData.ts` sin necesitar Supabase.
+
+## Identidad visual — Mejora Continua®
+
+**Paleta de colores real:**
+| Color | Hex | Uso |
+|---|---|---|
+| Azul marino | `#020659` | Primary, sidebar background |
+| Azul medio | `#1C4D8C` | Hover states, sidebar accent |
+| Amarillo | `#F2BB16` | Accent, highlights |
+| Rojo | `#D9072D` | Destructive, alertas |
+| Negro | `#0D0D0D` | Texto principal |
+
+**Logos en uso:**
+- `src/assets/branding/MC_Logo.png` — ícono cuadrado (sidebar, collapsed/expanded)
+- `src/assets/logo.png` — usado en página de Auth
+
+**Fuentes:** Bw Modelica (body, en `public/fonts/`), League Spartan (display/tagline).
 
 ## Arquitectura general
 
-**Stack:** React 18 + TypeScript + Vite · Supabase (Auth + PostgreSQL) · TanStack Query · shadcn/ui + Tailwind · Recharts · Vitest
+**Stack:** React 18 + TypeScript strict + Vite · Supabase (Auth + PostgreSQL) · TanStack Query · shadcn/ui + Tailwind · Recharts · Vitest
 
 **Path alias:** `@/` apunta a `src/`.
 
 ### Flujo de autenticación y roles
 
-`AuthContext` (`src/contexts/AuthContext.tsx`) es el núcleo de auth. Expone `user`, `session`, `role` (`admin` | `vendedor`) y `profile`. Todos los hooks de datos lo consumen para saber si están en demo mode.
+`AuthContext` (`src/contexts/AuthContext.tsx`) expone `user`, `session`, `role` (`admin` | `vendedor`) y `profile`. En **demo mode** inyecta un usuario ficticio y devuelve datos de `src/demo/demoData.ts` sin llamar a Supabase.
 
-- En **demo mode** (`DEMO_MODE = true`), el contexto inyecta un usuario ficticio y devuelve datos de `src/demo/demoData.ts`. No se hace ninguna llamada a Supabase.
-- En **modo real**, llama a `supabase.rpc("get_user_role")` para obtener el rol del usuario desde la DB.
-
-El sidebar (`AppSidebar`) filtra items según `role`: las rutas `/reports`, `/products`, `/whatsapp-link`, `/settings` solo son visibles para `admin`/`supervisor`.
+El sidebar filtra ítems según `role`: `/reports`, `/products`, `/whatsapp-link`, `/settings` solo visibles para `admin`/`supervisor`.
 
 ### Patrón de hooks de datos
 
-Cada hook de datos (ej. `useClients`, `useInteractions`, `useDashboard`) sigue el mismo patrón:
-
+Cada hook sigue el mismo patrón:
 ```ts
 if (DEMO_MODE) return DEMO_DATA;
-// else → llamada a Supabase
+// else → Supabase
 ```
 
-Esto permite desarrollar sin credenciales y correr tests sin mocks de Supabase.
+- **Dashboard:** `supabase.rpc("get_dashboard_data")` — una sola llamada que retorna interacciones, clientes y perfiles.
+- **Interacciones:** paginación infinita con `useInfiniteQuery`, 50 registros por página.
+- **Clientes:** paginación infinita igual.
 
-- **Dashboard:** usa `supabase.rpc("get_dashboard_data")` — una sola llamada RPC que retorna interacciones, clientes y perfiles juntos.
-- **Interacciones:** paginación infinita con `useInfiniteQuery`, 50 registros por página (`src/hooks/useInteractions.ts`).
+### Estructura de páginas y subcomponentes
+
+Las páginas grandes están descompuestas en subcomponentes:
+
+```
+src/pages/Clients.tsx          → orquestador (~180L)
+src/components/clients/
+  ClientsTable.tsx             → tabla con soft delete (UserX → status=inactivo)
+  ClientFormDialog.tsx         → formulario crear/editar
+  ClientDetailDialog.tsx       → detalle + historial de interacciones
+  ClientImportDialog.tsx       → preview importación CSV
+
+src/pages/Products.tsx         → orquestador (~150L)
+src/components/products/
+  ProductsTable.tsx
+  ProductFormDialog.tsx
+  ProductImportDialog.tsx
+
+src/components/interactions/
+  InteractionForm.tsx          → wizard orquestador (~130L)
+  steps/StepCliente.tsx        → paso 1
+  steps/StepResultado.tsx      → paso 2
+  steps/StepDetalles.tsx       → paso 3 (condicional por resultado)
+  steps/StepMedio.tsx          → paso 4
+  InteractionCard.tsx          → card con edit + delete inline
+```
 
 ### Lógica de negocio
 
-`src/lib/businessLogic.ts` contiene **funciones puras** para calcular KPIs, rankings, tendencias y agrupaciones. No tiene side effects ni llama a Supabase. Es el archivo más testeable del proyecto.
+`src/lib/businessLogic.ts` — funciones puras para KPIs, rankings, tendencias. Testeable sin mocks.
 
-`src/lib/constants.ts` es la única fuente de verdad para labels, estilos CSS, enums y opciones de formularios (rubros, provincias, países, monedas, etc.).
+`src/lib/constants.ts` — fuente única de verdad para labels, estilos, enums, colores de brand y chart, opciones de formularios.
 
 ### Tipos
 
-- `src/integrations/supabase/types.ts` — generado automáticamente desde el schema de Supabase. **No editar a mano.**
-- `src/lib/types.ts` — tipos de aplicación que componen sobre los de Supabase (ej. `Interaction` extiende la row de DB con los joins de `clients` e `interaction_lines`).
-
-### Validación de formularios
-
-`src/lib/schemas.ts` define los schemas Zod para formularios. Los enums (`interaction_result`, `interaction_medium`) se importan directamente desde `Constants` del tipo generado de Supabase para mantener sincronía.
+- `src/integrations/supabase/types.ts` — generado automáticamente. **No editar.**
+- `src/lib/types.ts` — tipos de app que componen sobre los de Supabase.
 
 ### Base de datos
 
-Migraciones en `supabase/migrations/`. Las tablas principales son:
+Tablas principales: `clients`, `interactions`, `interaction_lines`, `products`, `profiles`.
 
-- `clients` — clientes con provincia, segmento (rubro), país, estado
-- `interactions` — interacciones con resultado (`venta`, `presupuesto`, `seguimiento`, `sin_respuesta`, `no_interesado`), medio, moneda y monto
-- `interaction_lines` — líneas de productos dentro de una interacción (many-to-many con `products`)
-- `products` — catálogo de productos/servicios con unidad y precio
-- `profiles` — perfil de cada usuario con rol (`app_role` enum: `admin`, `vendedor`)
+Enums clave: `app_role` (admin, vendedor, supervisor), `interaction_result` (presupuesto, venta, seguimiento, sin_respuesta, no_interesado).
 
-RPC functions de Supabase usadas: `get_dashboard_data`, `get_user_role`.
+RPC functions: `get_dashboard_data()`, `get_user_role()`, `request_account_deletion()`.
+
+Migraciones en `supabase/migrations/` (10 archivos). `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
 
 ### Tests
 
-Vitest + Testing Library. Setup en `src/test/setup.ts` (solo importa `@testing-library/jest-dom/vitest`). Los tests de lógica pura (businessLogic, calculations, constants, schemas, csvParser) no requieren mocks. Los tests de componentes usan helpers en `src/test/test-utils.tsx`.
+Vitest + Testing Library. Setup en `src/test/setup.ts`. Tests de lógica pura no requieren mocks. Tests de hooks en `src/hooks/*.test.ts`.
+
+## Deploy
+
+- **Producción:** `crm.mejoraok.com` (Vercel, auto-deploy en push a main)
+- **CI:** `.github/workflows/ci.yml` — lint → typecheck → test → build
+- **Env vars en Vercel:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_DEMO_MODE=false`
+- **Supabase Auth → URL Configuration:** Site URL debe ser `https://crm.mejoraok.com`
+
+## Pendiente para próximas sesiones
+
+- [ ] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) — reemplazar con logo MC real
+- [ ] Favicon (`public/favicon.ico`) — reemplazar con logo MC
+- [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción
+- [ ] Tests E2E (Playwright) — login → cliente → interacción → verificar
+- [ ] Google Calendar sync — requiere OAuth en Google Cloud Console
