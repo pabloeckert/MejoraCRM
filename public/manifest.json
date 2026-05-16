@@ -4,7 +4,7 @@
   "description": "CRM para gestión de clientes, productos e interacciones — Mejora Continua®",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F2F2F2",
+  "background_color": "#020659",
   "theme_color": "#020659",
   "orientation": "portrait-primary",
   "scope": "/",
@@ -29,8 +29,8 @@
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
+      "name": "Vista general",
+      "short_name": "Inicio",
       "url": "/",
       "description": "Ver panel principal"
     },

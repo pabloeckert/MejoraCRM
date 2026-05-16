@@ -24,7 +24,7 @@ const STEPS = [
   {
     icon: BarChart3,
     title: "Revisá tu Vista General",
-    description: "La Vista General muestra tus ventas, proceso de ventas y seguimientos pendientes de un vistazo.",
+    description: "La Vista General muestra tus ventas, presupuestos en curso y seguimientos pendientes de un vistazo.",
     cta: "Ir a Vista General",
     route: "/",
     tip: "Los vendedores ven solo sus métricas. Los dueños ven todo el equipo.",
