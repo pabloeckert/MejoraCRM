@@ -78,6 +78,7 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end={item.url === "/"}
+                        aria-label={item.title}
                         className={`transition-all duration-200 rounded-lg ${
                           isActive
                             ? "bg-sidebar-accent text-sidebar-primary font-semibold"

@@ -5,6 +5,10 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MEDIUM_LABELS, RESULT_LABELS, RESULT_STYLES, STATUS_LABELS, STATUS_STYLES } from "@/lib/constants";
 import { MapPin, Mail, Phone, Building2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { MEMORY_DEMO_INTERACTIONS } from "@/hooks/useInteractions";
+
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
 
@@ -18,10 +22,14 @@ function fmtMoney(i: any) {
 }
 
 export function ClientDetailDialog({ client, onClose }: ClientDetailDialogProps) {
+  const { isConnected: calendarConnected, createEvent } = useGoogleCalendar();
   const { data: interactions = [] } = useQuery({
     queryKey: ["client-interactions", client?.id],
     enabled: !!client,
     queryFn: async () => {
+      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+        return MEMORY_DEMO_INTERACTIONS.filter(i => i.client_id === client!.id);
+      }
       const { data } = await supabase
         .from("interactions")
         .select("*, interaction_lines(quantity, unit_price, line_total, products(name, unit_label))")
@@ -91,9 +99,26 @@ export function ClientDetailDialog({ client, onClose }: ClientDetailDialogProps)
                           <Badge variant="secondary" className="text-xs">{MEDIUM_LABELS[i.medium]}</Badge>
                           {fmtMoney(i) && <span className="text-xs font-semibold">{fmtMoney(i)}</span>}
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(i.interaction_date).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {calendarConnected && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-primary"
+                              title="Agregar a Google Calendar"
+                              onClick={() => createEvent(
+                                `${RESULT_LABELS[i.result]} - ${client.name}`,
+                                i.notes || `Interacción vía ${MEDIUM_LABELS[i.medium]}`,
+                                new Date(i.interaction_date)
+                              )}
+                            >
+                              <CalendarIcon className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(i.interaction_date).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                       {i.interaction_lines?.length > 0 && (
                         <p className="text-xs text-muted-foreground">

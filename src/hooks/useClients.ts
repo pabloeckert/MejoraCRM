@@ -9,6 +9,22 @@ type Client = Database["public"]["Tables"]["clients"]["Row"];
 
 const PAGE_SIZE = 50;
 
+import { DEMO_CLIENTS as INITIAL_DEMO_CLIENTS } from "@/demo/demoData";
+
+// In-memory store for demo mode to support "create and see" during session
+let MEMORY_DEMO_CLIENTS = [...INITIAL_DEMO_CLIENTS];
+
+export const addDemoClient = (c: any) => {
+  const newClient = {
+    ...c,
+    id: `demo-${Math.random().toString(36).substr(2, 9)}`,
+    status: c.status || "potencial",
+    created_at: new Date().toISOString(),
+  };
+  MEMORY_DEMO_CLIENTS = [newClient, ...MEMORY_DEMO_CLIENTS];
+  return newClient;
+};
+
 /**
  * Infinite scroll hook for clients.
  * Returns: { data (flat array), fetchNextPage, hasNextPage, isFetchingNextPage, ... }
@@ -17,7 +33,7 @@ export function useClientsInfinite() {
   return useInfiniteQuery<Client[]>({
     queryKey: ["clients-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return DEMO_CLIENTS as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS] as any[];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -94,7 +110,7 @@ function useAllClients() {
   return useQuery<Client[]>({
     queryKey: ["clients", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return DEMO_CLIENTS as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS] as any[];
       const { data, error } = await supabase.from("clients").select("*").order("name");
       if (error) throw error;
       return data ?? [];
@@ -106,7 +122,7 @@ function useClientsMinimal() {
   return useQuery({
     queryKey: ["clients-min", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
+      if (DEMO_MODE) return MEMORY_DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
       const { data, error } = await supabase.from("clients").select("id, name").order("name");
       if (error) throw error;
       return data ?? [];

@@ -1,4 +1,5 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { addDemoInteraction } from "@/hooks/useInteractions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -34,10 +35,15 @@ interface InteractionFormProps {
   interaction?: any;
 }
 
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+
 export function InteractionForm({ open, onOpenChange, clients, products, presupuestos, interaction }: InteractionFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isEditing = !!interaction;
+  const { isConnected: calendarConnected, createEvent } = useGoogleCalendar();
+  const [syncToCalendar, setSyncToCalendar] = useState(false);
 
   const [step, setStep] = useState<WizardStep>(isEditing ? "resultado" : "cliente");
   const [searchClient, setSearchClient] = useState("");
@@ -115,6 +121,10 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
 
   const createMutation = useMutation({
     mutationFn: async (data: InteractionFormData) => {
+      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+        addDemoInteraction(data);
+        return;
+      }
       const total = lines.reduce((s, l) => s + l.quantity * l.unit_price, 0);
       const payload: any = {
         client_id: data.client_id, user_id: user?.id, medium: data.medium, result: data.result,
@@ -180,10 +190,21 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
         }
       }
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["interactions"] });
+      queryClient.invalidateQueries({ queryKey: ["client-interactions", clientId] });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
+
+      if (syncToCalendar) {
+        const clientName = clients.find((c) => c.id === variables.client_id)?.name || "Cliente";
+        await createEvent(
+          `${RESULT_LABELS[variables.result as Result]} - ${clientName}`,
+          variables.notes || `Interacción registrada vía ${MEDIUM_LABELS[variables.medium as string]}`,
+          new Date()
+        );
+      }
+
       closeAndReset();
       toast.success(isEditing ? "Interacción actualizada" : "Interacción registrada");
     },
@@ -278,7 +299,13 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
           )}
 
           {step === "medio" && (
-            <StepMedio control={control} error={(errors as any).medium?.message} />
+            <StepMedio
+              control={control}
+              error={(errors as any).medium?.message}
+              calendarConnected={calendarConnected}
+              syncToCalendar={syncToCalendar}
+              setSyncToCalendar={setSyncToCalendar}
+            />
           )}
         </form>
 

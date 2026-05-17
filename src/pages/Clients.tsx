@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
-import { useClientsInfinite, flattenClientPages, useDeactivateClient } from "@/hooks/useClients";
+import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient } from "@/hooks/useClients";
 import { exportClientsExcel } from "@/lib/excelExport";
 import { STATUS_LABELS, PROVINCIAS } from "@/lib/constants";
 import { ClientFormDialog } from "@/components/clients/ClientFormDialog";
@@ -44,6 +44,11 @@ export default function Clients() {
 
   const upsertMutation = useMutation({
     mutationFn: async (c: ClientInsert & { id?: string }) => {
+      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+        // En modo demo, simulamos éxito y agregamos al almacén en memoria
+        addDemoClient(c);
+        return;
+      }
       if (c.id) {
         const { id, ...rest } = c;
         const { error } = await supabase.from("clients").update(rest).eq("id", id);
@@ -55,6 +60,7 @@ export default function Clients() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-infinite"] });
       setDialogOpen(false);
       setForm({});
       setEditing(null);
@@ -67,6 +73,7 @@ export default function Clients() {
 
   const importMutation = useMutation({
     mutationFn: async (items: ImportPreviewItem[]) => {
+      if (import.meta.env.VITE_DEMO_MODE !== "false") return;
       const toInsert = items
         .filter((i) => !i.isDuplicate)
         .map(({ isDuplicate, ...rest }) => rest);

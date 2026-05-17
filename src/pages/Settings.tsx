@@ -40,9 +40,12 @@ function PWAInstallButton() {
   );
 }
 
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
+
 export default function Settings() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
   const { signOut } = useAuth();
+  const { isConnected: calendarConnected, isConnecting: calendarConnecting, login: handleConnectCalendar, logout: handleDisconnectCalendar } = useGoogleCalendar();
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [exchangeRate, setExchangeRate] = useState(() => {
@@ -51,9 +54,6 @@ export default function Settings() {
   const [exchangeBase, setExchangeBase] = useState(() => {
     return localStorage.getItem("mejoracrm_exchange_base") || "ARS";
   });
-  const [calendarConnected, setCalendarConnected] = useState(
-    localStorage.getItem("mejoracrm_calendar_connected") === "true"
-  );
   const [contactsConnected, setContactsConnected] = useState(
     localStorage.getItem("mejoracrm_contacts_connected") === "true"
   );
@@ -62,12 +62,6 @@ export default function Settings() {
     localStorage.setItem("mejoracrm_exchange_rate", exchangeRate);
     localStorage.setItem("mejoracrm_exchange_base", exchangeBase);
     toast.success("Tipo de cambio guardado");
-  };
-
-  const handleConnectCalendar = () => {
-    // Preparado para integración con Google Calendar OAuth
-    // Cuando se implemente, esto abrirá el flujo OAuth
-    toast.info("Integración con Google Calendar próximamente disponible");
   };
 
   const handleConnectContacts = () => {
@@ -151,18 +145,14 @@ export default function Settings() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      localStorage.removeItem("mejoracrm_calendar_connected");
-                      setCalendarConnected(false);
-                      toast.success("Desconectado de Google Calendar");
-                    }}
+                    onClick={handleDisconnectCalendar}
                   >
                     <Unlink className="h-3.5 w-3.5" />
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" size="sm" onClick={handleConnectCalendar}>
-                  Conectar
+                <Button variant="outline" size="sm" onClick={handleConnectCalendar} disabled={calendarConnecting}>
+                  {calendarConnecting ? "Conectando..." : "Conectar"}
                 </Button>
               )}
             </div>

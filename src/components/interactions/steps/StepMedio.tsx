@@ -5,13 +5,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Constants } from "@/integrations/supabase/types";
 import { MEDIUM_LABELS } from "../InteractionCard";
 import type { InteractionFormData } from "@/lib/schemas";
+import { Checkbox as CheckboxUI } from "@/components/ui/checkbox";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 interface StepMedioProps {
   control: Control<InteractionFormData>;
   error?: string;
+  calendarConnected?: boolean;
+  syncToCalendar?: boolean;
+  setSyncToCalendar?: (val: boolean) => void;
 }
 
-export function StepMedio({ control, error }: StepMedioProps) {
+export function StepMedio({ control, error, calendarConnected, syncToCalendar, setSyncToCalendar }: StepMedioProps) {
   return (
     <div className="space-y-4 animate-fade-in">
       <div>
@@ -65,6 +70,28 @@ export function StepMedio({ control, error }: StepMedioProps) {
           <Textarea value={field.value || ""} onChange={(e) => field.onChange(e.target.value || null)} rows={3} placeholder="Detalles adicionales..." />
         )} />
       </div>
+
+      {calendarConnected && setSyncToCalendar && (
+        <div className="flex items-center space-x-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+          <CheckboxUI
+            id="sync-calendar"
+            checked={syncToCalendar}
+            onCheckedChange={(checked) => setSyncToCalendar(checked === true)}
+          />
+          <div className="grid gap-1.5 leading-none">
+            <label
+              htmlFor="sync-calendar"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1.5"
+            >
+              <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+              Sincronizar con Google Calendar
+            </label>
+            <p className="text-[10px] text-muted-foreground">
+              Se creará un evento con la fecha y observaciones de esta interacción.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

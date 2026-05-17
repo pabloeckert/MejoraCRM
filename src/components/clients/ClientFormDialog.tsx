@@ -31,17 +31,18 @@ export function ClientFormDialog({ open, onOpenChange, editing, form, setForm, o
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label>Nombre y Apellido *</Label>
-            <Input value={form.name || ""} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre y apellido del cliente" />
+            <Label htmlFor="name">Nombre y Apellido *</Label>
+            <Input id="name" value={form.name || ""} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre y apellido del cliente" />
           </div>
           <div>
-            <Label>Empresa</Label>
-            <Input value={form.company || ""} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+            <Label htmlFor="company">Empresa</Label>
+            <Input id="company" value={form.company || ""} onChange={(e) => setForm({ ...form, company: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>WhatsApp</Label>
+              <Label htmlFor="whatsapp">WhatsApp</Label>
               <Input
+                id="whatsapp"
                 value={form.whatsapp || ""}
                 onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
                 placeholder="+54 376 4000000"
@@ -52,55 +53,55 @@ export function ClientFormDialog({ open, onOpenChange, editing, form, setForm, o
               )}
             </div>
             <div>
-              <Label>Email</Label>
-              <Input value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Rubro</Label>
+              <Label htmlFor="segment">Rubro</Label>
               <Select value={form.segment || ""} onValueChange={(v) => setForm({ ...form, segment: v })}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectTrigger id="segment"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>{RUBROS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Canal de Ingreso</Label>
+              <Label htmlFor="channel">Canal de Ingreso</Label>
               <Select value={form.channel || ""} onValueChange={(v) => setForm({ ...form, channel: v })}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectTrigger id="channel"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>{CHANNELS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Provincia</Label>
+              <Label htmlFor="province">Provincia</Label>
               <Select value={form.province || ""} onValueChange={(v) => setForm({ ...form, province: v })}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectTrigger id="province"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>{PROVINCIAS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Localidad</Label>
-              <Input value={form.location || ""} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Ciudad / pueblo" />
+              <Label htmlFor="location">Localidad</Label>
+              <Input id="location" value={form.location || ""} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Ciudad / pueblo" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>País</Label>
+              <Label htmlFor="country">País</Label>
               <Select value={form.country || "Argentina"} onValueChange={(v) => setForm({ ...form, country: v })}>
-                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectTrigger id="country"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>{PAISES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Dirección</Label>
-              <Input value={form.address || ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <Label htmlFor="address">Dirección</Label>
+              <Input id="address" value={form.address || ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>Observaciones</Label>
-            <Textarea value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+            <Label htmlFor="notes">Observaciones</Label>
+            <Textarea id="notes" value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
         </div>
         <DialogFooter>

@@ -138,10 +138,10 @@ export const CHART_COLORS = [
 /* ── Brand Colors (for PDF/print) ────────────────────────────── */
 
 export const BRAND = {
-  primary: "#020659",     // azul marino MC
-  secondary: "#1C4D8C",   // azul medio MC
-  accent: "#F2BB16",      // amarillo MC
-  destructive: "#D9072D", // rojo MC
+  primary: "#8B2D6B",
+  secondary: "#1C4D8C",
+  accent: "#F2BC1B",
+  destructive: "#D93D4A",
   success: "#2E7D32",
   muted: "#656565",
   background: "#FFFFFF",
