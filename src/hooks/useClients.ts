@@ -2,25 +2,21 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
-import { DEMO_CLIENTS } from "@/demo/demoData";
-import type { Database } from "@/integrations/supabase/types";
-
-type Client = Database["public"]["Tables"]["clients"]["Row"];
+import { DEMO_CLIENTS as INITIAL_DEMO_CLIENTS } from "@/demo/demoData";
+import type { Client } from "@/lib/types";
 
 const PAGE_SIZE = 50;
 
-import { DEMO_CLIENTS as INITIAL_DEMO_CLIENTS } from "@/demo/demoData";
-
 // In-memory store for demo mode to support "create and see" during session
-let MEMORY_DEMO_CLIENTS = [...INITIAL_DEMO_CLIENTS];
+let MEMORY_DEMO_CLIENTS = [...INITIAL_DEMO_CLIENTS] as Client[];
 
-export const addDemoClient = (c: any) => {
+export const addDemoClient = (c: Partial<Client>) => {
   const newClient = {
     ...c,
     id: `demo-${Math.random().toString(36).substr(2, 9)}`,
     status: c.status || "potencial",
     created_at: new Date().toISOString(),
-  };
+  } as Client;
   MEMORY_DEMO_CLIENTS = [newClient, ...MEMORY_DEMO_CLIENTS];
   return newClient;
 };
@@ -33,7 +29,7 @@ export function useClientsInfinite() {
   return useInfiniteQuery<Client[]>({
     queryKey: ["clients-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS] as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -42,7 +38,7 @@ export function useClientsInfinite() {
         .order("name")
         .range(from, to);
       if (error) throw error;
-      return data ?? [];
+      return (data as Client[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
       if (DEMO_MODE) return undefined; // No pagination in demo
@@ -66,7 +62,12 @@ export function useDeactivateClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      if (DEMO_MODE) return;
+      if (DEMO_MODE) {
+        MEMORY_DEMO_CLIENTS = MEMORY_DEMO_CLIENTS.map(c => 
+          c.id === id ? { ...c, status: "inactivo" } : c
+        );
+        return;
+      }
       const { error } = await supabase.from("clients").update({ status: "inactivo" }).eq("id", id);
       if (error) throw error;
     },
@@ -88,12 +89,12 @@ function useClientsPaginated() {
   return useInfiniteQuery<Client[]>({
     queryKey: ["clients-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return DEMO_CLIENTS as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase.from("clients").select("*").order("name").range(from, to);
       if (error) throw error;
-      return data ?? [];
+      return (data as Client[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
       if (DEMO_MODE) return undefined;
@@ -110,22 +111,22 @@ function useAllClients() {
   return useQuery<Client[]>({
     queryKey: ["clients", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS] as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
       const { data, error } = await supabase.from("clients").select("*").order("name");
       if (error) throw error;
-      return data ?? [];
+      return (data as Client[]) ?? [];
     },
   });
 }
 
 function useClientsMinimal() {
-  return useQuery({
+  return useQuery<{ id: string; name: string }[]>({
     queryKey: ["clients-min", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
       if (DEMO_MODE) return MEMORY_DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
       const { data, error } = await supabase.from("clients").select("id, name").order("name");
       if (error) throw error;
-      return data ?? [];
+      return (data as { id: string; name: string }[]) ?? [];
     },
   });
 }

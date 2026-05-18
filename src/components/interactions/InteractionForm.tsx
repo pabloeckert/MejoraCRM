@@ -15,6 +15,7 @@ import { StepCliente } from "./steps/StepCliente";
 import { StepResultado } from "./steps/StepResultado";
 import { StepDetalles } from "./steps/StepDetalles";
 import { StepMedio } from "./steps/StepMedio";
+import type { Client, Product, Interaction } from "@/lib/types";
 
 type WizardStep = "cliente" | "resultado" | "detalles" | "medio";
 
@@ -29,10 +30,10 @@ const STEP_LABELS: Record<WizardStep, string> = {
 interface InteractionFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clients: any[];
-  products: any[];
-  presupuestos: any[];
-  interaction?: any;
+  clients: Client[];
+  products: Product[];
+  presupuestos: Interaction[];
+  interaction?: Interaction | null;
 }
 
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
@@ -56,16 +57,16 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
       defaultValues: interaction
         ? {
             client_id: interaction.client_id || "",
-            medium: interaction.medium || (undefined as any),
-            result: interaction.result || (undefined as any),
-            quote_path: interaction.quote_path || "catalogo",
-            currency: interaction.currency || "ARS",
+            medium: (interaction.medium as any) || undefined,
+            result: (interaction.result as any) || undefined,
+            quote_path: (interaction.quote_path as any) || "catalogo",
+            currency: (interaction.currency as any) || "ARS",
             total_amount: interaction.total_amount || null,
             attachment_url: interaction.attachment_url || null,
             reference_quote_id: interaction.reference_quote_id || null,
-            followup_scenario: interaction.followup_scenario || null,
+            followup_scenario: (interaction.followup_scenario as any) || null,
             followup_motive: interaction.followup_motive || null,
-            negotiation_state: interaction.negotiation_state || null,
+            negotiation_state: (interaction.negotiation_state as any) || null,
             historic_quote_amount: interaction.historic_quote_amount || null,
             historic_quote_date: interaction.historic_quote_date || null,
             loss_reason: interaction.loss_reason || null,
@@ -75,7 +76,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
             notes: interaction.notes || null,
           }
         : {
-            client_id: "", medium: undefined as any, result: undefined as any,
+            client_id: "", medium: undefined, result: undefined,
             quote_path: "catalogo", currency: "ARS", total_amount: null, attachment_url: null,
             reference_quote_id: null, followup_scenario: null, followup_motive: null,
             negotiation_state: null, historic_quote_amount: null, historic_quote_date: null,
@@ -83,12 +84,12 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
           },
     });
 
-  const result = watch("result") as Result | undefined;
+  const resultValue = watch("result") as Result | undefined;
   const clientId = watch("client_id");
   const selectedClient = clients.find((c) => c.id === clientId);
 
   useMemo(() => {
-    if (interaction?.interaction_lines?.length > 0) {
+    if (interaction?.interaction_lines && interaction.interaction_lines.length > 0) {
       setLines(
         interaction.interaction_lines.map((l: any) => ({
           product_id: l.product_id || "",
@@ -122,7 +123,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
   const createMutation = useMutation({
     mutationFn: async (data: InteractionFormData) => {
       if (import.meta.env.VITE_DEMO_MODE !== "false") {
-        addDemoInteraction(data);
+        addDemoInteraction(data as any);
         return;
       }
       const total = lines.reduce((s, l) => s + l.quantity * l.unit_price, 0);
@@ -219,11 +220,11 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
       if (!clientId) { toast.error("Seleccioná un cliente"); return; }
       setStep("resultado");
     } else if (step === "resultado") {
-      if (!result) { toast.error("Seleccioná un resultado"); return; }
+      if (!resultValue) { toast.error("Seleccioná un resultado"); return; }
       setStep("detalles");
     } else if (step === "detalles") {
-      if (result === "no_interesado") { const ok = await trigger("loss_reason"); if (!ok) return; }
-      if (result === "seguimiento") { const ok = await trigger("followup_scenario"); if (!ok) return; }
+      if (resultValue === "no_interesado") { const ok = await trigger("loss_reason"); if (!ok) return; }
+      if (resultValue === "seguimiento") { const ok = await trigger("followup_scenario"); if (!ok) return; }
       setStep("medio");
     }
   };
@@ -265,22 +266,22 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
               onSearchChange={setSearchClient}
               selectedClientId={clientId}
               onSelectClient={(id) => { setValue("client_id", id); trigger("client_id"); }}
-              error={(errors as any).client_id?.message}
+              error={errors.client_id?.message}
             />
           )}
 
           {step === "resultado" && (
             <StepResultado
               clientName={selectedClient?.name}
-              value={result}
+              value={resultValue}
               onChange={(r) => setValue("result", r)}
-              error={(errors as any).result?.message}
+              error={errors.result?.message}
             />
           )}
 
-          {step === "detalles" && result && (
+          {step === "detalles" && resultValue && (
             <StepDetalles
-              result={result}
+              result={resultValue}
               control={control}
               watch={watch}
               setValue={setValue}
@@ -294,14 +295,14 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
               removeLine={removeLine}
               updateLine={updateLine}
               onProductPick={onProductPick}
-              errors={errors as Record<string, any>}
+              errors={errors}
             />
           )}
 
           {step === "medio" && (
             <StepMedio
               control={control}
-              error={(errors as any).medium?.message}
+              error={errors.medium?.message}
               calendarConnected={calendarConnected}
               syncToCalendar={syncToCalendar}
               setSyncToCalendar={setSyncToCalendar}
@@ -324,7 +325,7 @@ export function InteractionForm({ open, onOpenChange, clients, products, presupu
                 <Check className="h-4 w-4 mr-1" /> {isEditing ? "Guardar cambios" : "Registrar"}
               </Button>
             ) : (
-              <Button type="button" onClick={goNext} disabled={step === "cliente" ? !clientId : step === "resultado" ? !result : false}>
+              <Button type="button" onClick={goNext} disabled={step === "cliente" ? !clientId : step === "resultado" ? !resultValue : false}>
                 Siguiente <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             )}

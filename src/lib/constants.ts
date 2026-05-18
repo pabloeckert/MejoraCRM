@@ -138,10 +138,10 @@ export const CHART_COLORS = [
 /* ── Brand Colors (for PDF/print) ────────────────────────────── */
 
 export const BRAND = {
-  primary: "#8B2D6B",
+  primary: "#020659",
   secondary: "#1C4D8C",
-  accent: "#F2BC1B",
-  destructive: "#D93D4A",
+  accent: "#F2BB16",
+  destructive: "#D9072D",
   success: "#2E7D32",
   muted: "#656565",
   background: "#FFFFFF",

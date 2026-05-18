@@ -17,8 +17,18 @@ interface GoogleCalendarEvent {
   };
 }
 
+interface GoogleTokenClient {
+  requestAccessToken: (options?: { prompt?: string }) => void;
+}
+
+interface GoogleTokenResponse {
+  access_token: string;
+  expires_in: number;
+  error?: string;
+}
+
 export function useGoogleCalendar() {
-  const [tokenClient, setTokenClient] = useState<any>(null);
+  const [tokenClient, setTokenClient] = useState<GoogleTokenClient | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("mejoracrm_google_access_token"));
   const [isConnected, setIsConnected] = useState(!!localStorage.getItem("mejoracrm_google_access_token"));
   const [isConnecting, setIsConnecting] = useState(false);
@@ -34,7 +44,7 @@ export function useGoogleCalendar() {
         const client = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES,
-          callback: (response: any) => {
+          callback: (response: GoogleTokenResponse) => {
             if (response.error) {
               setIsConnecting(false);
               toast.error("Error al conectar con Google");
@@ -136,8 +146,9 @@ export function useGoogleCalendar() {
 
       toast.success("Evento agregado a Google Calendar");
       return true;
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Error desconocido";
+      toast.error(msg);
       return false;
     }
   };
@@ -148,6 +159,17 @@ export function useGoogleCalendar() {
 // Add global type for window.google
 declare global {
   interface Window {
-    google: any;
+    google: {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: {
+            client_id: string;
+            scope: string;
+            callback: (response: GoogleTokenResponse) => void;
+          }) => GoogleTokenClient;
+          revoke: (token: string, callback: () => void) => void;
+        };
+      };
+    };
   }
 }

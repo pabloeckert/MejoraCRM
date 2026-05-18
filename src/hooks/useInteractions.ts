@@ -2,26 +2,24 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tansta
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { DEMO_INTERACTIONS as INITIAL_DEMO_INTERACTIONS } from "@/demo/demoData";
-import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
-
-type Interaction = Database["public"]["Tables"]["interactions"]["Row"];
+import type { Interaction } from "@/lib/types";
 
 const PAGE_SIZE = 50;
 
 const INTERACTIONS_SELECT =
-  "*, clients(name), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))";
+  "*, clients(name, province, segment, country), interaction_lines(quantity, unit_price, line_total, products(name, unit_label))";
 
 // In-memory store for demo mode to support "create and see" during session
-export let MEMORY_DEMO_INTERACTIONS = [...INITIAL_DEMO_INTERACTIONS];
+export let MEMORY_DEMO_INTERACTIONS = [...INITIAL_DEMO_INTERACTIONS] as Interaction[];
 
-export const addDemoInteraction = (i: any) => {
+export const addDemoInteraction = (i: Partial<Interaction>) => {
   const newInteraction = {
     ...i,
     id: `demo-int-${Math.random().toString(36).substr(2, 9)}`,
     interaction_date: new Date().toISOString(),
     interaction_lines: i.interaction_lines || [],
-  };
+  } as Interaction;
   MEMORY_DEMO_INTERACTIONS = [newInteraction, ...MEMORY_DEMO_INTERACTIONS];
   return newInteraction;
 };
@@ -30,10 +28,10 @@ export const addDemoInteraction = (i: any) => {
  * Infinite scroll hook for interactions.
  */
 export function useInteractionsInfinite() {
-  return useInfiniteQuery({
+  return useInfiniteQuery<Interaction[]>({
     queryKey: ["interactions-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS] as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -42,7 +40,7 @@ export function useInteractionsInfinite() {
         .order("interaction_date", { ascending: false })
         .range(from, to);
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Interaction[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
       if (DEMO_MODE) return undefined;
@@ -75,7 +73,7 @@ export function useDeleteInteraction() {
   });
 }
 
-export function flattenInteractionPages(data: { pages: any[][] } | undefined): any[] {
+export function flattenInteractionPages(data: { pages: Interaction[][] } | undefined): Interaction[] {
   if (!data?.pages) return [];
   return data.pages.flat();
 }
@@ -83,10 +81,10 @@ export function flattenInteractionPages(data: { pages: any[][] } | undefined): a
 export { useInteractionsPaginated, useAllInteractions, useClientPresupuestos };
 
 function useInteractionsPaginated() {
-  return useInfiniteQuery({
+  return useInfiniteQuery<Interaction[]>({
     queryKey: ["interactions-infinite", DEMO_MODE ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS] as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -95,7 +93,7 @@ function useInteractionsPaginated() {
         .order("interaction_date", { ascending: false })
         .range(from, to);
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Interaction[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
       if (DEMO_MODE) return undefined;
@@ -107,22 +105,22 @@ function useInteractionsPaginated() {
 }
 
 function useAllInteractions() {
-  return useQuery({
+  return useQuery<Interaction[]>({
     queryKey: ["interactions", DEMO_MODE ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS] as any[];
+      if (DEMO_MODE) return [...MEMORY_DEMO_INTERACTIONS];
       const { data, error } = await supabase
         .from("interactions")
         .select(INTERACTIONS_SELECT)
         .order("interaction_date", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Interaction[]) ?? [];
     },
   });
 }
 
 function useClientPresupuestos(clientId: string | undefined) {
-  return useQuery({
+  return useQuery<{ id: string; interaction_date: string; total_amount: number | null; currency: string | null }[]>({
     queryKey: ["interactions-presupuestos", clientId, DEMO_MODE ? "demo" : "live"],
     enabled: !!clientId,
     queryFn: async () => {
@@ -138,7 +136,7 @@ function useClientPresupuestos(clientId: string | undefined) {
         .eq("result", "presupuesto")
         .order("interaction_date", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data as { id: string; interaction_date: string; total_amount: number | null; currency: string | null }[]) ?? [];
     },
   });
 }

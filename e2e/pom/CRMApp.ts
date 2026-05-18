@@ -30,14 +30,15 @@ export class CRMApp {
     }
   }
 
-  async navigateTo(section: 'Clientes' | 'Interacciones' | 'Dashboard' | 'Productos' | 'Vista General') {
+  async navigateTo(section: 'Clientes' | 'Interacciones' | 'Dashboard' | 'Productos' | 'Vista General' | 'Configuración') {
     // Usar selectores de href para mayor estabilidad, especialmente si el sidebar está colapsado
     const hrefs = {
       'Dashboard': '/',
       'Vista General': '/',
       'Clientes': '/clients',
       'Interacciones': '/interactions',
-      'Productos': '/products'
+      'Productos': '/products',
+      'Configuración': '/settings'
     };
     
     const href = hrefs[section];
@@ -72,6 +73,29 @@ export class CRMApp {
   async closeDialog() {
     await this.page.keyboard.press('Escape');
     await expect(this.page.getByRole('dialog')).not.toBeVisible();
+  }
+
+  async deactivateClient(name: string) {
+    // Buscar la fila del cliente y hacer clic en el botón de desactivar (trash/user-x)
+    // El botón tiene el título "Marcar como inactivo"
+    const row = this.page.getByRole('row').filter({ hasText: name });
+    await row.getByTitle('Marcar como inactivo').click();
+  }
+
+  async verifyClientNotInList(name: string) {
+    await expect(this.page.getByRole('cell', { name })).not.toBeVisible();
+  }
+
+  // --- Settings Section ---
+
+  async updateExchangeRate(rate: string) {
+    const input = this.page.locator('input[type="number"]').first();
+    await input.fill(rate);
+    await this.page.getByRole('button', { name: 'Guardar' }).first().click();
+  }
+
+  async getExchangeRate(): Promise<string> {
+    return await this.page.locator('input[type="number"]').first().inputValue();
   }
 
   // --- Interactions Section ---

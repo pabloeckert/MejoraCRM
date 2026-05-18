@@ -9,22 +9,25 @@ import { isBefore, differenceInDays } from "date-fns";
 import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
 import type { Result } from "@/lib/constants";
 
-const MEDIUM_ICONS: Record<string, any> = {
+import { LucideIcon } from "lucide-react";
+import type { Interaction } from "@/lib/types";
+
+const MEDIUM_ICONS: Record<string, LucideIcon> = {
   whatsapp: MessageCircle, llamada: Phone, email: Mail,
   reunion_presencial: Video, reunion_virtual: Video,
   md_instagram: Globe, md_facebook: Globe, md_linkedin: Globe, visita_campo: Globe,
 };
 
-const RESULT_ICONS: Record<Result, any> = {
+const RESULT_ICONS: Record<Result, LucideIcon> = {
   presupuesto: FileText, venta: ShoppingCart, seguimiento: Clock, sin_respuesta: AlertCircle, no_interesado: X,
 };
 
 interface InteractionCardProps {
-  interaction: any;
+  interaction: Interaction;
   index: number;
   onNavigate: (path: string) => void;
-  onEdit?: (interaction: any) => void;
-  onDelete?: (interaction: any) => void;
+  onEdit?: (interaction: Interaction) => void;
+  onDelete?: (interaction: Interaction) => void;
 }
 
 export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onDelete }: InteractionCardProps) {

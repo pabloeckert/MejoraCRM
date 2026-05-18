@@ -80,17 +80,17 @@ export default function Reports() {
 <html><head><meta charset="utf-8"><title>Reportes — MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:32px;color:#1a1a1a;max-width:900px;margin:0 auto}
-  h1{color:#8B2D6B;font-size:20px;margin-bottom:4px}
+  h1{color:#020659;font-size:20px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:24px}
   .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
   .kpi{background:#f9f9f9;border-radius:8px;padding:16px;text-align:center}
-  .kpi .value{font-size:24px;font-weight:bold;color:#8B2D6B}
+  .kpi .value{font-size:24px;font-weight:bold;color:#020659}
   .kpi .label{font-size:11px;color:#656565;margin-top:4px}
   table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px}
-  th{background:#8B2D6B;color:#fff;padding:8px;text-align:left}
+  th{background:#020659;color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   .section{margin-bottom:32px}
-  .section h2{font-size:14px;color:#8B2D6B;margin-bottom:12px;border-bottom:2px solid #8B2D6B;padding-bottom:4px}
+  .section h2{font-size:14px;color:#020659;margin-bottom:12px;border-bottom:2px solid #020659;padding-bottom:4px}
   @media print{body{padding:0}}
 </style></head><body>
 <h1>Reportes — MejoraCRM</h1>

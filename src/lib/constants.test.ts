@@ -93,11 +93,11 @@ describe("Brand constants", () => {
     expect(CHART_COLORS.length).toBeGreaterThanOrEqual(6);
   });
 
-  it("BRAND has correct MC 2026 colors", () => {
-    expect(BRAND.primary).toBe("#8B2D6B");
-    expect(BRAND.accent).toBe("#F2BC1B");
+  it("BRAND has correct MC colors", () => {
+    expect(BRAND.primary).toBe("#020659");
+    expect(BRAND.accent).toBe("#F2BB16");
     expect(BRAND.success).toBe("#2E7D32");
-    expect(BRAND.destructive).toBe("#D93D4A");
+    expect(BRAND.destructive).toBe("#D9072D");
     expect(BRAND.background).toBe("#FFFFFF");
   });
 });

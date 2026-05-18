@@ -153,10 +153,10 @@ export default function Clients() {
 <html><head><meta charset="utf-8"><title>Clientes - MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:20px;color:#1a1a1a}
-  h1{color:#8B2D6B;font-size:18px;margin-bottom:4px}
+  h1{color:#020659;font-size:18px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;font-size:12px}
-  th{background:#8B2D6B;color:#fff;padding:8px;text-align:left}
+  th{background:#020659;color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   tr:nth-child(even){background:#f9f9f9}
   @media print{body{padding:0}}

@@ -8,11 +8,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 bun install          # instalar dependencias
 bun dev              # servidor de desarrollo en http://localhost:8080
 bun build            # build de producción
+bun build:dev        # build en modo development
 bun preview          # preview del build de producción
 bun lint             # ESLint
-bun test             # tests (Vitest, modo CI — run once)
+bun test             # tests unitarios (Vitest, modo CI — run once)
 bun test:watch       # tests en modo watch interactivo
 bun x tsc --noEmit  # typecheck (no hay script dedicado en package.json)
+bun test:e2e        # tests E2E (Playwright, requiere servidor corriendo)
+bun test:e2e:ui     # tests E2E con interfaz visual
 ```
 
 Para correr un test individual:
@@ -27,7 +30,8 @@ Copiar `.env.example` → `.env`:
 ```
 VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGci...
-VITE_DEMO_MODE=true   # false para conectar Supabase real
+VITE_DEMO_MODE=true         # false para conectar Supabase real
+VITE_GOOGLE_CLIENT_ID=...   # opcional — habilita sync con Google Calendar
 ```
 
 Con `VITE_DEMO_MODE=true` (valor por defecto) la app usa datos de `src/demo/demoData.ts` sin necesitar Supabase.
@@ -76,7 +80,7 @@ if (DEMO_MODE) return DEMO_DATA;
 - **Dashboard:** `supabase.rpc("get_dashboard_data")` — una sola llamada que retorna interacciones, clientes y perfiles.
 - **Interacciones:** paginación infinita con `useInfiniteQuery`, 50 registros por página.
 - **Clientes:** paginación infinita igual.
-- **Notificaciones:** `supabase.rpc("get_notifications_data")` — seguimientos vencidos y próximos.
+- **Notificaciones:** `supabase.rpc("get_notifications_data")` — misma forma que dashboard.
 
 TanStack Query global: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retry: 1`.
 
@@ -85,12 +89,17 @@ TanStack Query global: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retr
 - `["clients", "demo" | "live"]` — lista completa (useAllClients)
 - `["clients-min", "demo" | "live"]` — id+name mínimo
 - `["interactions-infinite", "demo" | "live"]`
-- `["dashboard-data"]`
-- `["products", ...]`, `["notifications"]`, `["profiles"]`
+- `["interactions", "demo" | "live"]` — lista completa (useAllInteractions)
+- `["interactions-presupuestos", clientId, "demo" | "live"]` — useClientPresupuestos
+- `["dashboard-data", "demo" | "live"]`
+- `["notifications-data", "demo" | "live"]`
+- `["products", "demo" | "live"]`, `["products-active", "demo" | "live"]`
 
-Las mutaciones invalidan todas las query keys relacionadas (ej. deactivateClient invalida `clients`, `clients-infinite` y `dashboard-data`).
+Las mutaciones invalidan todas las query keys relacionadas (ej. `useDeactivateClient` invalida `clients`, `clients-infinite` y `dashboard-data`).
 
 Las páginas de infinite query se aplanan con `flattenClientPages(data)` / `flattenInteractionPages(data)` antes de renderizar. `InfiniteScrollTrigger` (`src/components/InfiniteScrollTrigger.tsx`) dispara `fetchNextPage` vía IntersectionObserver.
+
+**Demo mode con mutaciones en memoria:** en demo mode, los hooks de clientes e interacciones usan stores en memoria (`MEMORY_DEMO_CLIENTS`, `MEMORY_DEMO_INTERACTIONS`) inicializados desde `demoData.ts`. Las funciones `addDemoClient` / `addDemoInteraction` (exportadas desde los hooks) agregan al store en memoria, lo que permite "crear y ver" durante la sesión sin persistencia. Al recargar la página, vuelve a los datos originales de `demoData.ts`.
 
 ### Estructura de páginas y subcomponentes
 
@@ -145,6 +154,7 @@ Dos archivos de lógica pura — ninguno depende de React ni Supabase:
 
 - **CommandPalette** (`src/components/CommandPalette.tsx`): abre con `Ctrl+K` / `Cmd+K`. Busca clientes e interacciones en tiempo real, y permite navegar a cualquier sección.
 - **OnboardingWizard** (`src/components/OnboardingWizard.tsx`): se muestra al primer ingreso. Persiste el estado en `localStorage` bajo la clave `onboarding_dismissed`.
+- **Google Calendar** (`src/hooks/useGoogleCalendar.ts`): OAuth implícito via Google Identity Services (sin backend). Token guardado en `localStorage` bajo `mejoracrm_google_access_token` y `mejoracrm_google_token_expiry`. Requiere `VITE_GOOGLE_CLIENT_ID`. Si no está configurado, la feature queda silenciada.
 - **ThemeProvider**: usa `next-themes`, tema por defecto `light`, con soporte `system`.
 - **PWA**: hay service worker + `PWAInstallBanner`. Los íconos (`public/icons/`) son placeholders — reemplazar con logo MC real.
 - **Drag & Drop**: `@dnd-kit/core` + `@dnd-kit/sortable` disponibles (en uso en alguna vista de productos).
@@ -159,9 +169,21 @@ RPC functions: `get_dashboard_data()`, `get_user_role()`, `get_notifications_dat
 
 Migraciones en `supabase/migrations/` (10 archivos). `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
 
-### Tests
+### Tests unitarios
 
 Vitest + Testing Library. Setup en `src/test/setup.ts`. Tests de lógica pura no requieren mocks. Tests de hooks en `src/hooks/*.test.ts`. Helpers de render en `src/test/test-utils.tsx`.
+
+### Tests E2E (Playwright)
+
+Corren contra la app en demo mode (sin Supabase). Requieren el servidor de desarrollo activo en `http://localhost:8080`.
+
+```
+e2e/crm-flow.spec.ts             # flujo principal: crear cliente, interacción, verificar
+e2e/crm-additional-flows.spec.ts # desactivar cliente, tipo de cambio
+e2e/pom/CRMApp.ts               # Page Object Model — todos los selectores/acciones centralizados aquí
+```
+
+Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selectores ad-hoc en los specs.
 
 ## Deploy
 
@@ -175,6 +197,5 @@ Vitest + Testing Library. Setup en `src/test/setup.ts`. Tests de lógica pura no
 - [ ] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) — reemplazar con logo MC real
 - [ ] Favicon (`public/favicon.ico`) — reemplazar con logo MC
 - [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción
-- [ ] Tests E2E (Playwright) — login → cliente → interacción → verificar
-- [ ] Google Calendar sync — requiere OAuth en Google Cloud Console
+- [ ] Google Calendar sync — registrar `VITE_GOOGLE_CLIENT_ID` en Google Cloud Console y configurar en Vercel
 - [ ] Push notifications servidor — configurar VAPID keys en `src/lib/notifications.ts`
