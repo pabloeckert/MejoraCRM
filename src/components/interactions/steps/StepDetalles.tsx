@@ -84,7 +84,7 @@ export function StepDetalles({
                 <div>
                   <Label>Monto total</Label>
                   <Controller name="total_amount" control={control} render={({ field }) => (
-                    <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(Number(e.target.value) || null)} />
+                    <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))} />
                   )} />
                 </div>
               </div>
@@ -168,7 +168,7 @@ export function StepDetalles({
               <div>
                 <Label>Monto histórico</Label>
                 <Controller name="historic_quote_amount" control={control} render={({ field }) => (
-                  <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(Number(e.target.value) || null)} />
+                  <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))} />
                 )} />
               </div>
               <div>
@@ -235,7 +235,7 @@ export function StepDetalles({
             <div>
               <Label>Pérdida estimada</Label>
               <Controller name="estimated_loss" control={control} render={({ field }) => (
-                <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(Number(e.target.value) || null)} />
+                <Input type="number" value={field.value || ""} onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))} />
               )} />
             </div>
           </div>

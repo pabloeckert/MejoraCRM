@@ -215,7 +215,7 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
                 <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={11} />
                 <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
                 <Area type="monotone" dataKey="ventas" stackId="1" stroke="hsl(142,60%,40%)" fill="hsl(142,60%,40%)" fillOpacity={0.3} name="Ventas" />
-                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="hsl(325,50%,36%)" fill="hsl(325,50%,36%)" fillOpacity={0.3} name="Presupuestos" />
+                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="#1C4D8C" fill="#1C4D8C" fillOpacity={0.3} name="Presupuestos" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -250,7 +250,7 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
                   <XAxis type="number" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={10} />
                   <YAxis type="category" dataKey="name" width={80} fontSize={10} tickLine={false} />
                   <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
-                  <Bar dataKey="value" fill="hsl(325,50%,36%)" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill="#020659" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>}

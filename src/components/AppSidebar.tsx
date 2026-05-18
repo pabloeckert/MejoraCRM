@@ -65,7 +65,7 @@ export function AppSidebar() {
               {!collapsed && (
                 <>
                   <span className="flex-1 text-left">Buscar...</span>
-                  <kbd className="hidden sm:inline text-[10px] bg-sidebar-accent/50 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
+                  <kbd className="hidden sm:inline text-[10px] bg-sidebar-accent/50 px-1.5 py-0.5 rounded font-mono">Ctrl+K</kbd>
                 </>
               )}
             </button>
