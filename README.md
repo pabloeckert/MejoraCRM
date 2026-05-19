@@ -1,5 +1,7 @@
 # MejoraCRM – CRM inteligente para Mejora Continua®
 
+> **📚 Documentación Completa**: Para información detallada sobre arquitectura, configuración, base de datos y contribución, consulta [DOCS.md](./DOCS.md).
+
 MejoraCRM es una plataforma de gestión de relaciones con clientes (CRM) diseñada para **Mejora Continua®**. Centraliza el flujo comercial, desde el primer contacto hasta el cierre de ventas, proporcionando KPIs en tiempo real y herramientas de seguimiento eficientes.
 
 ## 🚀 Stack Tecnológico
