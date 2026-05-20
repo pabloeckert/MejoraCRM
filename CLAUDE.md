@@ -198,8 +198,37 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 
 ## Pendiente para próximas sesiones
 
+### Infraestructura / assets
 - [ ] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) — reemplazar con logo MC real
 - [ ] Favicon (`public/favicon.ico`) — reemplazar con logo MC
 - [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción
 - [ ] Google Calendar sync — registrar `VITE_GOOGLE_CLIENT_ID` en Google Cloud Console y configurar en Vercel
 - [ ] Push notifications servidor — configurar VAPID keys en `src/lib/notifications.ts`
+
+### UX/UI — Plan de 8 PRs (brief completo en memoria del proyecto)
+
+**Completados:**
+- [x] **PR2** — Auth split-screen + OnboardingWizard como Sheet lateral (commit `3d3fc9c`, en prod)
+
+**Pendientes (orden sugerido):**
+- [ ] **PR1** — AppLayout max-w-screen-2xl, AppSidebar con grupos y collapse persistente, BottomNav pulido, CommandPalette con grupos
+- [ ] **PR3** — Dashboard: grid 12-col, KPIs compactos con delta, funnel izq + seguimientos der, Recharts unificado, empty states
+- [ ] **PR4** — Listados: toolbar unificada, tabla h-12 con bulk-actions, InfiniteScroll + contador, cards mobile con swipe
+- [ ] **PR5** — InteractionForm wizard: stepper sticky, resumen lateral en vivo, footer fijo, confirmación tipo ticket
+- [ ] **PR6** — Feedback: Toaster unificado, Skeletons revisados, ErrorBoundary con retry, NotificationsPanel por día
+- [ ] **PR7** — Dark mode: auditar `.dark` en `:root`, switch en Settings
+- [ ] **PR8** — Microinteracciones: transiciones 150ms, focus ring, loading buttons, PWAInstallBanner como toast
+
+**Restricciones de marca (nunca tocar):**
+- Tokens de color en `:root` de `src/index.css` y aliases `brand.*` en `tailwind.config.ts`
+- Tipografías: League Spartan (display) y Bw Modelica (body)
+- Logo, favicon y assets en `/assets/branding/`
+- `--radius: 0.625rem` y sistema shadcn/ui
+
+### Convenciones UX establecidas en este brief
+- Una sola acción primaria por vista (navy sólido). Secundarias en outline navy.
+- Amarillo (`accent`) solo como acento puntual — nunca botón estándar.
+- Inputs `h-9` en toda la app.
+- Sombras unificadas a `shadow-sm`.
+- Focus: `ring-2 ring-ring ring-offset-2` en todos los interactivos.
+- Transiciones: `150ms ease-out` hover/focus, `200ms` Sheet/Dialog.
