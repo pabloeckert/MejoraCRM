@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText } from "lucide-react";
+import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { isPushSupported, getNotificationPermission, requestNotificationPermission } from "@/lib/notifications";
@@ -273,6 +273,38 @@ export default function Settings() {
               </div>
             </div>
             <PWAInstallButton />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tour de inicio */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <PlayCircle className="h-4 w-4 text-primary" />
+            Tour de inicio
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+            <div className="flex items-center gap-3">
+              <div>
+                <p className="text-sm font-medium">Ver recorrido inicial</p>
+                <p className="text-xs text-muted-foreground">
+                  Volvé a ver los pasos básicos para usar el CRM
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem("onboarding_dismissed");
+                window.dispatchEvent(new CustomEvent("show-onboarding"));
+              }}
+            >
+              Ver tour
+            </Button>
           </div>
         </CardContent>
       </Card>

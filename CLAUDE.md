@@ -65,9 +65,11 @@ Con `VITE_DEMO_MODE=true` (valor por defecto) la app usa datos de `src/demo/demo
 
 `AuthContext` (`src/contexts/AuthContext.tsx`) expone `user`, `session`, `role` (`admin` | `vendedor`) y `profile`. En **demo mode** inyecta un usuario ficticio y devuelve datos de `src/demo/demoData.ts` sin llamar a Supabase.
 
-El sidebar (`src/components/AppSidebar.tsx`) filtra ítems según `role` — cada ítem puede tener un array `roles: ["admin", "supervisor"]`; si el campo está ausente, el ítem es visible para todos. Rutas admin-only: `/reports`, `/products`, `/whatsapp-link`, `/settings`.
+El sidebar (`src/components/AppSidebar.tsx`) filtra ítems según `role` — cada ítem puede tener un array `roles: ["admin", "supervisor"]`; si el campo está ausente, el ítem es visible para todos. Rutas con `roles: ["admin", "supervisor"]`: `/reports`, `/products`, `/whatsapp-link`, `/settings`.
 
-En demo mode, `DemoRoleToggle` aparece en el header para cambiar entre `admin` y `vendedor` en caliente. El estado se guarda internamente en `AuthContext` vía `demoRole`.
+En demo mode, `DemoRoleToggle` aparece en el header para cambiar entre `admin` y `vendedor` en caliente. El estado se guarda internamente en `AuthContext` vía `demoRole`. El contexto también expone `isDemo: boolean`. `DEMO_MODE` es una constante exportada desde `AuthContext` que todos los hooks importan directamente — no existe un módulo de config separado.
+
+> **Nota:** el enum de BD `app_role` incluye `supervisor`, pero en demo mode solo se alterna entre `admin` y `vendedor`.
 
 ### Patrón de hooks de datos
 
@@ -94,6 +96,7 @@ TanStack Query global: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retr
 - `["dashboard-data", "demo" | "live"]`
 - `["notifications-data", "demo" | "live"]`
 - `["products", "demo" | "live"]`, `["products-active", "demo" | "live"]`
+- `["profiles", "demo" | "live"]` — useProfiles (id + nombre de vendedores)
 
 Las mutaciones invalidan todas las query keys relacionadas (ej. `useDeactivateClient` invalida `clients`, `clients-infinite` y `dashboard-data`).
 
@@ -158,6 +161,7 @@ Dos archivos de lógica pura — ninguno depende de React ni Supabase:
 - **ThemeProvider**: usa `next-themes`, tema por defecto `light`, con soporte `system`.
 - **PWA**: hay service worker + `PWAInstallBanner`. Los íconos (`public/icons/`) son placeholders — reemplazar con logo MC real.
 - **Drag & Drop**: `@dnd-kit/core` + `@dnd-kit/sortable` disponibles (en uso en alguna vista de productos).
+- **BottomNav** (`src/components/BottomNav.tsx`): barra de navegación mobile (`md:hidden`), fija en la parte inferior. Incluye un FAB central que navega a `/interactions`. Muestra un punto rojo en "Historial" si hay seguimientos vencidos. No se renderiza en `/auth`, `/privacy` ni `/terms`.
 
 ### Base de datos
 
