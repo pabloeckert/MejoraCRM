@@ -13,7 +13,7 @@ bun preview          # preview del build de producción
 bun lint             # ESLint
 bun test             # tests unitarios (Vitest, modo CI — run once)
 bun test:watch       # tests en modo watch interactivo
-bun x tsc --noEmit  # typecheck (no hay script dedicado en package.json)
+npx tsc --noEmit    # typecheck (sin script dedicado; CI usa npx tsc --noEmit)
 bun test:e2e        # tests E2E (Playwright, requiere servidor corriendo)
 bun test:e2e:ui     # tests E2E con interfaz visual
 ```
@@ -104,11 +104,23 @@ Las páginas de infinite query se aplanan con `flattenClientPages(data)` / `flat
 
 **Demo mode con mutaciones en memoria:** en demo mode, los hooks de clientes e interacciones usan stores en memoria (`MEMORY_DEMO_CLIENTS`, `MEMORY_DEMO_INTERACTIONS`) inicializados desde `demoData.ts`. Las funciones `addDemoClient` / `addDemoInteraction` (exportadas desde los hooks) agregan al store en memoria, lo que permite "crear y ver" durante la sesión sin persistencia. Al recargar la página, vuelve a los datos originales de `demoData.ts`.
 
+El mismo patrón aplica a `MEMORY_DEMO_PROFILES` + `setDemoTarget` para cuotas mensuales.
+
 ### Estructura de páginas y subcomponentes
 
 Todas las páginas se cargan con `React.lazy` + `Suspense` (code splitting automático).
 
 ```
+src/pages/Dashboard.tsx        → selecciona OwnerViewV2 o SellerViewV2 según role
+src/components/dashboard/
+  OwnerViewV2.tsx              → vista admin/supervisor: KPIs, gráficas, ranking vendedores
+  SellerViewV2.tsx             → vista vendedor: mis métricas personales
+  KPICard.tsx                  → tarjeta reutilizable con delta y trend
+
+src/components/skeletons/
+  DashboardSkeleton.tsx
+  ListSkeleton.tsx
+
 src/pages/Clients.tsx          → orquestador (~180L)
 src/components/clients/
   ClientsTable.tsx             → tabla con soft delete (UserX → status=inactivo)
@@ -130,7 +142,8 @@ src/components/interactions/
   steps/StepMedio.tsx          → paso 4
   ProductLines.tsx             → líneas de producto dentro del form
   ProformaUpload.tsx           → adjunto de proforma
-  InteractionCard.tsx          → card con edit + delete inline
+  InteractionCard.tsx          → card con edit + delete inline + badge de envejecimiento (8-30d ámbar, >30d rojo)
+  PipelineKanban.tsx           → vista Kanban de pipeline (5 columnas por estado, ordenadas por urgencia)
 ```
 
 ### Lógica de negocio
@@ -151,7 +164,7 @@ Dos archivos de lógica pura — ninguno depende de React ni Supabase:
 ### Tipos
 
 - `src/integrations/supabase/types.ts` — generado automáticamente. **No editar.**
-- `src/lib/types.ts` — tipos de app que componen sobre los de Supabase. `Interaction` incluye joins de `clients` e `interaction_lines`.
+- `src/lib/types.ts` — tipos de app que componen sobre los de Supabase. `Interaction` incluye joins de `clients` e `interaction_lines`. `ProfileWithTarget` y `TargetMap` para cuotas mensuales (no en types.ts auto-generado).
 
 ### Funcionalidades globales de la app
 
@@ -162,6 +175,8 @@ Dos archivos de lógica pura — ninguno depende de React ni Supabase:
 - **PWA**: hay service worker + `PWAInstallBanner`. Los íconos (`public/icons/`) son placeholders — reemplazar con logo MC real.
 - **Drag & Drop**: `@dnd-kit/core` + `@dnd-kit/sortable` disponibles (en uso en alguna vista de productos).
 - **BottomNav** (`src/components/BottomNav.tsx`): barra de navegación mobile (`md:hidden`), fija en la parte inferior. Incluye un FAB central que navega a `/interactions`. Muestra un punto rojo en "Historial" si hay seguimientos vencidos. No se renderiza en `/auth`, `/privacy` ni `/terms`.
+- **PipelineKanban** (`src/components/interactions/PipelineKanban.tsx`): vista alternativa en `/interactions`, toggle list/kanban persistido en `localStorage["interactions_view"]`. 5 columnas: presupuesto / seguimiento / sin_respuesta / venta / no_interesado.
+- **Cuotas mensuales** (`useProfiles` + `useUpdateTarget`): campo `monthly_target` en `profiles`. Admin las gestiona en Settings. Dashboard admin muestra barra de progreso en ranking; vendedor ve 4ª card "Tu cuota". Semáforo: ≥100% verde · 60-99% ámbar · <60% rojo.
 
 ### Base de datos
 
@@ -171,11 +186,13 @@ Enums clave: `app_role` (admin, vendedor, supervisor), `interaction_result` (pre
 
 RPC functions: `get_dashboard_data()`, `get_user_role()`, `get_notifications_data()`, `request_account_deletion()`.
 
-Migraciones en `supabase/migrations/` (10 archivos). `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
+Migraciones en `supabase/migrations/` (11 archivos). La última (`20260610120000_add_monthly_target_to_profiles.sql`) agrega `monthly_target NUMERIC(15,2) NULL` a `profiles`. `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
 
 ### Tests unitarios
 
 Vitest + Testing Library. Setup en `src/test/setup.ts`. Tests de lógica pura no requieren mocks. Tests de hooks en `src/hooks/*.test.ts`. Helpers de render en `src/test/test-utils.tsx`.
+
+`src/lib/brandColors.test.ts` es un guard de marca — falla si se introducen colores violeta/púrpura (`#8B2D6B`, `hsl(325`, etc.) en `constants.ts`, `index.css`, `index.html` o `manifest.json`. Correr antes de cambiar tokens de color.
 
 ### Tests E2E (Playwright)
 
@@ -210,7 +227,14 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 **Completados:**
 - [x] **PR2** — Auth split-screen + OnboardingWizard como Sheet lateral (commit `3d3fc9c`, en prod)
 
-**Pendientes (orden sugerido):**
+**Features PM entregadas (fuera del roadmap UX):**
+- [x] Deal aging badge en InteractionCard (8-30d ámbar, >30d rojo)
+- [x] WhatsApp/email clickables en ClientDetailDialog
+- [x] Dashboard: persistencia de período en localStorage, card "Activos fríos 30d+"
+- [x] Pipeline Kanban en /interactions (toggle list/kanban)
+- [x] Cuotas mensuales por vendedor (migration + Settings admin + dashboard progress bars)
+
+**Pendientes UX (orden sugerido):**
 - [ ] **PR1** — AppLayout max-w-screen-2xl, AppSidebar con grupos y collapse persistente, BottomNav pulido, CommandPalette con grupos
 - [ ] **PR3** — Dashboard: grid 12-col, KPIs compactos con delta, funnel izq + seguimientos der, Recharts unificado, empty states
 - [ ] **PR4** — Listados: toolbar unificada, tabla h-12 con bulk-actions, InfiniteScroll + contador, cards mobile con swipe

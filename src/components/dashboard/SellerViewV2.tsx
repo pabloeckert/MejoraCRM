@@ -13,10 +13,11 @@ import type { Interaction } from "@/lib/types";
 interface SellerViewV2Props {
   interactions: Interaction[];
   sellerName: string;
+  monthlyTarget: number | null;
   navigate: (path: string) => void;
 }
 
-export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV2Props) {
+export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate }: SellerViewV2Props) {
   const monthStart = startOfMonth(new Date());
   const monthInts = interactions.filter((i) => new Date(i.interaction_date) >= monthStart);
 
@@ -30,9 +31,11 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
   const totalPerdido = noInteresado.reduce((s: number, i: any) => s + (Number(i.estimated_loss) || 0), 0);
 
   const today = interactions.filter((i) => i.follow_up_date && isToday(new Date(i.follow_up_date)));
-  const overdue = interactions.filter(
-    (i) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date()) && !isToday(new Date(i.follow_up_date))
-  );
+  const overdue = interactions
+    .filter(
+      (i) => i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date()) && !isToday(new Date(i.follow_up_date))
+    )
+    .sort((a, b) => new Date(a.follow_up_date!).getTime() - new Date(b.follow_up_date!).getTime());
   const upcoming = interactions
     .filter((i) => i.follow_up_date && new Date(i.follow_up_date) > new Date())
     .sort((a: any, b: any) => new Date(a.follow_up_date).getTime() - new Date(b.follow_up_date).getTime())
@@ -90,7 +93,7 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
           <ShoppingCart className="h-4 w-4" /> Tus ventas
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className={`grid grid-cols-1 gap-4 ${monthlyTarget !== null ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3"}`}>
           <Card className="animate-slide-up stagger-1 opacity-0 border-border/50 hover:shadow-md transition-all">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
@@ -135,6 +138,41 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
               </div>
             </CardContent>
           </Card>
+
+          {monthlyTarget !== null && (() => {
+            const pct = Math.min(Math.round((totalVentas / monthlyTarget) * 100), 100);
+            const over = totalVentas >= monthlyTarget;
+            const color = over ? "text-success" : pct >= 60 ? "text-warning" : "text-destructive";
+            const bg = over ? "bg-success/10" : pct >= 60 ? "bg-warning/10" : "bg-destructive/10";
+            const bar = over ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
+            return (
+              <Card className="animate-slide-up stagger-4 opacity-0 border-border/50 hover:shadow-md transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1 flex-1 mr-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tu cuota</p>
+                      <p className={`text-2xl font-bold tracking-tight ${color}`}>{pct}%</p>
+                      <p className="text-xs text-muted-foreground">
+                        ${totalVentas.toLocaleString()} de ${monthlyTarget.toLocaleString()}
+                      </p>
+                      <div className={`h-2 rounded-full mt-2 ${bg}`}>
+                        <div
+                          className={`h-2 rounded-full transition-all duration-700 ${bar}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className={`p-2.5 rounded-xl shrink-0 ${bg}`}>
+                      <Target className={`h-5 w-5 ${color}`} />
+                    </div>
+                  </div>
+                  {over && (
+                    <p className="text-[10px] text-success font-semibold mt-2">¡Meta superada este mes!</p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
         </div>
       </div>
 
@@ -144,36 +182,12 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
       <div>
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
           <Calendar className="h-4 w-4" /> Tareas del día
+          {(overdue.length + today.length) > 0 && (
+            <Badge variant="destructive" className="text-xs">{overdue.length + today.length}</Badge>
+          )}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Seguimientos hoy */}
-          <Card className="border-border/50">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-accent" /> Seguimientos hoy
-              </CardTitle>
-              <Badge variant="outline" className="text-xs">{today.length}</Badge>
-            </CardHeader>
-            <CardContent>
-              {today.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">Sin seguimientos para hoy 👌</p>
-              ) : (
-                <div className="space-y-2">
-                  {today.map((i) => (
-                    <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg bg-accent/10 hover:bg-accent/20 cursor-pointer transition-colors" onClick={() => navigate("/interactions")}>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{i.clients?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{i.next_step || "—"}</p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Seguimientos vencidos */}
+          {/* Seguimientos vencidos — prioridad máxima */}
           <Card className="border-border/50">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -183,7 +197,7 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
             </CardHeader>
             <CardContent>
               {overdue.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">🎉 Todo al día</p>
+                <p className="text-sm text-muted-foreground py-6 text-center">Todo al día</p>
               ) : (
                 <div className="space-y-2 max-h-56 overflow-y-auto">
                   {overdue.slice(0, 6).map((i) => (
@@ -193,6 +207,33 @@ export function SellerViewV2({ interactions, sellerName, navigate }: SellerViewV
                         <p className="text-xs text-muted-foreground truncate">{i.next_step || "Pendiente"}</p>
                       </div>
                       <Badge variant="outline" className="text-xs text-destructive border-destructive/30 shrink-0">{differenceInDays(new Date(), new Date(i.follow_up_date))}d</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Seguimientos hoy */}
+          <Card className="border-border/50">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-accent" /> Para hoy
+              </CardTitle>
+              <Badge variant="outline" className="text-xs">{today.length}</Badge>
+            </CardHeader>
+            <CardContent>
+              {today.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-6 text-center">Sin seguimientos para hoy</p>
+              ) : (
+                <div className="space-y-2">
+                  {today.map((i) => (
+                    <div key={i.id} className="flex items-center justify-between p-2.5 rounded-lg bg-accent/10 hover:bg-accent/20 cursor-pointer transition-colors" onClick={() => navigate("/interactions")}>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{i.clients?.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{i.next_step || "—"}</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   ))}
                 </div>

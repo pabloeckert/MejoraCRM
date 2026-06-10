@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText, PlayCircle } from "lucide-react";
+import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText, PlayCircle, Users } from "lucide-react";
 import { toast } from "sonner";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { isPushSupported, getNotificationPermission, requestNotificationPermission } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfiles, useUpdateTarget } from "@/hooks/useProfiles";
 
 function PWAInstallButton() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
@@ -44,8 +45,11 @@ import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 
 export default function Settings() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
-  const { signOut } = useAuth();
+  const { signOut, role } = useAuth();
   const { isConnected: calendarConnected, isConnecting: calendarConnecting, login: handleConnectCalendar, logout: handleDisconnectCalendar } = useGoogleCalendar();
+  const { data: profilesWithTarget } = useProfiles();
+  const { mutate: updateTarget, isPending: savingTarget } = useUpdateTarget();
+  const [targetDraft, setTargetDraft] = useState<Record<string, string>>({});
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [exchangeRate, setExchangeRate] = useState(() => {
@@ -308,6 +312,70 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Cuotas mensuales — solo admin/supervisor */}
+      {(role === "admin" || role === "supervisor") && (
+        <Card className="border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" /> Cuotas mensuales por vendedor
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Meta de ingresos mensual (ARS) por vendedor. Dejá vacío para no asignar cuota.
+            </p>
+            {(profilesWithTarget ?? []).map((p) => {
+              const draft = targetDraft[p.user_id];
+              const displayVal = draft ?? String(p.monthly_target ?? "");
+              return (
+                <div key={p.user_id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                  <p className="flex-1 text-sm font-medium truncate">{p.full_name || "Sin nombre"}</p>
+                  <Input
+                    type="number"
+                    placeholder="Sin cuota"
+                    value={displayVal}
+                    min={0}
+                    onChange={(e) =>
+                      setTargetDraft((prev) => ({ ...prev, [p.user_id]: e.target.value }))
+                    }
+                    className="h-8 w-36 text-sm"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8"
+                    disabled={savingTarget || draft === undefined}
+                    onClick={() => {
+                      const parsed = draft === "" ? null : Number(draft);
+                      if (draft !== "" && (isNaN(parsed!) || parsed! < 0)) {
+                        toast.error("Ingresá un número positivo");
+                        return;
+                      }
+                      updateTarget(
+                        { user_id: p.user_id, monthly_target: parsed },
+                        {
+                          onSuccess: () => {
+                            toast.success(`Cuota de ${p.full_name} actualizada`);
+                            setTargetDraft((prev) => {
+                              const n = { ...prev };
+                              delete n[p.user_id];
+                              return n;
+                            });
+                          },
+                          onError: () => toast.error("No se pudo guardar"),
+                        }
+                      );
+                    }}
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Cuenta y datos */}
       <Card className="border-border/50">

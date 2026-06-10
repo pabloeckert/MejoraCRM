@@ -29,6 +29,14 @@ export interface SellerStats {
   ingresos: number;
 }
 
+export interface ProfileWithTarget {
+  user_id: string;
+  full_name: string | null;
+  monthly_target: number | null;
+}
+
+export type TargetMap = Record<string, number | null>;
+
 export interface RankingEntry extends SellerStats {
   name: string;
   uid?: string;

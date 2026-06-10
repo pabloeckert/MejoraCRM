@@ -29,9 +29,18 @@ export const DEMO_CLIENTS = [
 ];
 
 export const DEMO_PROFILES = [
-  { user_id: DEMO_OWNER.id, full_name: DEMO_OWNER.full_name, avatar_url: null, role: "admin" as const },
-  { user_id: DEMO_SELLER.id, full_name: DEMO_SELLER.full_name, avatar_url: null, role: "vendedor" as const },
+  { user_id: DEMO_OWNER.id, full_name: DEMO_OWNER.full_name, avatar_url: null, role: "admin" as const, monthly_target: 2_000_000 },
+  { user_id: DEMO_SELLER.id, full_name: DEMO_SELLER.full_name, avatar_url: null, role: "vendedor" as const, monthly_target: 1_500_000 },
 ];
+
+// Store mutable — igual al patrón de MEMORY_DEMO_CLIENTS
+export let MEMORY_DEMO_PROFILES = [...DEMO_PROFILES];
+
+export function setDemoTarget(user_id: string, monthly_target: number | null) {
+  MEMORY_DEMO_PROFILES = MEMORY_DEMO_PROFILES.map((p) =>
+    p.user_id === user_id ? { ...p, monthly_target } : p
+  );
+}
 
 export const DEMO_INTERACTIONS = [
   // Ventas cerradas

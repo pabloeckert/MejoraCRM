@@ -3,3 +3,4 @@ export type { Result } from "./InteractionCard";
 export { InteractionForm } from "./InteractionForm";
 export { ProductLines } from "./ProductLines";
 export { ProformaUpload } from "./ProformaUpload";
+export { PipelineKanban } from "./PipelineKanban";

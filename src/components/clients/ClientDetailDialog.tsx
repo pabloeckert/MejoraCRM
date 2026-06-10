@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MEDIUM_LABELS, RESULT_LABELS, RESULT_STYLES, STATUS_LABELS, STATUS_STYLES } from "@/lib/constants";
-import { MapPin, Mail, Phone, Building2 } from "lucide-react";
+import { MapPin, Mail, Phone, Building2, MessageCircle } from "lucide-react";
+
+function toWhatsAppUrl(phone: string): string {
+  return `https://wa.me/${phone.replace(/\D/g, "")}`;
+}
 import type { Database } from "@/integrations/supabase/types";
 import { MEMORY_DEMO_INTERACTIONS } from "@/hooks/useInteractions";
 
@@ -56,14 +60,24 @@ export function ClientDetailDialog({ client, onClose }: ClientDetailDialogProps)
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {client.whatsapp && (
-                <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm">
-                  <Phone className="h-3.5 w-3.5 text-muted-foreground" /> {client.whatsapp}
-                </div>
+                <a
+                  href={toWhatsAppUrl(client.whatsapp)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm hover:bg-green-500/10 hover:text-green-700 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MessageCircle className="h-3.5 w-3.5 shrink-0" /> {client.whatsapp}
+                </a>
               )}
               {client.email && (
-                <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm truncate">
+                <a
+                  href={`mailto:${client.email}`}
+                  className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm truncate hover:bg-primary/5 hover:text-primary transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" /> {client.email}
-                </div>
+                </a>
               )}
               {(client.location || client.province || client.country) && (
                 <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm">

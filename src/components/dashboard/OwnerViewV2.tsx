@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,9 @@ import {
 } from "recharts";
 import {
   TrendingUp, TrendingDown, DollarSign, FileText, Clock, Users, Trophy, AlertCircle,
-  UserPlus, UserCheck, BarChart3,
+  UserPlus, UserCheck, BarChart3, UserX,
 } from "lucide-react";
-import { isBefore, differenceInDays, format } from "date-fns";
+import { isBefore, differenceInDays, format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { RESULT_LABELS, CHART_COLORS } from "@/lib/constants";
 import {
@@ -28,17 +28,26 @@ import {
   getAvgSalesCycle,
   type Period,
 } from "@/lib/businessLogic";
-import type { Interaction, Client, Profile } from "@/lib/types";
+import type { Interaction, Client, Profile, TargetMap } from "@/lib/types";
 
 interface OwnerViewV2Props {
   interactions: Interaction[];
   clients: Client[];
   profiles: Profile[];
+  targetMap: TargetMap;
   navigate: (path: string) => void;
 }
 
-export function OwnerViewV2({ interactions, clients, profiles, navigate }: OwnerViewV2Props) {
-  const [period, setPeriod] = useState<Period>("mes");
+const PERIOD_KEY = "dashboard_period";
+
+export function OwnerViewV2({ interactions, clients, profiles, targetMap, navigate }: OwnerViewV2Props) {
+  const [period, setPeriod] = useState<Period>(
+    () => (localStorage.getItem(PERIOD_KEY) as Period) ?? "mes"
+  );
+  const handlePeriodChange = useCallback((p: Period) => {
+    localStorage.setItem(PERIOD_KEY, p);
+    setPeriod(p);
+  }, []);
   const profileMap = Object.fromEntries(profiles.map((p) => [p.user_id, p.full_name || "Sin nombre"]));
 
   const { start: periodStart, prevStart: prevPeriodStart, label: periodLabel } = getPeriodDates(period);
@@ -71,6 +80,36 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
   const clientesConActividad = new Set(interactions.filter((i) => new Date(i.interaction_date) >= periodStart).map((i) => i.client_id));
   const contactosSinSeguimiento = clients.filter((c) => !clientesConActividad.has(c.id)).length;
 
+  // Clientes activos sin ninguna interacción en los últimos 30 días
+  const inactivityCutoff = subDays(new Date(), 30);
+  const clientLastActivity = new Map<string, Date>();
+  interactions.forEach((i) => {
+    const d = new Date(i.interaction_date);
+    const prev = clientLastActivity.get(i.client_id);
+    if (!prev || d > prev) clientLastActivity.set(i.client_id, d);
+  });
+  const clientesInactivosCount = clients.filter(
+    (c) => c.status === "activo" &&
+      (!clientLastActivity.has(c.id) || clientLastActivity.get(c.id)! < inactivityCutoff)
+  ).length;
+
+  // Progreso hacia cuota — retorna null si el vendedor no tiene target asignado
+  function progressFor(uid: string, ingresos: number) {
+    const target = targetMap[uid] ?? null;
+    if (!target) return null;
+    const pct = Math.min(Math.round((ingresos / target) * 100), 100);
+    const over = ingresos >= target;
+    return {
+      pct,
+      target,
+      barClass: over ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive",
+      bgClass: over ? "bg-success/10" : pct >= 60 ? "bg-warning/10" : "bg-destructive/10",
+      label: over
+        ? `¡Meta! $${ingresos.toLocaleString()} / $${target.toLocaleString()}`
+        : `$${ingresos.toLocaleString()} de $${target.toLocaleString()} (${pct}%)`,
+    };
+  }
+
   // Trend badge helper
   const TrendBadge = ({ value }: { value: number }) => {
     if (value === 0) return null;
@@ -88,7 +127,7 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
         </div>
         <div className="flex gap-1 flex-wrap">
           {(["hoy", "semana", "mes", "trimestre", "semestre", "año"] as Period[]).map((p) => (
-            <Button key={p} variant={period === p ? "default" : "outline"} size="sm" className="h-8 text-xs px-3" onClick={() => setPeriod(p)}>
+            <Button key={p} variant={period === p ? "default" : "outline"} size="sm" className="h-8 text-xs px-3" onClick={() => handlePeriodChange(p)}>
               {p === "hoy" ? "Hoy" : p === "semana" ? "Semana" : p === "mes" ? "Mes" : p === "trimestre" ? "Trimestre" : p === "semestre" ? "Semestre" : "Año"}
             </Button>
           ))}
@@ -170,12 +209,12 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
           <BarChart3 className="h-4 w-4" /> Gestión comercial y rendimiento del equipo
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <Card className="border-border/50 hover:shadow-sm transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-destructive/10"><Clock className="h-4 w-4 text-destructive" /></div>
-                <div><p className="text-lg font-bold">{overdue.length}</p><p className="text-xs text-muted-foreground">Seguimientos vencidos</p></div>
+                <div><p className="text-lg font-bold">{overdue.length}</p><p className="text-xs text-muted-foreground">Seg. vencidos</p></div>
               </div>
             </CardContent>
           </Card>
@@ -199,7 +238,15 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-accent/20"><Users className="h-4 w-4 text-accent" /></div>
-                <div><p className="text-lg font-bold">{contactosSinSeguimiento}</p><p className="text-xs text-muted-foreground">Contactos sin seguimiento</p></div>
+                <div><p className="text-lg font-bold">{contactosSinSeguimiento}</p><p className="text-xs text-muted-foreground">Sin seguimiento</p></div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className={`border-border/50 hover:shadow-sm transition-shadow ${clientesInactivosCount > 0 ? "border-l-2 border-l-amber-400" : ""}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-500/10"><UserX className="h-4 w-4 text-amber-600" /></div>
+                <div><p className="text-lg font-bold">{clientesInactivosCount}</p><p className="text-xs text-muted-foreground">Activos fríos 30d+</p></div>
               </div>
             </CardContent>
           </Card>
@@ -217,18 +264,32 @@ export function OwnerViewV2({ interactions, clients, profiles, navigate }: Owner
                 <p className="text-sm text-muted-foreground text-center py-8">Sin actividad en el período</p>
               ) : (
                 <div className="space-y-2">
-                  {ranking.map((r, i) => (
-                    <div key={r.name} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Badge variant={i === 0 ? "default" : "secondary"} className="shrink-0 w-6 h-6 p-0 justify-center">{i + 1}</Badge>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{r.name}</p>
-                          <p className="text-xs text-muted-foreground">{r.ventas} ventas · {r.presup} presupuestos · {r.segs} seguimientos</p>
+                  {ranking.map((r, i) => {
+                    const prog = progressFor(r.uid, r.ingresos);
+                    return (
+                      <div key={r.name} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <Badge variant={i === 0 ? "default" : "secondary"} className="shrink-0 w-6 h-6 p-0 justify-center">{i + 1}</Badge>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{r.name}</p>
+                            <p className="text-xs text-muted-foreground">{r.ventas} ventas · {r.presup} presupuestos · {r.segs} seguimientos</p>
+                            {prog && (
+                              <div className="mt-1.5">
+                                <p className="text-[10px] text-muted-foreground mb-0.5">{prog.label}</p>
+                                <div className={`h-1.5 rounded-full ${prog.bgClass}`}>
+                                  <div
+                                    className={`h-1.5 rounded-full transition-all duration-500 ${prog.barClass}`}
+                                    style={{ width: `${prog.pct}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
+                        <p className="text-sm font-bold tabular-nums ml-3">${r.ingresos.toLocaleString()}</p>
                       </div>
-                      <p className="text-sm font-bold tabular-nums">${r.ingresos.toLocaleString()}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

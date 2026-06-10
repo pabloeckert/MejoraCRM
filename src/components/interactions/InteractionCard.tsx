@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   MessageCircle, Phone, Mail, Globe, Video, AlertCircle,
-  FileText, ShoppingCart, Clock, X, Pencil, Trash2,
+  FileText, ShoppingCart, Clock, X, Pencil, Trash2, Timer,
 } from "lucide-react";
 import { isBefore, differenceInDays } from "date-fns";
 import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
@@ -37,6 +37,15 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
   const isOverdue = i.follow_up_date && isBefore(new Date(i.follow_up_date), new Date());
   const daysOverdue = isOverdue ? differenceInDays(new Date(), new Date(i.follow_up_date)) : 0;
 
+  const OPEN_RESULTS = ["presupuesto", "seguimiento", "sin_respuesta"];
+  const daysAging = OPEN_RESULTS.includes(i.result)
+    ? differenceInDays(new Date(), new Date(i.interaction_date))
+    : 0;
+  const showAgingBadge = daysAging >= 8;
+  const agingClass = daysAging > 30
+    ? "text-destructive border-destructive/40"
+    : "text-amber-600 border-amber-400/40";
+
   return (
     <Card
       className={`border-border/50 hover:shadow-sm transition-all duration-200 animate-fade-in ${
@@ -68,6 +77,12 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
                 <Badge variant="destructive" className="text-xs">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   {daysOverdue}d vencido
+                </Badge>
+              )}
+              {showAgingBadge && !isOverdue && (
+                <Badge variant="outline" className={`text-xs ${agingClass}`}>
+                  <Timer className="h-3 w-3 mr-1" />
+                  {daysAging}d
                 </Badge>
               )}
             </div>

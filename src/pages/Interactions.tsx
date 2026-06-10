@@ -4,16 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, MessageCircle, AlertCircle, RefreshCw } from "lucide-react";
+import { Plus, Search, MessageCircle, AlertCircle, RefreshCw, List, LayoutGrid } from "lucide-react";
 import { Constants } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { useInteractionsInfinite, flattenInteractionPages, useDeleteInteraction } from "@/hooks/useInteractions";
 import { useClientsMinimal } from "@/hooks/useClients";
 import { useActiveProducts } from "@/hooks/useProducts";
 import { useClientPresupuestos } from "@/hooks/useInteractions";
-import { InteractionCard, InteractionForm, RESULT_LABELS, type Result } from "@/components/interactions";
+import { InteractionCard, InteractionForm, PipelineKanban, RESULT_LABELS, type Result } from "@/components/interactions";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
 import { startOfMonth, subMonths, startOfWeek, startOfDay } from "date-fns";
+
+type ViewMode = "list" | "kanban";
+const VIEW_KEY = "interactions_view";
 
 type Period = "all" | "hoy" | "semana" | "mes" | "trimestre" | "semestre" | "año";
 
@@ -50,6 +53,14 @@ export default function Interactions() {
   const [period, setPeriod] = useState<Period>("all");
   const [formClientId, setFormClientId] = useState<string | undefined>();
   const [formResult, setFormResult] = useState<string | undefined>();
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    () => (localStorage.getItem(VIEW_KEY) as ViewMode) ?? "list"
+  );
+
+  const handleViewMode = (mode: ViewMode) => {
+    localStorage.setItem(VIEW_KEY, mode);
+    setViewMode(mode);
+  };
 
   const { data: interactionsInfinite, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInteractionsInfinite();
   const deleteMutation = useDeleteInteraction();
@@ -98,9 +109,28 @@ export default function Interactions() {
             {overdueCount > 0 && <span className="text-destructive ml-2 font-medium">• {overdueCount} seguimientos vencidos</span>}
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)} className="h-9">
-          <Plus className="h-4 w-4 mr-1" /> Nueva interacción
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* View toggle */}
+          <div className="flex border border-border rounded-lg overflow-hidden">
+            <button
+              className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
+              onClick={() => handleViewMode("list")}
+              title="Vista lista"
+            >
+              <List className="h-4 w-4" />
+            </button>
+            <button
+              className={`p-2 transition-colors ${viewMode === "kanban" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
+              onClick={() => handleViewMode("kanban")}
+              title="Vista pipeline"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
+          <Button onClick={() => setDialogOpen(true)} className="h-9">
+            <Plus className="h-4 w-4 mr-1" /> Nueva interacción
+          </Button>
+        </div>
       </div>
 
       {/* Filters row */}
@@ -141,33 +171,44 @@ export default function Interactions() {
         </Select>
       </div>
 
-      <div className="space-y-2">
-        {filtered.map((i: any, idx: number) => (
-          <InteractionCard
-            key={i.id}
-            interaction={i}
-            index={idx}
-            onNavigate={navigate}
-            onEdit={(interaction) => {
-              setEditingInteraction(interaction);
-              setDialogOpen(true);
-            }}
-            onDelete={(interaction) => deleteMutation.mutate(interaction.id)}
-          />
-        ))}
-        {filtered.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <MessageCircle className="h-10 w-10 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Sin interacciones encontradas</p>
+      {viewMode === "kanban" ? (
+        <PipelineKanban
+          interactions={filtered}
+          onEdit={(interaction) => {
+            setEditingInteraction(interaction);
+            setDialogOpen(true);
+          }}
+        />
+      ) : (
+        <>
+          <div className="space-y-2">
+            {filtered.map((i: any, idx: number) => (
+              <InteractionCard
+                key={i.id}
+                interaction={i}
+                index={idx}
+                onNavigate={navigate}
+                onEdit={(interaction) => {
+                  setEditingInteraction(interaction);
+                  setDialogOpen(true);
+                }}
+                onDelete={(interaction) => deleteMutation.mutate(interaction.id)}
+              />
+            ))}
+            {filtered.length === 0 && (
+              <div className="text-center py-16 text-muted-foreground">
+                <MessageCircle className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p className="text-sm">Sin interacciones encontradas</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      <InfiniteScrollTrigger
-        hasNextPage={!!hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        fetchNextPage={fetchNextPage}
-      />
+          <InfiniteScrollTrigger
+            hasNextPage={!!hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
+        </>
+      )}
 
       <InteractionForm
         open={dialogOpen}
