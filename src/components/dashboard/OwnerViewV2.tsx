@@ -7,8 +7,8 @@ import {
   PieChart, Pie, Cell, Legend,
 } from "recharts";
 import {
-  TrendingUp, TrendingDown, DollarSign, FileText, Clock, Users, Trophy, AlertCircle,
-  UserPlus, UserCheck, BarChart3, UserX,
+  TrendingUp, DollarSign, FileText, Clock, Users, Trophy, AlertCircle,
+  UserPlus, UserCheck, BarChart3, UserX, Activity,
 } from "lucide-react";
 import { isBefore, differenceInDays, format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
@@ -203,7 +203,88 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
         </div>
       </div>
 
-      {/* BLOQUE 2: Gestión Comercial + Rendimiento del Equipo */}
+      {/* BLOQUE 2: Pipeline activo */}
+      {(() => {
+        const OPEN = ["presupuesto", "seguimiento", "sin_respuesta"] as const;
+        const stages = OPEN.map((result) => {
+          const items = interactions.filter((i) => i.result === result);
+          const amount = items.reduce((s, i) => s + (Number(i.total_amount) || 0), 0);
+          const avgAging = items.length
+            ? Math.round(items.reduce((s, i) => s + differenceInDays(new Date(), new Date(i.interaction_date)), 0) / items.length)
+            : 0;
+          return { result, items, amount, avgAging };
+        });
+        const maxAmount = Math.max(...stages.map((s) => s.amount), 1);
+        const totalPipeline = stages.reduce((s, st) => s + st.amount, 0);
+        const forecast = kpis.tasaConversion > 0
+          ? Math.round(stages[0].amount * (kpis.tasaConversion / 100))
+          : null;
+
+        const STAGE_CFG = {
+          presupuesto:   { label: "Presupuestos",   bar: "bg-amber-400",    text: "text-amber-700",  bg: "bg-amber-50",  Icon: FileText   },
+          seguimiento:   { label: "En seguimiento", bar: "bg-primary",      text: "text-primary",    bg: "bg-primary/5", Icon: Clock      },
+          sin_respuesta: { label: "Sin respuesta",  bar: "bg-muted-foreground/40", text: "text-muted-foreground", bg: "bg-muted/20", Icon: AlertCircle },
+        } as const;
+
+        return (
+          <div>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Activity className="h-4 w-4" /> Pipeline activo
+            </h2>
+            <Card className="border-border/50">
+              <CardContent className="p-5 space-y-4">
+                {stages.map(({ result, items, amount, avgAging }) => {
+                  const cfg = STAGE_CFG[result];
+                  const pct = maxAmount > 0 ? Math.round((amount / maxAmount) * 100) : 0;
+                  return (
+                    <div key={result} className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={`p-1.5 rounded-md ${cfg.bg}`}>
+                            <cfg.Icon className={`h-3.5 w-3.5 ${cfg.text}`} />
+                          </div>
+                          <span className="text-sm font-medium">{cfg.label}</span>
+                          <Badge variant="secondary" className="text-xs tabular-nums">{items.length}</Badge>
+                          {avgAging > 0 && (
+                            <span className="text-[10px] text-muted-foreground">
+                              ~{avgAging}d promedio
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-sm font-bold tabular-nums shrink-0 ${cfg.text}`}>
+                          {amount > 0 ? `$${amount.toLocaleString()}` : "—"}
+                        </span>
+                      </div>
+                      <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${cfg.bar}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="border-t border-border/50 pt-3 flex items-center justify-between flex-wrap gap-3">
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Pipeline total</p>
+                    <p className="text-lg font-bold">${totalPipeline.toLocaleString()}</p>
+                  </div>
+                  {forecast !== null && forecast > 0 && (
+                    <div className="space-y-0.5 text-right">
+                      <p className="text-xs text-muted-foreground">Forecast estimado</p>
+                      <p className="text-lg font-bold text-success">${forecast.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground">Presupuestos × {kpis.tasaConversion}% conversión</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
+
+      {/* BLOQUE 4: Gestión Comercial + Rendimiento del Equipo */}
       <div>
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
           <BarChart3 className="h-4 w-4" /> Gestión comercial y rendimiento del equipo
@@ -383,7 +464,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Ventas por producto</CardTitle></CardHeader>
             <CardContent className="h-64">
               {productData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(325,50%,36%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%"><BarChart data={productData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill={CHART_COLORS[0]} radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
               ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>}
             </CardContent>
           </Card>
@@ -392,7 +473,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Ventas por zona</CardTitle></CardHeader>
             <CardContent className="h-64">
               {zoneData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%"><BarChart data={zoneData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill="hsl(142,60%,40%)" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%"><BarChart data={zoneData} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" tickFormatter={(v) => `$${Number(v).toLocaleString()}`} fontSize={11} /><YAxis type="category" dataKey="name" width={100} fontSize={11} tickLine={false} /><RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} /><Bar dataKey="value" fill={CHART_COLORS[2]} radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer>
               ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas por zona</div>}
             </CardContent>
           </Card>
