@@ -1,9 +1,10 @@
-import { differenceInDays, isBefore, isToday, format } from "date-fns";
+import { differenceInDays, differenceInHours, isBefore, isToday, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Timer, FileText, Clock, AlertCircle, ShoppingCart, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MEDIUM_LABELS } from "@/lib/constants";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { MEDIUM_LABELS, AGING_THRESHOLDS, CURRENCY_SYMBOLS } from "@/lib/constants";
 import type { Interaction } from "@/lib/types";
 
 interface PipelineKanbanProps {
@@ -61,15 +62,37 @@ const COLUMNS = [
 
 const OPEN_RESULTS = new Set(["presupuesto", "seguimiento", "sin_respuesta"]);
 
+function getCardAmount(i: Interaction): number {
+  return i.result === "no_interesado"
+    ? (Number(i.estimated_loss) || Number(i.total_amount) || 0)
+    : (Number(i.total_amount) || 0);
+}
+
 function sortCards(cards: Interaction[]): Interaction[] {
   return [...cards].sort((a, b) => {
     const aOverdue = a.follow_up_date && isBefore(new Date(a.follow_up_date), new Date()) && !isToday(new Date(a.follow_up_date));
     const bOverdue = b.follow_up_date && isBefore(new Date(b.follow_up_date), new Date()) && !isToday(new Date(b.follow_up_date));
     if (aOverdue && !bOverdue) return -1;
     if (!aOverdue && bOverdue) return 1;
-    // Oldest interaction first (most aged = highest priority)
+    // Among same urgency tier: sort by amount descending
+    const amountDiff = getCardAmount(b) - getCardAmount(a);
+    if (amountDiff !== 0) return amountDiff;
+    // Tiebreaker: oldest interaction first
     return new Date(a.interaction_date).getTime() - new Date(b.interaction_date).getTime();
   });
+}
+
+function formatColumnTotals(cards: Interaction[]): string {
+  const totals: Record<string, number> = {};
+  for (const i of cards) {
+    const amt = getCardAmount(i);
+    if (amt <= 0) continue;
+    const cur = i.currency || "ARS";
+    totals[cur] = (totals[cur] ?? 0) + amt;
+  }
+  return Object.entries(totals)
+    .map(([cur, val]) => `${CURRENCY_SYMBOLS[cur] ?? cur} ${val.toLocaleString()}`)
+    .join("  ·  ");
 }
 
 function KanbanCard({ i, onEdit }: { i: Interaction; onEdit: (i: Interaction) => void }) {
@@ -78,14 +101,15 @@ function KanbanCard({ i, onEdit }: { i: Interaction; onEdit: (i: Interaction) =>
     isBefore(new Date(i.follow_up_date), new Date()) &&
     !isToday(new Date(i.follow_up_date));
   const daysOverdue = isOverdue ? differenceInDays(new Date(), new Date(i.follow_up_date!)) : 0;
-  const daysAging = OPEN_RESULTS.has(i.result)
-    ? differenceInDays(new Date(), new Date(i.interaction_date))
+  const hoursAging = OPEN_RESULTS.has(i.result)
+    ? differenceInHours(new Date(), new Date(i.interaction_date))
     : 0;
-  const showAgingBadge = daysAging >= 8 && !isOverdue;
+  const daysAging = Math.floor(hoursAging / 24);
+  const showAgingBadge = hoursAging >= AGING_THRESHOLDS.AMBER_HOURS && !isOverdue;
+  const isRedAging = hoursAging >= AGING_THRESHOLDS.RED_HOURS;
+  const agingLabel = daysAging >= 1 ? `${daysAging}d` : `${hoursAging}h`;
 
-  const displayAmount = i.result === "no_interesado"
-    ? (Number(i.estimated_loss) || Number(i.total_amount) || 0)
-    : (Number(i.total_amount) || 0);
+  const displayAmount = getCardAmount(i);
 
   return (
     <Card
@@ -127,17 +151,24 @@ function KanbanCard({ i, onEdit }: { i: Interaction; onEdit: (i: Interaction) =>
             {MEDIUM_LABELS[i.medium] ?? i.medium}
           </span>
           {showAgingBadge && (
-            <Badge
-              variant="outline"
-              className={`text-[10px] px-1 py-0 h-4 ${
-                daysAging > 30
-                  ? "text-destructive border-destructive/40"
-                  : "text-amber-600 border-amber-400/40"
-              }`}
-            >
-              <Timer className="h-2.5 w-2.5 mr-0.5" />
-              {daysAging}d
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] px-1 py-0 h-4 cursor-default ${
+                    isRedAging
+                      ? "text-destructive border-destructive/40"
+                      : "text-amber-600 border-amber-400/40"
+                  }`}
+                >
+                  <Timer className="h-2.5 w-2.5 mr-0.5" />
+                  {agingLabel}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-48 text-center text-xs">
+                {isRedAging ? "Acción urgente" : "Requiere seguimiento"} — sin actividad hace {agingLabel}
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </CardContent>
@@ -151,14 +182,7 @@ export function PipelineKanban({ interactions, onEdit }: PipelineKanbanProps) {
       <div className="flex gap-3 min-w-max">
         {COLUMNS.map((col) => {
           const cards = sortCards(interactions.filter((i) => i.result === col.id));
-          const totalAmount = cards.reduce(
-            (s, i) =>
-              s +
-              (col.id === "no_interesado"
-                ? Number(i.estimated_loss) || Number(i.total_amount) || 0
-                : Number(i.total_amount) || 0),
-            0
-          );
+          const columnTotals = formatColumnTotals(cards);
           const overdueInCol = cards.filter(
             (i) =>
               i.follow_up_date &&
@@ -189,9 +213,9 @@ export function PipelineKanban({ interactions, onEdit }: PipelineKanbanProps) {
                     </span>
                   </div>
                 </div>
-                {totalAmount > 0 && (
+                {columnTotals && (
                   <p className={`text-xs font-medium mt-1 tabular-nums ${col.amountStyle}`}>
-                    $ {totalAmount.toLocaleString()}
+                    {columnTotals}
                   </p>
                 )}
               </div>

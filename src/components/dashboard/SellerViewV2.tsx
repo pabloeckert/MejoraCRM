@@ -9,6 +9,7 @@ import { isBefore, isToday, differenceInDays, startOfMonth, format } from "date-
 import { es } from "date-fns/locale";
 import { RESULT_LABELS } from "@/lib/constants";
 import type { Interaction } from "@/lib/types";
+import { FocusDayWidget } from "./FocusDayWidget";
 
 interface SellerViewV2Props {
   interactions: Interaction[];
@@ -85,6 +86,9 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
           <Plus className="h-4 w-4 mr-1.5" /> Registrar interacción
         </Button>
       </div>
+
+      {/* Mi Foco de Hoy */}
+      <FocusDayWidget interactions={interactions} navigate={navigate} />
 
       {/* ──────────────────────────────────────────────
           SECCIÓN 1: Tus ventas (verde/naranja/rojo)

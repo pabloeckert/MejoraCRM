@@ -124,6 +124,13 @@ export const LOSS_REASONS = [
   "Otro",
 ];
 
+/* ── Deal Aging Thresholds ───────────────────────────────────── */
+
+export const AGING_THRESHOLDS = {
+  AMBER_HOURS: 48,   // 2 días — negocio en riesgo de enfriarse
+  RED_HOURS: 120,    // 5 días — acción urgente requerida
+} as const;
+
 /* ── Chart Colors ────────────────────────────────────────────── */
 
 export const CHART_COLORS = [

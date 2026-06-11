@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   MessageCircle, Phone, Mail, Globe, Video, AlertCircle,
   FileText, ShoppingCart, Clock, X, Pencil, Trash2, Timer,
 } from "lucide-react";
-import { isBefore, differenceInDays } from "date-fns";
-import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS } from "@/lib/constants";
+import { isBefore, differenceInDays, differenceInHours } from "date-fns";
+import { RESULT_LABELS, RESULT_STYLES, MEDIUM_LABELS, AGING_THRESHOLDS } from "@/lib/constants";
 import type { Result } from "@/lib/constants";
 
 import { LucideIcon } from "lucide-react";
@@ -38,13 +39,19 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
   const daysOverdue = isOverdue ? differenceInDays(new Date(), new Date(i.follow_up_date)) : 0;
 
   const OPEN_RESULTS = ["presupuesto", "seguimiento", "sin_respuesta"];
-  const daysAging = OPEN_RESULTS.includes(i.result)
-    ? differenceInDays(new Date(), new Date(i.interaction_date))
+  const hoursAging = OPEN_RESULTS.includes(i.result)
+    ? differenceInHours(new Date(), new Date(i.interaction_date))
     : 0;
-  const showAgingBadge = daysAging >= 8;
-  const agingClass = daysAging > 30
+  const daysAging = Math.floor(hoursAging / 24);
+  const showAgingBadge = hoursAging >= AGING_THRESHOLDS.AMBER_HOURS;
+  const isRedAging = hoursAging >= AGING_THRESHOLDS.RED_HOURS;
+  const agingClass = isRedAging
     ? "text-destructive border-destructive/40"
     : "text-amber-600 border-amber-400/40";
+  const agingLabel = daysAging >= 1 ? `${daysAging}d` : `${hoursAging}h`;
+  const agingTooltip = isRedAging
+    ? `Sin actividad hace ${agingLabel}. Acción urgente — este negocio está en riesgo de perderse.`
+    : `Sin actividad hace ${agingLabel}. Conviene retomar contacto pronto.`;
 
   return (
     <Card
@@ -80,10 +87,17 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
                 </Badge>
               )}
               {showAgingBadge && !isOverdue && (
-                <Badge variant="outline" className={`text-xs ${agingClass}`}>
-                  <Timer className="h-3 w-3 mr-1" />
-                  {daysAging}d
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className={`text-xs cursor-default ${agingClass}`}>
+                      <Timer className="h-3 w-3 mr-1" />
+                      {agingLabel}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-56 text-center">
+                    {agingTooltip}
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
             {i.total_amount && (

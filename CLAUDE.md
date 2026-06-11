@@ -228,17 +228,20 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 - [x] **PR2** — Auth split-screen + OnboardingWizard como Sheet lateral (commit `3d3fc9c`, en prod)
 
 **Features PM entregadas (fuera del roadmap UX):**
-- [x] Deal aging badge en InteractionCard (8-30d ámbar, >30d rojo)
-- [x] WhatsApp/email clickables en ClientDetailDialog
+- [x] Deal aging badge en InteractionCard (8-30d ámbar, >30d rojo) → ajustado a 48h/120h con tooltip
+- [x] WhatsApp/email clickables en ClientDetailDialog → evolucionado a plantillas dinámicas
 - [x] Dashboard: persistencia de período en localStorage, card "Activos fríos 30d+"
-- [x] Pipeline Kanban en /interactions (toggle list/kanban)
+- [x] Pipeline Kanban en /interactions (toggle list/kanban) → con totales por moneda y sort financiero
 - [x] Cuotas mensuales por vendedor (migration + Settings admin + dashboard progress bars)
+- [x] **AGING_THRESHOLDS** en `constants.ts` (48h ámbar / 120h rojo) — centralizados y fáciles de ajustar
+- [x] **Mi Foco de Hoy** (`FocusDayWidget.tsx`) — primera sección del dashboard vendedor, top 5 oportunidades priorizadas
+- [x] **InteractionForm single-page** — wizard de 4 pasos reemplazado por formulario compacto en una pantalla, combobox de cliente con búsqueda
+- [x] **WhatsApp Templates** (`WhatsAppTemplates.tsx`) — picker de plantillas dinámicas con variables de cliente/vendedor/monto; plantilla "SUGERIDA" según última interacción
 
 **Pendientes UX (orden sugerido):**
 - [ ] **PR1** — AppLayout max-w-screen-2xl, AppSidebar con grupos y collapse persistente, BottomNav pulido, CommandPalette con grupos
 - [ ] **PR3** — Dashboard: grid 12-col, KPIs compactos con delta, funnel izq + seguimientos der, Recharts unificado, empty states
 - [ ] **PR4** — Listados: toolbar unificada, tabla h-12 con bulk-actions, InfiniteScroll + contador, cards mobile con swipe
-- [ ] **PR5** — InteractionForm wizard: stepper sticky, resumen lateral en vivo, footer fijo, confirmación tipo ticket
 - [ ] **PR6** — Feedback: Toaster unificado, Skeletons revisados, ErrorBoundary con retry, NotificationsPanel por día
 - [ ] **PR7** — Dark mode: auditar `.dark` en `:root`, switch en Settings
 - [ ] **PR8** — Microinteracciones: transiciones 150ms, focus ring, loading buttons, PWAInstallBanner como toast
@@ -256,3 +259,15 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 - Sombras unificadas a `shadow-sm`.
 - Focus: `ring-2 ring-ring ring-offset-2` en todos los interactivos.
 - Transiciones: `150ms ease-out` hover/focus, `200ms` Sheet/Dialog.
+
+## Directiva de Producto y Visión Comercial (Segunda Opinión)
+
+Para maximizar el impacto de conversión del pipeline y eliminar fricción operativa de los vendedores, consultar el archivo detallado de especificaciones en:
+*   [COMMERCIAL_ROADMAP.md](file:///C:/Github/MejoraCRM/COMMERCIAL_ROADMAP.md)
+
+### Tareas Prioritarias de Negocio (estado):
+1.  ~~**Rediseñar el Formulario de Interacciones**~~ ✅ entregado 2026-06-11
+2.  ~~**Visibilidad Financiera en Kanban**~~ ✅ entregado 2026-06-11
+3.  ~~**Ajuste del Deal Aging**~~ ✅ entregado 2026-06-11
+4.  ~~**Automatización de WhatsApp**~~ ✅ entregado 2026-06-11
+

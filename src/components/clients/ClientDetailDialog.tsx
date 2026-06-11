@@ -3,11 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MEDIUM_LABELS, RESULT_LABELS, RESULT_STYLES, STATUS_LABELS, STATUS_STYLES } from "@/lib/constants";
-import { MapPin, Mail, Phone, Building2, MessageCircle } from "lucide-react";
+import { MapPin, Mail, Building2 } from "lucide-react";
+import { WhatsAppTemplates } from "./WhatsAppTemplates";
 
-function toWhatsAppUrl(phone: string): string {
-  return `https://wa.me/${phone.replace(/\D/g, "")}`;
-}
 import type { Database } from "@/integrations/supabase/types";
 import { MEMORY_DEMO_INTERACTIONS } from "@/hooks/useInteractions";
 
@@ -60,15 +58,11 @@ export function ClientDetailDialog({ client, onClose }: ClientDetailDialogProps)
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {client.whatsapp && (
-                <a
-                  href={toWhatsAppUrl(client.whatsapp)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg text-sm hover:bg-green-500/10 hover:text-green-700 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MessageCircle className="h-3.5 w-3.5 shrink-0" /> {client.whatsapp}
-                </a>
+                <WhatsAppTemplates
+                  phone={client.whatsapp}
+                  clientName={client.name}
+                  lastInteraction={interactions[0]}
+                />
               )}
               {client.email && (
                 <a
