@@ -63,7 +63,7 @@ Con `VITE_DEMO_MODE=true` (valor por defecto) la app usa datos de `src/demo/demo
 
 ### Flujo de autenticación y roles
 
-`AuthContext` (`src/contexts/AuthContext.tsx`) expone `user`, `session`, `role` (`admin` | `vendedor`) y `profile`. En **demo mode** inyecta un usuario ficticio y devuelve datos de `src/demo/demoData.ts` sin llamar a Supabase.
+`AuthContext` (`src/contexts/AuthContext.tsx`) expone `user`, `session`, `role` (`admin` | `vendedor`), `profile` y `organizationId`. En **demo mode** inyecta un usuario ficticio y devuelve datos de `src/demo/demoData.ts` sin llamar a Supabase.
 
 El sidebar (`src/components/AppSidebar.tsx`) filtra ítems según `role` — cada ítem puede tener un array `roles: ["admin", "supervisor"]`; si el campo está ausente, el ítem es visible para todos. Rutas con `roles: ["admin", "supervisor"]`: `/reports`, `/products`, `/whatsapp-link`, `/settings`.
 
@@ -97,6 +97,7 @@ TanStack Query global: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retr
 - `["notifications-data", "demo" | "live"]`
 - `["products", "demo" | "live"]`, `["products-active", "demo" | "live"]`
 - `["profiles", "demo" | "live"]` — useProfiles (id + nombre de vendedores)
+- `["organization", orgId | "demo"]` — useOrganization (nombre + plan de la org)
 
 Las mutaciones invalidan todas las query keys relacionadas (ej. `useDeactivateClient` invalida `clients`, `clients-infinite` y `dashboard-data`).
 
@@ -104,7 +105,7 @@ Las páginas de infinite query se aplanan con `flattenClientPages(data)` / `flat
 
 **Demo mode con mutaciones en memoria:** en demo mode, los hooks de clientes e interacciones usan stores en memoria (`MEMORY_DEMO_CLIENTS`, `MEMORY_DEMO_INTERACTIONS`) inicializados desde `demoData.ts`. Las funciones `addDemoClient` / `addDemoInteraction` (exportadas desde los hooks) agregan al store en memoria, lo que permite "crear y ver" durante la sesión sin persistencia. Al recargar la página, vuelve a los datos originales de `demoData.ts`.
 
-El mismo patrón aplica a `MEMORY_DEMO_PROFILES` + `setDemoTarget` para cuotas mensuales.
+El mismo patrón aplica a `MEMORY_DEMO_PROFILES` + `setDemoTarget` para cuotas mensuales, y `MEMORY_DEMO_ORG` + `useUpdateOrganization` para el nombre de la organización.
 
 ### Estructura de páginas y subcomponentes
 
@@ -177,16 +178,27 @@ Dos archivos de lógica pura — ninguno depende de React ni Supabase:
 - **BottomNav** (`src/components/BottomNav.tsx`): barra de navegación mobile (`md:hidden`), fija en la parte inferior. Incluye un FAB central que navega a `/interactions`. Muestra un punto rojo en "Historial" si hay seguimientos vencidos. No se renderiza en `/auth`, `/privacy` ni `/terms`.
 - **PipelineKanban** (`src/components/interactions/PipelineKanban.tsx`): vista alternativa en `/interactions`, toggle list/kanban persistido en `localStorage["interactions_view"]`. 5 columnas: presupuesto / seguimiento / sin_respuesta / venta / no_interesado.
 - **Cuotas mensuales** (`useProfiles` + `useUpdateTarget`): campo `monthly_target` en `profiles`. Admin las gestiona en Settings. Dashboard admin muestra barra de progreso en ranking; vendedor ve 4ª card "Tu cuota". Semáforo: ≥100% verde · 60-99% ámbar · <60% rojo.
+- **Multi-organización** (`useOrganization` + `useUpdateOrganization`): cada cuenta tiene su propia `organization` en DB. `organizationId` expuesto en `AuthContext`. Admin puede editar el nombre de la empresa en Settings → card "Organización". El signup pide "Nombre de empresa" → se crea la org automáticamente via trigger `handle_new_user`. Demo mode usa `DEMO_ORG_ID = "demo-org-001"` y `MEMORY_DEMO_ORG`.
 
 ### Base de datos
 
-Tablas principales: `clients`, `interactions`, `interaction_lines`, `products`, `profiles`.
+Tablas principales: `organizations`, `clients`, `interactions`, `interaction_lines`, `products`, `profiles`.
 
 Enums clave: `app_role` (admin, vendedor, supervisor), `interaction_result` (presupuesto, venta, seguimiento, sin_respuesta, no_interesado).
 
-RPC functions: `get_dashboard_data()`, `get_user_role()`, `get_notifications_data()`, `request_account_deletion()`.
+RPC functions: `get_dashboard_data()`, `get_user_role()`, `get_notifications_data()`, `request_account_deletion()`, `create_organization_with_admin(org_name)`.
 
-Migraciones en `supabase/migrations/` (11 archivos). La última (`20260610120000_add_monthly_target_to_profiles.sql`) agrega `monthly_target NUMERIC(15,2) NULL` a `profiles`. `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
+Helper functions: `current_org_id()` — retorna el `organization_id` del usuario autenticado (usado en RLS y RPCs). `has_role(_user_id, _role)` — org-aware, filtra por `organization_id`.
+
+**Multitenancy:** todas las tablas de datos tienen columna `organization_id UUID`. Las RLS policies filtran por `organization_id = current_org_id()`. El trigger `set_organization_id` auto-asigna el org_id en inserts. El trigger `handle_new_user` crea una organización nueva en cada signup.
+
+Migraciones en `supabase/migrations/` (14 archivos). Las últimas:
+- `20260610120000_add_monthly_target_to_profiles.sql` — agrega `monthly_target`
+- `20260612000001_create_organizations.sql` — tabla organizations, columnas org_id, helpers
+- `20260612000002_update_rls_multitenancy.sql` — RLS policies org-aware
+- `20260612000003_update_rpcs_multitenancy.sql` — RPCs con filtro de org
+
+**Supabase project ref:** `fkjuswkjzaeuogctsxpw` (sa-east-1). `supabase/seed.sql` tiene datos de ejemplo con UUIDs placeholder — reemplazar con UUIDs reales antes de usar en producción.
 
 ### Tests unitarios
 
@@ -218,7 +230,7 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 ### Infraestructura / assets
 - [ ] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) — reemplazar con logo MC real
 - [ ] Favicon (`public/favicon.ico`) — reemplazar con logo MC
-- [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción
+- [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción (incluir organization_id)
 - [ ] Google Calendar sync — registrar `VITE_GOOGLE_CLIENT_ID` en Google Cloud Console y configurar en Vercel
 - [ ] Push notifications servidor — configurar VAPID keys en `src/lib/notifications.ts`
 
@@ -237,6 +249,7 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 - [x] **Mi Foco de Hoy** (`FocusDayWidget.tsx`) — primera sección del dashboard vendedor, top 5 oportunidades priorizadas
 - [x] **InteractionForm single-page** — wizard de 4 pasos reemplazado por formulario compacto en una pantalla, combobox de cliente con búsqueda
 - [x] **WhatsApp Templates** (`WhatsAppTemplates.tsx`) — picker de plantillas dinámicas con variables de cliente/vendedor/monto; plantilla "SUGERIDA" según última interacción
+- [x] **Multi-organización** — tabla `organizations`, RLS org-aware, `organizationId` en AuthContext, `useOrganization` hook, campo empresa en signup, card "Organización" en Settings (commit `dfa1b2a`, en prod)
 
 **Pendientes UX (orden sugerido):**
 - [ ] **PR1** — AppLayout max-w-screen-2xl, AppSidebar con grupos y collapse persistente, BottomNav pulido, CommandPalette con grupos
