@@ -21,6 +21,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [role, setRole] = useState<string>("vendedor");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export default function Auth() {
         email,
         password,
         options: {
-          data: { full_name: fullName, role },
+          data: { full_name: fullName, role, company_name: companyName || "Mi Empresa" },
           emailRedirectTo: window.location.origin,
         },
       });
@@ -82,17 +83,29 @@ export default function Auth() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-1.5">
-                <Label htmlFor="fullName">Nombre completo</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  placeholder="Juan Pérez"
-                  className="h-9"
-                />
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullName">Nombre completo</Label>
+                  <Input
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    placeholder="Juan Pérez"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="companyName">Nombre de empresa</Label>
+                  <Input
+                    id="companyName"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder="Mi Empresa S.A."
+                    className="h-9"
+                  />
+                </div>
+              </>
             )}
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>

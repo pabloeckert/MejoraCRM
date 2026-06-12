@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText, PlayCircle, Users } from "lucide-react";
+import { DollarSign, Calendar, Contact, Save, Link2, Unlink, Bell, BellOff, Download, Smartphone, Trash2, Shield, FileText, PlayCircle, Users, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { isPushSupported, getNotificationPermission, requestNotificationPermission } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfiles, useUpdateTarget } from "@/hooks/useProfiles";
+import { useOrganization, useUpdateOrganization } from "@/hooks/useOrganization";
 
 function PWAInstallButton() {
   const { isInstallable, isInstalled, install } = usePWAInstall();
@@ -50,6 +51,9 @@ export default function Settings() {
   const { data: profilesWithTarget } = useProfiles();
   const { mutate: updateTarget, isPending: savingTarget } = useUpdateTarget();
   const [targetDraft, setTargetDraft] = useState<Record<string, string>>({});
+  const { data: org } = useOrganization();
+  const { mutate: updateOrg, isPending: savingOrg } = useUpdateOrganization();
+  const [orgNameDraft, setOrgNameDraft] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [exchangeRate, setExchangeRate] = useState(() => {
@@ -312,6 +316,47 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Organización — solo admin */}
+      {role === "admin" && (
+        <Card className="border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              Organización
+              {org?.plan && (
+                <Badge variant="outline" className="ml-auto text-xs capitalize">
+                  {org.plan}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="orgName">Nombre de la empresa</Label>
+              <Input
+                id="orgName"
+                value={orgNameDraft ?? org?.name ?? ""}
+                onChange={(e) => setOrgNameDraft(e.target.value)}
+                className="h-9 max-w-sm"
+                placeholder="Mi Empresa S.A."
+              />
+            </div>
+            <Button
+              size="sm"
+              disabled={savingOrg || orgNameDraft === null || orgNameDraft === org?.name}
+              onClick={() => {
+                if (orgNameDraft !== null && orgNameDraft !== org?.name) {
+                  updateOrg(orgNameDraft, { onSuccess: () => setOrgNameDraft(null) });
+                }
+              }}
+            >
+              <Save className="h-4 w-4 mr-1" />
+              {savingOrg ? "Guardando..." : "Guardar"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Cuotas mensuales — solo admin/supervisor */}
       {(role === "admin" || role === "supervisor") && (

@@ -3,6 +3,8 @@
  * Mock interactions, clients, profiles for preview/demo mode.
  */
 
+export const DEMO_ORG_ID = "demo-org-001";
+
 export const DEMO_OWNER = {
   id: "demo-owner-001",
   email: "dueno@mejoraok.com",

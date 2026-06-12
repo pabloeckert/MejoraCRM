@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { DEMO_OWNER, DEMO_SELLER } from "@/demo/demoData";
+import { DEMO_OWNER, DEMO_SELLER, DEMO_ORG_ID } from "@/demo/demoData";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -15,6 +15,7 @@ interface AuthContextType {
   session: Session | null;
   role: AppRole | null;
   profile: { full_name: string; avatar_url: string | null } | null;
+  organizationId: string | null;
   loading: boolean;
   signOut: () => Promise<void>;
   /** Demo mode only — toggle between owner and seller */
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   role: null,
   profile: null,
+  organizationId: null,
   loading: true,
   signOut: async () => {},
   demoRole: "admin",
@@ -68,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [profile, setProfile] = useState<{ full_name: string; avatar_url: string | null } | null>(null);
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [demoRole, setDemoRole] = useState<"admin" | "vendedor">("admin");
 
@@ -80,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(makeDemoSession(u));
     setRole(demo.role as AppRole);
     setProfile({ full_name: demo.full_name, avatar_url: null });
+    setOrganizationId(DEMO_ORG_ID);
     setLoading(false);
   }, [demoRole]);
 
@@ -87,10 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserData = async (userId: string) => {
     const [roleRes, profileRes] = await Promise.all([
       supabase.rpc("get_user_role", { _user_id: userId }),
-      supabase.from("profiles").select("full_name, avatar_url").eq("user_id", userId).single(),
+      supabase.from("profiles").select("full_name, avatar_url, organization_id").eq("user_id", userId).single(),
     ]);
     if (roleRes.data) setRole(roleRes.data);
-    if (profileRes.data) setProfile(profileRes.data);
+    if (profileRes.data) {
+      setProfile({ full_name: profileRes.data.full_name, avatar_url: profileRes.data.avatar_url });
+      setOrganizationId(profileRes.data.organization_id ?? null);
+    }
   };
 
   useEffect(() => {
@@ -138,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, session, role, profile, loading, signOut,
+      user, session, role, profile, organizationId, loading, signOut,
       demoRole, toggleDemoRole, isDemo: DEMO_MODE,
     }}>
       {children}
