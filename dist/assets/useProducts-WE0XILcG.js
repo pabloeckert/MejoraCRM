@@ -1,0 +1,1 @@
+import{u as e}from"./vendor-query-LJ3-CA1U.js";import{a8 as u}from"./index-Dm11B7c5.js";function c(){return e({queryKey:["products","demo"],queryFn:async()=>u})}function a(){return e({queryKey:["products-active","demo"],queryFn:async()=>u.filter(r=>r.active).map(r=>({id:r.id,name:r.name,unit_label:r.unit,currency:r.currency,price:r.price}))})}export{c as a,a as u};
