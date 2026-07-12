@@ -35,7 +35,7 @@
   :root {
     /* MC — Blanco Puro */
     --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
+    --foreground: 0 0% 17%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 5%;
@@ -43,8 +43,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 5%;
 
-    /* Primary: Azul Marino MC #020659 */
-    --primary: 237 96% 18%;
+    /* Primary: Azul MC 2026 #1A3D84 */
+    --primary: 220 65% 31%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 214 30% 94%;
@@ -54,22 +54,22 @@
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
 
-    /* Accent: Amarillo MC #F2BB16 */
-    --accent: 45 89% 52%;
+    /* Accent: Amarillo MC 2026 #F7CC13 */
+    --accent: 47 94% 52%;
     --accent-foreground: 0 0% 5%;
 
-    /* Destructive: Rojo MC #D9072D */
-    --destructive: 349 94% 44%;
+    /* Destructive: Rojo MC 2026 #E1061E */
+    --destructive: 350 97% 46%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 214 20% 88%;
     --input: 214 20% 88%;
-    --ring: 237 96% 18%;
+    --ring: 220 65% 31%;
 
     --radius: 0.625rem;
 
-    /* Sidebar: Azul Marino MC #020659 */
-    --sidebar-background: 237 96% 18%;
+    /* Sidebar: Azul MC 2026 #1A3D84 */
+    --sidebar-background: 220 65% 31%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 89% 52%;
     --sidebar-primary-foreground: 0 0% 5%;
@@ -85,10 +85,10 @@
     --warning: 28 89% 54%;
     --warning-foreground: 0 0% 100%;
 
-    --brand-navy: 237 96% 18%;
+    --brand-navy: 220 65% 31%;
     --brand-blue: 214 67% 33%;
-    --brand-gold: 45 89% 52%;
-    --brand-red: 349 94% 44%;
+    --brand-gold: 47 94% 52%;
+    --brand-red: 350 97% 46%;
     --brand-gray: 0 0% 40%;
     --brand-black: 0 0% 5%;
   }
@@ -100,20 +100,20 @@
     --card-foreground: 0 0% 92%;
     --popover: 237 35% 11%;
     --popover-foreground: 0 0% 92%;
-    --primary: 214 67% 55%;
+    --primary: 220 55% 55%;
     --primary-foreground: 0 0% 100%;
     --secondary: 237 30% 16%;
     --secondary-foreground: 0 0% 92%;
     --muted: 237 30% 16%;
     --muted-foreground: 0 0% 55%;
-    --accent: 45 89% 55%;
+    --accent: 47 94% 55%;
     --accent-foreground: 0 0% 5%;
-    --destructive: 349 80% 55%;
+    --destructive: 350 80% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 237 25% 20%;
     --input: 237 25% 20%;
-    --ring: 214 67% 55%;
-    --sidebar-background: 237 60% 10%;
+    --ring: 220 55% 55%;
+    --sidebar-background: 220 55% 12%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 45 89% 55%;
     --sidebar-primary-foreground: 0 0% 5%;

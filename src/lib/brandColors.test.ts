@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-const FORBIDDEN = ["#8B2D6B", "#8b2d6b", "hsl(325", "purple", "violet"];
-const MC_PRIMARY = "#020659";
+const FORBIDDEN = ["#8B2D6B", "#8b2d6b", "hsl(325", "purple", "violet", "#020659", "#020659".toLowerCase()];
+const MC_PRIMARY = "#1A3D84";
 
 describe("Brand colors — no violeta en archivos de marca", () => {
   it("index.html tiene theme-color correcto", () => {

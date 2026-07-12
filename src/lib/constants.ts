@@ -134,23 +134,23 @@ export const AGING_THRESHOLDS = {
 /* ── Chart Colors ────────────────────────────────────────────── */
 
 export const CHART_COLORS = [
-  "#020659",  // azul marino MC
-  "#F2BB16",  // amarillo MC
+  "#1A3D84",  // azul MC 2026
+  "#F7CC13",  // amarillo MC 2026
   "#2E7D32",  // verde
-  "#D9072D",  // rojo MC
-  "#1C4D8C",  // azul medio MC
-  "#656565",  // gris
+  "#E1061E",  // rojo MC 2026
+  "#2E5BA8",  // azul medio MC
+  "#6B7280",  // gris
 ];
 
 /* ── Brand Colors (for PDF/print) ────────────────────────────── */
 
 export const BRAND = {
-  primary: "#020659",
-  secondary: "#1C4D8C",
-  accent: "#F2BB16",
-  destructive: "#D9072D",
+  primary: "#1A3D84",
+  secondary: "#2E5BA8",
+  accent: "#F7CC13",
+  destructive: "#E1061E",
   success: "#2E7D32",
-  muted: "#656565",
+  muted: "#6B7280",
   background: "#FFFFFF",
   backgroundAlt: "#F2F2F2",
 } as const;
