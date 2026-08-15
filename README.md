@@ -4,6 +4,26 @@
 
 MejoraCRM es una plataforma de gestión de relaciones con clientes (CRM) diseñada para **Mejora Continua®**. Centraliza el flujo comercial, desde el primer contacto hasta el cierre de ventas, proporcionando KPIs en tiempo real y herramientas de seguimiento eficientes.
 
+## 🔗 MejoraSuite
+
+MejoraCRM es el **rector** de una suite de tres productos independientes que se embeben entre sí (repos, deploys y negocios propios — nada se fusiona en un monorepo):
+
+```
+MejoraCRM  ──embebe──▶  MejoraContactos   (iframe, /contactos)
+    │                        ▲
+    └──embebe──▶  MejoraWS   │
+                     │        │
+                     └───embebe (WebContentsView) / se embebe (bridge local)───┘
+```
+
+| Producto | Qué es | Repo |
+|---|---|---|
+| **MejoraCRM** (acá) | CRM interno, rector de la suite | privado |
+| **[MejoraContactos](https://github.com/pabloeckert/MejoraContactos)** | SaaS público de limpieza/dedup de contactos, embebido en `/contactos` | [pabloeckert/MejoraContactos](https://github.com/pabloeckert/MejoraContactos) |
+| **[MejoraWS](https://github.com/pabloeckert/MejoraWS)** | App de escritorio para campañas de WhatsApp, estado embebido en `/whatsapp-campanas` vía un bridge local | [pabloeckert/MejoraWS](https://github.com/pabloeckert/MejoraWS) |
+
+Arquitectura completa, decisiones y estado vivo de la fusión: [`mejorasuite/`](./mejorasuite/) (`ESPECIFICACION.md`, `PENDIENTES.md`, `DECISIONES.md`).
+
 ## 🚀 Stack Tecnológico
 
 - **Frontend:** React 18 (SWC) + TypeScript + Vite
