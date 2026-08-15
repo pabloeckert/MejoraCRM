@@ -8,8 +8,8 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 1. Rediseño del Registro de Interacciones (Fricción Cero)
 *   **Archivos de impacto:**
-    *   [InteractionForm.tsx](file:///C:/Github/MejoraCRM/src/components/interactions/InteractionForm.tsx) (Wizard actual)
-    *   [schemas.ts](file:///C:/Github/MejoraCRM/src/lib/schemas.ts) (Validaciones Zod de la interacción)
+    *   [InteractionForm.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/interactions/InteractionForm.tsx) (Wizard actual)
+    *   [schemas.ts](file:///C:/Github/Negocio/MejoraCRM/src/lib/schemas.ts) (Validaciones Zod de la interacción)
 *   **Problema comercial:** El wizard de 4 pasos desalienta la carga diaria de datos. Un vendedor necesita registrar gestiones comerciales en segundos, idealmente en una pantalla limpia y compacta.
 *   **Especificaciones de mejora:**
     *   Reemplazar la interfaz de 4 pasos por un formulario de **una sola pantalla** (Single Page Form).
@@ -23,8 +23,8 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 2. Envejecimiento Dinámico de Oportunidades (Deal Aging)
 *   **Archivos de impacto:**
-    *   [InteractionCard.tsx](file:///C:/Github/MejoraCRM/src/components/interactions/InteractionCard.tsx) (Generador del badge de tiempo)
-    *   [constants.ts](file:///C:/Github/MejoraCRM/src/lib/constants.ts) (Definición de umbrales y estilos)
+    *   [InteractionCard.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/interactions/InteractionCard.tsx) (Generador del badge de tiempo)
+    *   [constants.ts](file:///C:/Github/Negocio/MejoraCRM/src/lib/constants.ts) (Definición de umbrales y estilos)
 *   **Problema comercial:** Los umbrales de alerta de 8 días (ámbar) y 30 días (rojo) son excesivos. Un negocio caliente se enfría en menos de una semana.
 *   **Especificaciones de mejora:**
     *   Redefinir los umbrales de alerta comercial a valores más agresivos:
@@ -36,8 +36,8 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 3. Pipeline Kanban Financiero y Dinámico
 *   **Archivos de impacto:**
-    *   [PipelineKanban.tsx](file:///C:/Github/MejoraCRM/src/components/interactions/PipelineKanban.tsx)
-    *   [businessLogic.ts](file:///C:/Github/MejoraCRM/src/lib/businessLogic.ts)
+    *   [PipelineKanban.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/interactions/PipelineKanban.tsx)
+    *   [businessLogic.ts](file:///C:/Github/Negocio/MejoraCRM/src/lib/businessLogic.ts)
 *   **Problema comercial:** El pipeline no muestra el volumen total de dinero comprometido en cada etapa. Es imposible hacer proyecciones de ventas (forecasting) eficientes.
 *   **Especificaciones de mejora:**
     *   Calcular y renderizar la sumatoria del valor monetario (`total_amount` para ventas y presupuestos, `estimated_loss` para no interesados) en la cabecera de cada una de las 5 columnas del Kanban.
@@ -48,9 +48,9 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 4. Dashboard Comercial Proactivo (Actionable Dashboard)
 *   **Archivos de impacto:**
-    *   [OwnerViewV2.tsx](file:///C:/Github/MejoraCRM/src/components/dashboard/OwnerViewV2.tsx)
-    *   [SellerViewV2.tsx](file:///C:/Github/MejoraCRM/src/components/dashboard/SellerViewV2.tsx)
-    *   [calculations.ts](file:///C:/Github/MejoraCRM/src/lib/calculations.ts)
+    *   [OwnerViewV2.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/dashboard/OwnerViewV2.tsx)
+    *   [SellerViewV2.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/dashboard/SellerViewV2.tsx)
+    *   [calculations.ts](file:///C:/Github/Negocio/MejoraCRM/src/lib/calculations.ts)
 *   **Problema comercial:** Las vistas actuales son reactivas e históricas. Faltan disparadores accionables para el trabajo diario.
 *   **Especificaciones de mejora:**
     *   Crear una widget en el inicio del vendedor titulado `"Mi Foco de Hoy"`.
@@ -64,8 +64,8 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 5. Automatización de Mensajes de Seguimiento en WhatsApp
 *   **Archivos de impacto:**
-    *   [WhatsAppLink.tsx](file:///C:/Github/MejoraCRM/src/pages/WhatsAppLink.tsx)
-    *   [ClientDetailDialog.tsx](file:///C:/Github/MejoraCRM/src/components/clients/ClientDetailDialog.tsx)
+    *   [WhatsAppLink.tsx](file:///C:/Github/Negocio/MejoraCRM/src/pages/WhatsAppLink.tsx)
+    *   [ClientDetailDialog.tsx](file:///C:/Github/Negocio/MejoraCRM/src/components/clients/ClientDetailDialog.tsx)
 *   **Problema comercial:** Se pierde tiempo valioso redactando saludos y recordatorios genéricos. Los mensajes de la empresa carecen de consistencia de marca.
 *   **Especificaciones de mejora:**
     *   Integrar un sistema de **plantillas rápidas de WhatsApp** al presionar el ícono de WhatsApp de un cliente.
@@ -77,8 +77,8 @@ El objetivo principal es **eliminar la fricción operativa de los vendedores y m
 
 ## 6. Cuotas Dinámicas Mensuales por Vendedor
 *   **Archivos de impacto:**
-    *   [useProfiles.ts](file:///C:/Github/MejoraCRM/src/hooks/useProfiles.ts)
-    *   [Settings.tsx](file:///C:/Github/MejoraCRM/src/pages/Settings.tsx) (Panel de administración)
+    *   [useProfiles.ts](file:///C:/Github/Negocio/MejoraCRM/src/hooks/useProfiles.ts)
+    *   [Settings.tsx](file:///C:/Github/Negocio/MejoraCRM/src/pages/Settings.tsx) (Panel de administración)
 *   **Problema comercial:** La cuota mensual es estática. No considera fluctuaciones del mercado ni estacionalidad comercial.
 *   **Especificaciones de mejora:**
     *   Modificar la gestión de cuotas de vendedor para permitir asignar objetivos diferenciados según el mes en curso.

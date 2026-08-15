@@ -40,14 +40,17 @@ Con `VITE_DEMO_MODE=true` (valor por defecto) la app usa datos de `src/demo/demo
 
 ## Identidad visual — Mejora Continua®
 
-**Paleta de colores real:**
+**Paleta de colores real (Manual de Marca 2026, ver `BRAND` en `src/lib/constants.ts`):**
 | Color | Hex | Uso |
 |---|---|---|
-| Azul marino | `#020659` | Primary, sidebar background |
-| Azul medio | `#1C4D8C` | Hover states, sidebar accent |
-| Amarillo | `#F2BB16` | Accent, highlights |
-| Rojo | `#D9072D` | Destructive, alertas |
-| Negro | `#0D0D0D` | Texto principal |
+| Azul MC 2026 | `#1A3D84` | Primary, sidebar background |
+| Azul medio MC | `#2E5BA8` | Hover states, sidebar accent |
+| Amarillo MC 2026 | `#F7CC13` | Accent, highlights |
+| Rojo MC 2026 | `#E1061E` | Destructive, alertas |
+| Verde | `#2E7D32` | Success |
+| Gris | `#6B7280` | Muted |
+
+**Guard de marca:** `src/lib/brandColors.test.ts` valida `index.html`, `public/manifest.json` y `constants.ts` contra estos valores y **prohíbe explícitamente** la paleta anterior (`#020659`, violetas). Correr `bun test src/lib/brandColors.test.ts` antes de tocar tokens de color.
 
 **Logos en uso:**
 - `src/assets/branding/MC_Logo.png` — ícono cuadrado (sidebar, collapsed/expanded)
@@ -228,10 +231,9 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 ## Pendiente para próximas sesiones
 
 ### Infraestructura / assets
-- [ ] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) — reemplazar con logo MC real
-- [ ] Favicon (`public/favicon.ico`) — reemplazar con logo MC
+- [x] Íconos PWA (`public/icons/icon-192.png`, `icon-512.png`) y favicon — ya reemplazados con el logo MC real
 - [ ] `supabase/seed.sql` — actualizar UUIDs con los reales de producción (incluir organization_id)
-- [ ] Google Calendar sync — registrar `VITE_GOOGLE_CLIENT_ID` en Google Cloud Console y configurar en Vercel
+- [ ] Google Calendar sync — registrar `VITE_GOOGLE_CLIENT_ID` en Google Cloud Console y configurar en Vercel (guía: `docs/google-calendar-setup.md`)
 - [ ] Push notifications servidor — configurar VAPID keys en `src/lib/notifications.ts`
 
 ### UX/UI — Plan de 8 PRs (brief completo en memoria del proyecto)
@@ -273,10 +275,14 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 - Focus: `ring-2 ring-ring ring-offset-2` en todos los interactivos.
 - Transiciones: `150ms ease-out` hover/focus, `200ms` Sheet/Dialog.
 
+## Documentación complementaria
+
+*   [DOCS.md](file:///C:/Github/Negocio/MejoraCRM/DOCS.md) — documentación técnica extendida (arquitectura, DB, hooks, testing, CI/CD), en español.
+
 ## Directiva de Producto y Visión Comercial (Segunda Opinión)
 
 Para maximizar el impacto de conversión del pipeline y eliminar fricción operativa de los vendedores, consultar el archivo detallado de especificaciones en:
-*   [COMMERCIAL_ROADMAP.md](file:///C:/Github/MejoraCRM/COMMERCIAL_ROADMAP.md)
+*   [COMMERCIAL_ROADMAP.md](file:///C:/Github/Negocio/MejoraCRM/COMMERCIAL_ROADMAP.md)
 
 ### Tareas Prioritarias de Negocio (estado):
 1.  ~~**Rediseñar el Formulario de Interacciones**~~ ✅ entregado 2026-06-11
