@@ -17,7 +17,7 @@ import { useDashboardData } from "@/hooks/useDashboard";
 import { ListSkeleton } from "@/components/skeletons";
 import { exportInteractionsExcel } from "@/lib/excelExport";
 import { FileSpreadsheet } from "lucide-react";
-import { CHART_COLORS } from "@/lib/constants";
+import { CHART_COLORS, BRAND } from "@/lib/constants";
 import {
   getPeriodDates,
   calculatePeriodKPIs,
@@ -80,17 +80,17 @@ export default function Reports() {
 <html><head><meta charset="utf-8"><title>Reportes — MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:32px;color:#1a1a1a;max-width:900px;margin:0 auto}
-  h1{color:#020659;font-size:20px;margin-bottom:4px}
+  h1{color:${BRAND.primary};font-size:20px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:24px}
   .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
   .kpi{background:#f9f9f9;border-radius:8px;padding:16px;text-align:center}
-  .kpi .value{font-size:24px;font-weight:bold;color:#020659}
+  .kpi .value{font-size:24px;font-weight:bold;color:${BRAND.primary}}
   .kpi .label{font-size:11px;color:#656565;margin-top:4px}
   table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px}
-  th{background:#020659;color:#fff;padding:8px;text-align:left}
+  th{background:${BRAND.primary};color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   .section{margin-bottom:32px}
-  .section h2{font-size:14px;color:#020659;margin-bottom:12px;border-bottom:2px solid #020659;padding-bottom:4px}
+  .section h2{font-size:14px;color:${BRAND.primary};margin-bottom:12px;border-bottom:2px solid ${BRAND.primary};padding-bottom:4px}
   @media print{body{padding:0}}
 </style></head><body>
 <h1>Reportes — MejoraCRM</h1>
@@ -215,7 +215,7 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
                 <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={11} />
                 <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
                 <Area type="monotone" dataKey="ventas" stackId="1" stroke="hsl(142,60%,40%)" fill="hsl(142,60%,40%)" fillOpacity={0.3} name="Ventas" />
-                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke="#1C4D8C" fill="#1C4D8C" fillOpacity={0.3} name="Presupuestos" />
+                <Area type="monotone" dataKey="presupuestos" stackId="2" stroke={BRAND.secondary} fill={BRAND.secondary} fillOpacity={0.3} name="Presupuestos" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -250,7 +250,7 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
                   <XAxis type="number" tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} fontSize={10} />
                   <YAxis type="category" dataKey="name" width={80} fontSize={10} tickLine={false} />
                   <RTooltip formatter={(v) => `$${Number(v).toLocaleString()}`} />
-                  <Bar dataKey="value" fill="#020659" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill={BRAND.primary} radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin ventas con productos</div>}

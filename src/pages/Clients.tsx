@@ -13,7 +13,7 @@ import { ListSkeleton } from "@/components/skeletons";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
 import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient } from "@/hooks/useClients";
 import { exportClientsExcel } from "@/lib/excelExport";
-import { STATUS_LABELS, PROVINCIAS } from "@/lib/constants";
+import { STATUS_LABELS, PROVINCIAS, BRAND } from "@/lib/constants";
 import { ClientFormDialog } from "@/components/clients/ClientFormDialog";
 import { ClientDetailDialog } from "@/components/clients/ClientDetailDialog";
 import { ClientImportDialog, type ImportPreviewItem } from "@/components/clients/ClientImportDialog";
@@ -153,10 +153,10 @@ export default function Clients() {
 <html><head><meta charset="utf-8"><title>Clientes - MejoraCRM</title>
 <style>
   body{font-family:Arial,sans-serif;padding:20px;color:#1a1a1a}
-  h1{color:#020659;font-size:18px;margin-bottom:4px}
+  h1{color:${BRAND.primary};font-size:18px;margin-bottom:4px}
   p.sub{color:#656565;font-size:12px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;font-size:12px}
-  th{background:#020659;color:#fff;padding:8px;text-align:left}
+  th{background:${BRAND.primary};color:#fff;padding:8px;text-align:left}
   td{padding:6px 8px;border-bottom:1px solid #e5e5e5}
   tr:nth-child(even){background:#f9f9f9}
   @media print{body{padding:0}}

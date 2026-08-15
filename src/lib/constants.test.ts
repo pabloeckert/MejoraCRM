@@ -94,10 +94,10 @@ describe("Brand constants", () => {
   });
 
   it("BRAND has correct MC colors", () => {
-    expect(BRAND.primary).toBe("#020659");
-    expect(BRAND.accent).toBe("#F2BB16");
+    expect(BRAND.primary).toBe("#1A3D84");
+    expect(BRAND.accent).toBe("#F7CC13");
     expect(BRAND.success).toBe("#2E7D32");
-    expect(BRAND.destructive).toBe("#D9072D");
+    expect(BRAND.destructive).toBe("#E1061E");
     expect(BRAND.background).toBe("#FFFFFF");
   });
 });
