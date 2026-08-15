@@ -25,10 +25,11 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 
 **Fase 1b (deferida a propósito, no es parte de esta fusión todavía):** `POST /send` — encolar un envío desde afuera. No se construyó ahora porque tiene que interponerse en la cola/delay/tope diario existente en `main.mjs` sin bypasearla nunca; se hace con el mismo cuidado que el resto de la app, no apurado dentro de este primer bloque. Ver `DECISIONES.md`.
 
-## Fase 2 — MejoraWS embebe MejoraContactos
+## Fase 2 — MejoraWS embebe MejoraContactos ✅ (2026-08-15)
 
-- [ ] `<webview>` (o `BrowserView`) en el renderer de MejoraWS apuntando a la URL pública de MejoraContactos.
-- [ ] Botón/tab nuevo en la UI de MejoraWS (`src/App.jsx`) para alternar entre "Campañas" (lo que ya existe) y "Contactos" (el webview).
+- [x] ~~`WebContentsView` en el proceso principal de MejoraWS~~ — no se usó `<webview>`/`BrowserView` (deprecada); `ensureContactosView()` en `main.mjs`, apuntando a `https://pabloeckert.github.io/MejoraContactos/`, creado una vez y alternado con `setVisible()`.
+- [x] ~~Botón/tab nuevo en `src/App.jsx`~~ — "Campañas" / "Contactos", con un slot dedicado que manda sus coordenadas reales al proceso principal vía IPC (`contactos:show`/`updateBounds`/`hide`).
+- [x] ~~Verificación end-to-end~~ — vía Chrome DevTools Protocol (no solo lectura de código): click real en la pestaña, sin excepciones, y confirmado un segundo target CDP con el contenido real de MejoraContactos cargado adentro de la ventana. Commit `470f688` en `master` de MejoraWS.
 
 ## Fase 3 — MejoraContactos embebe MejoraWS
 

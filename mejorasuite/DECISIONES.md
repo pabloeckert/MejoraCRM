@@ -4,6 +4,11 @@ Log append-only. No se edita lo viejo, solo se agrega. Cada entrada: fecha, deci
 
 ---
 
+## 2026-08-15 — Fase 2: `WebContentsView`, no `<webview>` ni `BrowserView`
+
+**Decisión:** el embebido de MejoraContactos dentro de MejoraWS usa la API `WebContentsView` de Electron, manejada 100% desde el proceso principal y posicionada con bounds reales que manda el renderer.
+**Motivo:** `ESPECIFICACION.md` proponía `<webview>`/`BrowserView` como opción original. Al implementar se verificó contra los tipos de la versión instalada (Electron 43.3.0) que `BrowserView` sigue existiendo pero está deprecada, y `WebContentsView` es la reemplazante recomendada — además evita tener que habilitar `webviewTag: true` en `webPreferences` (Electron desaconseja esa opción por superficie de ataque innecesaria cuando no hace falta). Se mantiene la misma idea de fondo (embebido nativo, no iframe, porque es Electron embebiendo web) solo que con la API vigente.
+
 ## 2026-08-15 — Fase 1 del bridge sale de solo lectura, `POST /send` se difiere (Fase 1b)
 
 **Decisión:** el bridge local de MejoraWS (`electron/bridge.mjs`) sale con `GET /status` y `GET /events` únicamente. No se construye `POST /send` en este mismo bloque de trabajo.
