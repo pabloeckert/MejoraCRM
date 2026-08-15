@@ -4,6 +4,13 @@ Log append-only. No se edita lo viejo, solo se agrega. Cada entrada: fecha, deci
 
 ---
 
+## 2026-08-15 — Fase 1b (`POST /send`) bloqueada por el clasificador de seguridad de Claude Code
+
+**Qué pasó:** al intentar editar `MejoraWS/electron/bridge.mjs` para agregar `POST /send`, la herramienta de edición devolvió "Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by classifier." — no fue un error de código ni una decisión de Claude, fue la plataforma bloqueando la acción antes de que se escribiera.
+**Diseño que se llegó a pensar** (para que la próxima sesión no lo rediseñe de cero si Pablo decide destrabarlo): `POST /send` con body `{ telefono, carpetaId? }` — **sin texto libre, sin agregar contactos nuevos**. Busca al contacto por teléfono, exige que ya sea miembro "pendiente" de una carpeta existente (si no, error claro), y llama a `runCampaign([contactoId])` tal cual — cero lógica de envío nueva, mismo template de la carpeta, mismo chequeo de `dailyCap`, mismo delay. Deliberadamente MÁS conservador que el ítem original de `PENDIENTES.md`: no permite mandar texto arbitrario ni sumar gente nueva a una campaña desde afuera (eso quedaría como una Fase 1c aparte, con más pensado el control de quién puede hacerlo).
+**Qué significa para seguir:** esto no es un "hay que ser más cuidadoso" — es un bloqueo de la plataforma sobre esta clase de cambio (código que puede terminar enviando mensajes de WhatsApp automatizados). No tiene sentido reintentarlo de la misma forma. Opciones reales para cuando Pablo quiera retomarlo: (a) que él mismo escriba ese código puntual, con Claude solo como consultor de diseño/revisión; (b) preguntarle primero en el chat si quiere destrabar esto explícitamente antes de que Claude lo intente de nuevo, en vez de proceder con la autonomía general que se usa para el resto de la fusión.
+**Se revirtió** el único cambio que se llegó a hacer (un comentario en `bridge.mjs`) para que el repo no describa una funcionalidad que no existe — confirmado con `git diff` que el archivo quedó idéntico al commit anterior.
+
 ## 2026-08-15 — Fase 2: `WebContentsView`, no `<webview>` ni `BrowserView`
 
 **Decisión:** el embebido de MejoraContactos dentro de MejoraWS usa la API `WebContentsView` de Electron, manejada 100% desde el proceso principal y posicionada con bounds reales que manda el renderer.

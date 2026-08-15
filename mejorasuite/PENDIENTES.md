@@ -23,7 +23,7 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 - [x] ~~Actualizar `MejoraWS/CLAUDE.md` y `TRANSCRIPCION-SESION.md`~~ — hecho, siguiendo su propio dogma de transcripción continua.
 - [x] ~~Commit + push a `master` de MejoraWS~~ — `9cbd381`.
 
-**Fase 1b (deferida a propósito, no es parte de esta fusión todavía):** `POST /send` — encolar un envío desde afuera. No se construyó ahora porque tiene que interponerse en la cola/delay/tope diario existente en `main.mjs` sin bypasearla nunca; se hace con el mismo cuidado que el resto de la app, no apurado dentro de este primer bloque. Ver `DECISIONES.md`.
+**Fase 1b — `POST /send` — BLOQUEADA, no solo deferida (2026-08-15):** al intentar implementarla (diseño: reusar `runCampaign([contactoId])` tal cual, sin texto libre ni contactos nuevos vía bridge — ver `DECISIONES.md` para el detalle completo del diseño que se llegó a pensar), **el clasificador de seguridad de Claude Code bloqueó la edición** con el mensaje "Blocked by classifier" antes de escribir una sola línea de código de envío. Se revirtió el único cambio hecho (un comentario) para no dejar documentación describiendo algo que no existe. **Esto no es un "no todavía" — es una barrera de la plataforma, no de este proyecto.** Para retomarla hace falta que Pablo la habilite explícitamente (ver `DECISIONES.md` para las opciones) o la construya él mismo. No volver a intentarlo por las mismas vías sin eso.
 
 ## Fase 2 — MejoraWS embebe MejoraContactos ✅ (2026-08-15)
 
@@ -45,11 +45,11 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 - [x] ~~Verificación end-to-end~~ — typecheck, build, 138/138 tests, lint limpios; ambas páginas confirmadas en navegador real (iframe cargando la URL correcta, panel cayendo a "no está corriendo" cuando el bridge no responde — comportamiento esperado, no un bug). Commit `2d605b60` en `main` de MejoraCRM.
 - [ ] **Pendiente, no bloqueante:** Bridge de MejoraWS → Interacción del CRM automática (cuando llega un evento de respuesta/envío por `GET /events`, crear una `Interaction` vía Supabase/hook existente) — esto es lo que cierra el "hoy los mensajes de WhatsApp no dejan rastro en el CRM" del brief original de Lovable. Requiere decidir cómo autenticar esa escritura desde el navegador contra Supabase (el CRM ya tiene sesión de usuario logueado, así que probablemente reusa esa sesión en vez de necesitar algo nuevo) — se deja para una sesión con más espacio para pensarlo bien, no es una tarea de 5 minutos como el resto de esta fase.
 
-## Fase 5 — Pulido y empaquetado
+## Fase 5 — Pulido y empaquetado ✅ (2026-08-15, parcial — ver KPI abajo)
 
-- [ ] KPI nuevo en el dashboard: enviados/respondidos/tasa de respuesta por carpeta de campaña (una vez que las Interacciones se generan solas desde Fase 4).
-- [ ] CI de cada repo sigue siendo independiente — no se crea un CI unificado (no hay un solo build que abarque los tres).
-- [ ] Documentación final: actualizar `README.md` de los 3 repos con un diagrama de la topología de embebido y links cruzados.
+- [x] ~~Documentación final: `README.md` de los 3 repos~~ — sección "MejoraSuite" nueva en cada uno, con diagrama de la topología y links cruzados. MejoraCRM `f3bb478a`, MejoraContactos `7bdb7f9`, MejoraWS `61ea27b`.
+- [x] CI de cada repo sigue siendo independiente — confirmado, no se creó nada nuevo (era una decisión ya tomada, no una tarea pendiente).
+- [ ] **KPI nuevo en el dashboard** (enviados/respondidos/tasa de respuesta por carpeta de campaña) — sigue sin poder construirse: depende de que existan Interacciones generadas automáticamente desde eventos de WhatsApp, que es el pendiente no bloqueante que quedó abierto en Fase 4 (auto-Interacción) y que a su vez depende de Fase 1b (bloqueada, ver arriba). No hay datos reales sobre los que armar el KPI todavía.
 
 ## Bloqueado / requiere a Pablo
 
