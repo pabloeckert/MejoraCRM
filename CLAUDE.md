@@ -279,6 +279,10 @@ Para agregar casos: extender `CRMApp` con nuevos métodos en lugar de usar selec
 
 *   [DOCS.md](file:///C:/Github/Negocio/MejoraCRM/DOCS.md) — documentación técnica extendida (arquitectura, DB, hooks, testing, CI/CD), en español.
 
+## MejoraSuite — fusión con MejoraContactos y MejoraWS (en curso)
+
+**Si Pablo escribe "continuemos" al arrancar una sesión: leer primero [mejorasuite/PROMPT_CONTINUACION.md](file:///C:/Github/Negocio/MejoraCRM/mejorasuite/PROMPT_CONTINUACION.md).** MejoraCRM es el rector de una fusión en curso con MejoraContactos (SaaS público, github.com/pabloeckert/MejoraContactos) y MejoraWS (Electron+WhatsApp, github.com/pabloeckert/MejoraWS) — los tres quedan independientes pero embebidos entre sí. Arquitectura completa en `mejorasuite/ESPECIFICACION.md`, estado vivo en `mejorasuite/PENDIENTES.md`, historial de decisiones en `mejorasuite/DECISIONES.md`.
+
 ## Directiva de Producto y Visión Comercial (Segunda Opinión)
 
 Para maximizar el impacto de conversión del pipeline y eliminar fricción operativa de los vendedores, consultar el archivo detallado de especificaciones en:
