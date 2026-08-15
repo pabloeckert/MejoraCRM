@@ -14,6 +14,11 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 
 Sin esto, ni MejoraCRM ni MejoraContactos tienen forma de embeber/hablar con MejoraWS.
 
+**Rutas locales confirmadas** (los 3 repos ya existen localmente, no hace falta clonar nada):
+- MejoraCRM: `C:\Github\Negocio\MejoraCRM`
+- MejoraContactos: `C:\Github\Negocio\MejoraContactos`
+- MejoraWS: `C:\Github\Herramientas\MejoraWS`
+
 - [ ] En `MejoraWS/electron/main.mjs`: levantar un servidor HTTP local (puerto a definir, ej. `127.0.0.1:4180`) con:
   - `GET /status` — conectado/desconectado, cola de envíos, contador de envíos del día.
   - `POST /send` — encolar un mensaje (reusa la lógica de envío existente, mismo delay random/tope diario).
