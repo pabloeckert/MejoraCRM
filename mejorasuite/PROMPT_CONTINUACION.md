@@ -17,3 +17,7 @@ Si Pablo escribe **"continuemos"** al arrancar una sesión nueva (se quedó sin 
 ## Estado al momento de crear este documento (2026-08-15, primera sesión de MejoraSuite)
 
 Se armó toda la especificación y el plan (`ESPECIFICACION.md`, `PENDIENTES.md`, `DECISIONES.md`), pero **todavía no se escribió código de la fusión** — la Fase 1 (bridge local en MejoraWS) es el próximo paso real. Ver `handoffs/2026-08-15-sesion-01.md` para el detalle completo de esta sesión.
+
+## Actualización (2026-08-15, sesión 02) — Fases 1, 2 y 3 completas
+
+Bridge local de MejoraWS (Fase 1), MejoraWS embebiendo MejoraContactos vía `WebContentsView` (Fase 2), y MejoraContactos mostrando el estado de MejoraWS vía el bridge con auth por copy-paste manual de token (Fase 3) — las tres verificadas end-to-end con las apps reales corriendo, no solo lectura de código, y pusheadas a sus repos (`MejoraWS@435b6b3`, `MejoraContactos@7383cb3`). Ver `handoffs/2026-08-15-sesion-02.md` para el detalle completo. Próximo paso real: Fase 1b (`POST /send` del bridge) o Fase 4 (MejoraCRM embebe a los otros dos) — ver `PENDIENTES.md`, ninguna bloquea a la otra.

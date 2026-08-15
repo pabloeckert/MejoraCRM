@@ -31,10 +31,11 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 - [x] ~~Botón/tab nuevo en `src/App.jsx`~~ — "Campañas" / "Contactos", con un slot dedicado que manda sus coordenadas reales al proceso principal vía IPC (`contactos:show`/`updateBounds`/`hide`).
 - [x] ~~Verificación end-to-end~~ — vía Chrome DevTools Protocol (no solo lectura de código): click real en la pestaña, sin excepciones, y confirmado un segundo target CDP con el contenido real de MejoraContactos cargado adentro de la ventana. Commit `470f688` en `master` de MejoraWS.
 
-## Fase 3 — MejoraContactos embebe MejoraWS
+## Fase 3 — MejoraContactos embebe MejoraWS ✅ (2026-08-15, status; envío queda para Fase 1b)
 
-- [ ] Panel nuevo en MejoraContactos que hable con el bridge local de Fase 1 (`GET /status`, `POST /send`) — si el bridge no responde (MejoraWS no está corriendo), mostrar botón "Abrir MejoraContacto" que intente lanzarlo (mismo patrón que `motor-contactos/src/motor/mejoraws_launcher.py`, pero en TS/web — probablemente vía protocolo custom `mejoraws://` registrado por el instalador de Electron, a confirmar factibilidad).
-- [ ] Acción "enviar por WhatsApp" en `ContactsTable.tsx`/`ExportPanel.tsx` que llame a `POST /send` del bridge.
+- [x] ~~Protocolo `mejoraws://` + forma de que la web obtenga el token del bridge~~ — resuelto en MejoraWS: botón "Copiar token de conexión" en la barra superior (IPC `bridge:copyToken` → `clipboard.writeText`), porque una web sin filesystem no puede leer `bridge-token.txt` del disco como sí podría otra app Electron. Protocolo `mejoraws://` registrado con `app.setAsDefaultProtocolClient` (dev y empaquetado), `requestSingleInstanceLock` ya existente evita instancias duplicadas. Header `Access-Control-Allow-Private-Network: true` agregado al bridge — sin esto Chrome bloquea el preflight de cualquier página HTTPS pública (MejoraContactos en GitHub Pages) hablando con `127.0.0.1`. Commit `435b6b3` en `master` de MejoraWS, verificado end-to-end con Electron real + CDP (click real, token real confirmado en el portapapeles de Windows vía `Get-Clipboard`).
+- [x] ~~Panel nuevo en MejoraContactos (`GET /status`)~~ — `src/lib/mejoraws-bridge.ts` (cliente HTTP, token cifrado en localStorage con el mismo AES-GCM que las API keys de IA) + `src/components/MejoraWsPanel.tsx` (UI en Ajustes: pegar token una vez, estado conectado/desconectado en vivo, botón "Abrir MejoraWS" si no responde). 8 tests nuevos. Verificado end-to-end real: Browser pane + MejoraWS corriendo en paralelo, token real pegado a mano, `Network requests` confirmando el preflight PNA + `GET /status` 200 cada 6s, UI mostrando el estado real del bridge. Commit `7383cb3` en `main` de MejoraContactos (auto-deploy a GitHub Pages ya disparado por el push).
+- [ ] **Diferido a propósito, no es parte de esta fusión todavía:** acción "enviar por WhatsApp" en `ContactsTable.tsx`/`ExportPanel.tsx` — depende de que el bridge tenga `POST /send` (Fase 1b, ver arriba, deliberadamente no construido aún por el riesgo de interponerse en la cola/delay/tope diario sin la cautela debida).
 
 ## Fase 4 — MejoraCRM embebe a los dos
 
@@ -52,5 +53,11 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 ## Bloqueado / requiere a Pablo
 
 - [ ] Rotar `service_role` key de Supabase de MejoraCRM (Dashboard → Project Settings → API) — pendiente desde el hallazgo de seguridad, no depende de esta fusión pero sigue abierto.
-- [ ] Confirmar puerto y esquema de auth mínima del bridge local de MejoraWS (Fase 1) antes de implementarlo — decisión técnica menor, Claude puede proponer un default y seguir si Pablo no responde en el momento (dogma de autonomía).
+- [x] ~~Confirmar puerto y esquema de auth mínima del bridge local de MejoraWS~~ — resuelto de forma autónoma (dogma de autonomía, no era irreversible ni requería a Pablo): puerto `4180` ya elegido en Fase 1 se mantuvo; auth resuelta con copy-paste manual del token (ver Fase 3 arriba) en vez de intentar que la web lea el archivo del disco.
+
+## Próximo paso real (según esta sesión, 2026-08-15)
+
+Dos caminos válidos para la siguiente sesión, ninguno bloquea al otro:
+1. **Fase 1b** — `POST /send` en el bridge de MejoraWS (interponerse con cuidado en la cola/delay/tope diario existente), lo que habilita el checkbox diferido de Fase 3 ("enviar por WhatsApp" desde `ContactsTable.tsx`).
+2. **Fase 4** — MejoraCRM embebe a MejoraContactos (iframe, más simple) y a MejoraWS (mismo patrón de bridge que Fase 3, reusable casi 1:1 ya que la lógica de `mejoraws-bridge.ts` no depende de nada específico de MejoraContactos).
 - [ ] Confirmar si `/contactos` y `/whatsapp-campanas` en el CRM son visibles para todos los roles o solo admin/supervisor.
