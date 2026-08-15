@@ -10,21 +10,20 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 - [x] ~~Definir mecanismo técnico de embebido~~ — iframe para web↔web, webview para Electron→web, bridge local + launcher para web→Electron (no se reescribe Baileys).
 - [x] Crear infraestructura de continuidad (`mejorasuite/` en MejoraCRM: este archivo, `ESPECIFICACION.md`, `DECISIONES.md`, `PROMPT_CONTINUACION.md`, `handoffs/`).
 
-## Fase 1 — Bridge local de MejoraWS (bloqueante para todo lo demás)
-
-Sin esto, ni MejoraCRM ni MejoraContactos tienen forma de embeber/hablar con MejoraWS.
+## Fase 1 — Bridge local de MejoraWS ✅ (2026-08-15)
 
 **Rutas locales confirmadas** (los 3 repos ya existen localmente, no hace falta clonar nada):
 - MejoraCRM: `C:\Github\Negocio\MejoraCRM`
 - MejoraContactos: `C:\Github\Negocio\MejoraContactos`
 - MejoraWS: `C:\Github\Herramientas\MejoraWS`
 
-- [ ] En `MejoraWS/electron/main.mjs`: levantar un servidor HTTP local (puerto a definir, ej. `127.0.0.1:4180`) con:
-  - `GET /status` — conectado/desconectado, cola de envíos, contador de envíos del día.
-  - `POST /send` — encolar un mensaje (reusa la lógica de envío existente, mismo delay random/tope diario).
-  - `GET /events` (SSE o WebSocket) — stream de eventos entrantes (respuesta recibida, tick de entrega) para que el CRM pueda crear Interacciones en tiempo real.
-- [ ] CORS/seguridad del bridge: solo `localhost`, con un token compartido simple (no exponer a la red).
-- [ ] Actualizar `MejoraWS/CLAUDE.md` documentando el bridge (siguiendo su propio dogma de transcripción continua).
+- [x] ~~Servidor HTTP local en `MejoraWS/electron/bridge.mjs`~~ — `127.0.0.1:4180`, sin dependencias nuevas (`node:http`). `GET /status` (conectado/desconectado, campaña corriendo/pausada) y `GET /events` (SSE — eventos `status` y `message`). Token compartido en `userData/bridge-token.txt`, exigido por header `X-Bridge-Token`, `127.0.0.1` únicamente.
+- [x] ~~Integración en `main.mjs`~~ — puramente aditiva (nuevas variables `waStatus`/`bridge`, `startBridgeServer()` en `app.whenReady()`, `broadcastEvent` en los 3 puntos donde ya se emitía `wa:status` + en `messages.upsert`). Cero cambios de comportamiento hacia el renderer existente.
+- [x] ~~Verificación end-to-end~~ — `node --check` en ambos archivos, `npx electron .` levantado en background, `GET /status` con y sin token (200 y 401 respectivamente), `GET /events` con curl -N confirmando el evento `hello`. Proceso de prueba cerrado con `taskkill`.
+- [x] ~~Actualizar `MejoraWS/CLAUDE.md` y `TRANSCRIPCION-SESION.md`~~ — hecho, siguiendo su propio dogma de transcripción continua.
+- [x] ~~Commit + push a `master` de MejoraWS~~ — `9cbd381`.
+
+**Fase 1b (deferida a propósito, no es parte de esta fusión todavía):** `POST /send` — encolar un envío desde afuera. No se construyó ahora porque tiene que interponerse en la cola/delay/tope diario existente en `main.mjs` sin bypasearla nunca; se hace con el mismo cuidado que el resto de la app, no apurado dentro de este primer bloque. Ver `DECISIONES.md`.
 
 ## Fase 2 — MejoraWS embebe MejoraContactos
 

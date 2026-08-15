@@ -4,6 +4,11 @@ Log append-only. No se edita lo viejo, solo se agrega. Cada entrada: fecha, deci
 
 ---
 
+## 2026-08-15 — Fase 1 del bridge sale de solo lectura, `POST /send` se difiere (Fase 1b)
+
+**Decisión:** el bridge local de MejoraWS (`electron/bridge.mjs`) sale con `GET /status` y `GET /events` únicamente. No se construye `POST /send` en este mismo bloque de trabajo.
+**Motivo:** `PENDIENTES.md` original incluía `/send` en la Fase 1, pero interponerse en el envío real de WhatsApp desde un endpoint nuevo, sin haber podido auditar con calma cada rincón de la cola/delay/tope diario de `main.mjs` primero, es exactamente el tipo de atajo que ya se descartó como criterio general (ver la decisión de no reescribir Baileys). Se prefiere entregar la parte de solo lectura ya probada de punta a punta y construir `/send` después, con el mismo nivel de cuidado, en vez de apurar algo con costo real si sale mal (riesgo de ban de cuenta).
+
 ## 2026-08-15 — Veredicto de rector: MejoraCRM
 
 **Decisión:** de los tres proyectos, MejoraCRM es el rector.
