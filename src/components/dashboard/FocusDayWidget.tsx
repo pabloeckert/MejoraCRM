@@ -22,7 +22,7 @@ const URGENCY_CONFIG: Record<Urgency, { label: string; badgeClass: string; Icon:
   caliente:{ label: "Caliente", badgeClass: "bg-orange-50 text-orange-700 border-orange-300/50", Icon: Timer },
 };
 
-function buildFocusItems(interactions: Interaction[], maxItems = 5): FocusItem[] {
+export function buildFocusItems(interactions: Interaction[], maxItems = 5): FocusItem[] {
   const now = new Date();
   const items: FocusItem[] = [];
 

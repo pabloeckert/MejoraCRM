@@ -141,10 +141,14 @@ interface InteractionFormProps {
   products: Product[];
   presupuestos: Interaction[];
   interaction?: Interaction | null;
+  initialClientId?: string;
+  onClientChange?: (clientId?: string) => void;
+  onResultChange?: (result?: string) => void;
 }
 
 export function InteractionForm({
   open, onOpenChange, clients, products, presupuestos, interaction,
+  initialClientId, onClientChange, onResultChange,
 }: InteractionFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -192,6 +196,26 @@ export function InteractionForm({
   const quotePath = watch("quote_path");
   const followupScenario = watch("followup_scenario");
   const selectedClient = clients.find((c) => c.id === clientId);
+
+  // Prellenar cliente al abrir para una interacción nueva (ej. FAB contextual)
+  useEffect(() => {
+    if (open && !isEditing && initialClientId) {
+      setValue("client_id", initialClientId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, initialClientId]);
+
+  // Notificar al padre el cliente/resultado seleccionados — usados para
+  // cargar los presupuestos vinculables (reference_quote_id) de ese cliente.
+  useEffect(() => {
+    onClientChange?.(clientId || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
+
+  useEffect(() => {
+    onResultChange?.(resultValue || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultValue]);
 
   useMemo(() => {
     if (interaction?.interaction_lines && interaction.interaction_lines.length > 0) {

@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,6 +46,7 @@ function getPeriodStart(period: Period): Date | null {
 export default function Interactions() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -53,9 +54,22 @@ export default function Interactions() {
   const [period, setPeriod] = useState<Period>("all");
   const [formClientId, setFormClientId] = useState<string | undefined>();
   const [formResult, setFormResult] = useState<string | undefined>();
+  const [presetClientId, setPresetClientId] = useState<string | undefined>();
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem(VIEW_KEY) as ViewMode) ?? "list"
   );
+
+  // FAB contextual: BottomNav navega acá con la oportunidad top del día
+  // (ver FocusDayWidget/buildFocusItems) para abrir el form ya con el cliente cargado.
+  useEffect(() => {
+    const state = location.state as { openForm?: boolean; presetClientId?: string } | null;
+    if (state?.openForm) {
+      setPresetClientId(state.presetClientId);
+      setDialogOpen(true);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleViewMode = (mode: ViewMode) => {
     localStorage.setItem(VIEW_KEY, mode);
@@ -213,13 +227,21 @@ export default function Interactions() {
       <InteractionForm
         open={dialogOpen}
         onOpenChange={(open) => {
-          if (!open) setEditingInteraction(null);
+          if (!open) {
+            setEditingInteraction(null);
+            setPresetClientId(undefined);
+            setFormClientId(undefined);
+            setFormResult(undefined);
+          }
           setDialogOpen(open);
         }}
         clients={clients}
         products={products}
         presupuestos={presupuestos}
         interaction={editingInteraction}
+        initialClientId={presetClientId}
+        onClientChange={setFormClientId}
+        onResultChange={setFormResult}
       />
     </div>
   );

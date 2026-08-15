@@ -69,7 +69,7 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
             <div className="flex items-center gap-2 flex-wrap">
               <span
                 className="font-medium text-sm cursor-pointer hover:text-primary transition-colors"
-                onClick={() => onNavigate("/clients")}
+                onClick={() => onNavigate(`/clients?open=${i.client_id}`)}
               >
                 {i.clients?.name}
               </span>

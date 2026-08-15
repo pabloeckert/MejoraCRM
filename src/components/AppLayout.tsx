@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { DemoRoleToggle } from "@/components/DemoRoleToggle";
+import { BottomNav } from "@/components/BottomNav";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -33,11 +34,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <NotificationsPanel />
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-4 pb-20 md:p-6 overflow-auto">
             {children}
           </main>
         </div>
       </div>
+      <BottomNav />
     </SidebarProvider>
   );
 }

@@ -1,6 +1,8 @@
 import { LayoutGrid, Users, MessageSquare, Plus, MoreHorizontal } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useNotificationsData } from "@/hooks/useNotifications";
+import { useAuth } from "@/contexts/AuthContext";
+import { buildFocusItems } from "@/components/dashboard/FocusDayWidget";
 
 const NAV_ITEMS = [
   { icon: LayoutGrid, label: "Inicio", url: "/" },
@@ -12,12 +14,21 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, role } = useAuth();
   const { data } = useNotificationsData();
 
   const totalAlerts =
     (data?.interactions ?? []).filter(
       (i) => i.follow_up_date && new Date(i.follow_up_date) < new Date()
     ).length;
+
+  // FAB contextual: para vendedores, precarga el cliente de la oportunidad
+  // más urgente (misma priorización que "Mi Foco de Hoy") en vez de un form vacío.
+  const isSeller = role !== "admin" && role !== "supervisor";
+  const myInteractions = isSeller
+    ? (data?.interactions ?? []).filter((i) => i.user_id === user?.id)
+    : [];
+  const topFocusClientId = isSeller ? buildFocusItems(myInteractions, 1)[0]?.interaction.client_id : undefined;
 
   // Hide inside the interaction wizard or auth
   const hidden = ["/auth", "/privacy", "/terms"].includes(location.pathname);
@@ -49,7 +60,7 @@ export function BottomNav() {
         {/* FAB central */}
         <div className="flex-1 flex items-center justify-center">
           <button
-            onClick={() => navigate("/interactions")}
+            onClick={() => navigate("/interactions", { state: { openForm: true, presetClientId: topFocusClientId } })}
             className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center -mt-5 active:scale-95 transition-transform"
             aria-label="Registrar interacción"
           >

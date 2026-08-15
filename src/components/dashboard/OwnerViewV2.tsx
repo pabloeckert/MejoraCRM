@@ -10,9 +10,9 @@ import {
   TrendingUp, DollarSign, FileText, Clock, Users, Trophy, AlertCircle,
   UserPlus, UserCheck, BarChart3, UserX, Activity,
 } from "lucide-react";
-import { isBefore, differenceInDays, format, subDays } from "date-fns";
+import { isBefore, differenceInDays, differenceInHours, format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
-import { RESULT_LABELS, CHART_COLORS } from "@/lib/constants";
+import { RESULT_LABELS, CHART_COLORS, AGING_THRESHOLDS } from "@/lib/constants";
 import {
   getPeriodDates,
   calculatePeriodKPIs,
@@ -205,6 +205,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
 
       {/* BLOQUE 2: Pipeline activo */}
       {(() => {
+        const now = new Date();
         const OPEN = ["presupuesto", "seguimiento", "sin_respuesta"] as const;
         const stages = OPEN.map((result) => {
           const items = interactions.filter((i) => i.result === result);
@@ -212,10 +213,13 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           const avgAging = items.length
             ? Math.round(items.reduce((s, i) => s + differenceInDays(new Date(), new Date(i.interaction_date)), 0) / items.length)
             : 0;
-          return { result, items, amount, avgAging };
+          const riskyItems = items.filter((i) => differenceInHours(now, new Date(i.interaction_date)) >= AGING_THRESHOLDS.AMBER_HOURS);
+          const riskAmount = riskyItems.reduce((s, i) => s + (Number(i.total_amount) || 0), 0);
+          return { result, items, amount, avgAging, riskCount: riskyItems.length, riskAmount };
         });
         const maxAmount = Math.max(...stages.map((s) => s.amount), 1);
         const totalPipeline = stages.reduce((s, st) => s + st.amount, 0);
+        const totalRisk = stages.reduce((s, st) => s + st.riskAmount, 0);
         const forecast = kpis.tasaConversion > 0
           ? Math.round(stages[0].amount * (kpis.tasaConversion / 100))
           : null;
@@ -233,7 +237,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
             </h2>
             <Card className="border-border/50">
               <CardContent className="p-5 space-y-4">
-                {stages.map(({ result, items, amount, avgAging }) => {
+                {stages.map(({ result, items, amount, avgAging, riskCount, riskAmount }) => {
                   const cfg = STAGE_CFG[result];
                   const pct = maxAmount > 0 ? Math.round((amount / maxAmount) * 100) : 0;
                   return (
@@ -250,6 +254,11 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                               ~{avgAging}d promedio
                             </span>
                           )}
+                          {riskCount > 0 && (
+                            <Badge variant="outline" className="text-[10px] text-destructive border-destructive/30">
+                              {riskCount} en riesgo
+                            </Badge>
+                          )}
                         </div>
                         <span className={`text-sm font-bold tabular-nums shrink-0 ${cfg.text}`}>
                           {amount > 0 ? `$${amount.toLocaleString()}` : "—"}
@@ -261,6 +270,11 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                           style={{ width: `${pct}%` }}
                         />
                       </div>
+                      {riskAmount > 0 && (
+                        <p className="text-[10px] text-destructive">
+                          ${riskAmount.toLocaleString()} sin actividad hace {AGING_THRESHOLDS.AMBER_HOURS}h+ — en riesgo de enfriarse
+                        </p>
+                      )}
                     </div>
                   );
                 })}
@@ -270,6 +284,13 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                     <p className="text-xs text-muted-foreground">Pipeline total</p>
                     <p className="text-lg font-bold">${totalPipeline.toLocaleString()}</p>
                   </div>
+                  {totalRisk > 0 && (
+                    <div className="space-y-0.5 text-right">
+                      <p className="text-xs text-muted-foreground">Total en riesgo</p>
+                      <p className="text-lg font-bold text-destructive">${totalRisk.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground">Sin actividad hace {AGING_THRESHOLDS.AMBER_HOURS}h+</p>
+                    </div>
+                  )}
                   {forecast !== null && forecast > 0 && (
                     <div className="space-y-0.5 text-right">
                       <p className="text-xs text-muted-foreground">Forecast estimado</p>

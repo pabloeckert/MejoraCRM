@@ -1,4 +1,5 @@
-﻿import { useRef, useState } from "react";
+﻿import { useRef, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
-import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient } from "@/hooks/useClients";
+import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient, useAllClients } from "@/hooks/useClients";
 import { exportClientsExcel } from "@/lib/excelExport";
 import { STATUS_LABELS, PROVINCIAS, BRAND } from "@/lib/constants";
 import { ClientFormDialog } from "@/components/clients/ClientFormDialog";
@@ -41,6 +42,21 @@ export default function Clients() {
   const { data: clientsInfinite, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useClientsInfinite();
   const clients = flattenClientPages(clientsInfinite);
+
+  // Deep link desde otras pantallas (ej. InteractionCard) — abre el detalle
+  // de un cliente puntual vía /clients?open=<id>, sin depender de qué página
+  // de la lista infinita esté cargada.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: allClients = [] } = useAllClients();
+  useEffect(() => {
+    const openId = searchParams.get("open");
+    if (!openId) return;
+    const match = allClients.find((c) => c.id === openId);
+    if (match) {
+      setDetailClient(match);
+      setSearchParams((prev) => { prev.delete("open"); return prev; }, { replace: true });
+    }
+  }, [searchParams, allClients, setSearchParams]);
 
   const upsertMutation = useMutation({
     mutationFn: async (c: ClientInsert & { id?: string }) => {

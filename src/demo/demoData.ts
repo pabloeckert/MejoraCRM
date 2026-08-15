@@ -20,14 +20,14 @@ export const DEMO_SELLER = {
 };
 
 export const DEMO_CLIENTS = [
-  { id: "c1", name: "Forestal del Sur S.A.", province: "Misiones", segment: "Forestal", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-01-15" },
-  { id: "c2", name: "Agro Campos Verdes", province: "Córdoba", segment: "Agropecuario", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-02-03" },
-  { id: "c3", name: "Industrias Metalúrgicas del Plata", province: "Buenos Aires", segment: "Industrial", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-02-10" },
-  { id: "c4", name: "Constructora Andes", province: "Mendoza", segment: "Construcción", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-03-01" },
-  { id: "c5", name: "Gobierno Provincial de Salta", province: "Salta", segment: "Gobierno", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-03-12" },
-  { id: "c6", name: "Comercializadora Norte", province: "Tucumán", segment: "Comercio", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-03-20" },
-  { id: "c7", name: "Estancia La Esperanza", province: "Santa Fe", segment: "Agropecuario", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-04-01" },
-  { id: "c8", name: "Frío Industrial S.R.L.", province: "Buenos Aires", segment: "Industrial", country: "AR", status: "inactivo", assigned_to: DEMO_SELLER.id, created_at: "2026-04-10" },
+  { id: "c1", name: "Forestal del Sur S.A.", province: "Misiones", segment: "Forestal", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-01-15", whatsapp: "+54 376 4123456", email: "contacto@forestaldelsur.com.ar" },
+  { id: "c2", name: "Agro Campos Verdes", province: "Córdoba", segment: "Agropecuario", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-02-03", whatsapp: "+54 351 4234567", email: "info@camposverdes.com.ar" },
+  { id: "c3", name: "Industrias Metalúrgicas del Plata", province: "Buenos Aires", segment: "Industrial", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-02-10", whatsapp: "+54 11 4345678", email: "compras@metalurgicasdelplata.com.ar" },
+  { id: "c4", name: "Constructora Andes", province: "Mendoza", segment: "Construcción", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-03-01", whatsapp: "+54 261 4456789", email: "obras@constructoraandes.com.ar" },
+  { id: "c5", name: "Gobierno Provincial de Salta", province: "Salta", segment: "Gobierno", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-03-12", whatsapp: "+54 387 4567890", email: "compras@salta.gob.ar" },
+  { id: "c6", name: "Comercializadora Norte", province: "Tucumán", segment: "Comercio", country: "AR", status: "activo", assigned_to: DEMO_SELLER.id, created_at: "2026-03-20", whatsapp: "+54 381 4678901", email: "ventas@comercnorte.com.ar" },
+  { id: "c7", name: "Estancia La Esperanza", province: "Santa Fe", segment: "Agropecuario", country: "AR", status: "activo", assigned_to: DEMO_OWNER.id, created_at: "2026-04-01", whatsapp: "+54 342 4789012", email: "administracion@laesperanza.com.ar" },
+  { id: "c8", name: "Frío Industrial S.R.L.", province: "Buenos Aires", segment: "Industrial", country: "AR", status: "inactivo", assigned_to: DEMO_SELLER.id, created_at: "2026-04-10", whatsapp: "+54 11 4890123", email: "contacto@frioindustrial.com.ar" },
 ];
 
 export const DEMO_PROFILES = [
