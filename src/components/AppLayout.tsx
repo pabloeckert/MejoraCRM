@@ -12,6 +12,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/interactions": "Interacciones",
   "/products": "Productos",
   "/whatsapp-link": "Link WhatsApp",
+  "/whatsapp-campanas": "Campañas WhatsApp",
+  "/contactos": "Contactos",
   "/settings": "Configuración",
 };
 

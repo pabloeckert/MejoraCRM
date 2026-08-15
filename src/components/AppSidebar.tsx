@@ -24,6 +24,8 @@ const items = [
   { title: "Reportes", url: "/reports", icon: BarChart3, roles: ["admin", "supervisor"] },
   { title: "Productos", url: "/products", icon: Package, roles: ["admin", "supervisor"] },
   { title: "Link WhatsApp", url: "/whatsapp-link", icon: MessageCircle, roles: ["admin", "supervisor"] },
+  { title: "Campañas WhatsApp", url: "/whatsapp-campanas", icon: MessageCircle, roles: ["admin", "supervisor"] },
+  { title: "Contactos", url: "/contactos", icon: Users, roles: ["admin", "supervisor"] },
   { title: "Configuración", url: "/settings", icon: Settings, roles: ["admin", "supervisor"] },
 ];
 

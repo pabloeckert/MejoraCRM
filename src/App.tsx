@@ -20,6 +20,8 @@ const Products = lazy(() => import("./pages/Products"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Reports = lazy(() => import("./pages/Reports"));
 const WhatsAppLink = lazy(() => import("./pages/WhatsAppLink"));
+const Contactos = lazy(() => import("./pages/Contactos"));
+const WhatsAppCampanas = lazy(() => import("./pages/WhatsAppCampanas"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -75,6 +77,8 @@ const App = () => (
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/whatsapp-link" element={<ProtectedRoute><WhatsAppLink /></ProtectedRoute>} />
+                <Route path="/contactos" element={<ProtectedRoute><Contactos /></ProtectedRoute>} />
+                <Route path="/whatsapp-campanas" element={<ProtectedRoute><WhatsAppCampanas /></ProtectedRoute>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<NotFound />} />
