@@ -20,4 +20,8 @@ Se armó toda la especificación y el plan (`ESPECIFICACION.md`, `PENDIENTES.md`
 
 ## Actualización (2026-08-15, sesión 02) — Fases 1, 2 y 3 completas
 
-Bridge local de MejoraWS (Fase 1), MejoraWS embebiendo MejoraContactos vía `WebContentsView` (Fase 2), y MejoraContactos mostrando el estado de MejoraWS vía el bridge con auth por copy-paste manual de token (Fase 3) — las tres verificadas end-to-end con las apps reales corriendo, no solo lectura de código, y pusheadas a sus repos (`MejoraWS@435b6b3`, `MejoraContactos@7383cb3`). Ver `handoffs/2026-08-15-sesion-02.md` para el detalle completo. Próximo paso real: Fase 1b (`POST /send` del bridge) o Fase 4 (MejoraCRM embebe a los otros dos) — ver `PENDIENTES.md`, ninguna bloquea a la otra.
+Bridge local de MejoraWS (Fase 1), MejoraWS embebiendo MejoraContactos vía `WebContentsView` (Fase 2), y MejoraContactos mostrando el estado de MejoraWS vía el bridge con auth por copy-paste manual de token (Fase 3) — las tres verificadas end-to-end con las apps reales corriendo, no solo lectura de código, y pusheadas a sus repos (`MejoraWS@435b6b3`, `MejoraContactos@7383cb3`). Ver `handoffs/2026-08-15-sesion-02.md` para el detalle completo.
+
+## Actualización (2026-08-15, sesión 03) — Fase 4 completa
+
+MejoraCRM embebe a MejoraContactos (`/contactos`, iframe) y a MejoraWS (`/whatsapp-campanas`, panel de estado vía bridge) — commit `2d605b60` en `main`, verificado end-to-end. **Antes de implementar CUALQUIER fase nueva, correr `git log --oneline -5` y `git status` en los 3 repos primero** — esta sesión reimplementó por error trabajo de Fase 3 que una sesión intermedia ya había commiteado (sin conflicto porque coincidió, pero fue esfuerzo de más; ver `DECISIONES.md`). Próximo paso real: Fase 1b (`POST /send` del bridge) o Fase 5 (pulido/empaquetado) — ver `PENDIENTES.md`. Pablo pidió llegar hasta "Fase 10" pero las fases 6-10 no están definidas todavía — no inventarlas por inventar, terminar 1b/5 primero.

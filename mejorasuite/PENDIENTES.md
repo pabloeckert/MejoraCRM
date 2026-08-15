@@ -37,12 +37,13 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 - [x] ~~Panel nuevo en MejoraContactos (`GET /status`)~~ — `src/lib/mejoraws-bridge.ts` (cliente HTTP, token cifrado en localStorage con el mismo AES-GCM que las API keys de IA) + `src/components/MejoraWsPanel.tsx` (UI en Ajustes: pegar token una vez, estado conectado/desconectado en vivo, botón "Abrir MejoraWS" si no responde). 8 tests nuevos. Verificado end-to-end real: Browser pane + MejoraWS corriendo en paralelo, token real pegado a mano, `Network requests` confirmando el preflight PNA + `GET /status` 200 cada 6s, UI mostrando el estado real del bridge. Commit `7383cb3` en `main` de MejoraContactos (auto-deploy a GitHub Pages ya disparado por el push).
 - [ ] **Diferido a propósito, no es parte de esta fusión todavía:** acción "enviar por WhatsApp" en `ContactsTable.tsx`/`ExportPanel.tsx` — depende de que el bridge tenga `POST /send` (Fase 1b, ver arriba, deliberadamente no construido aún por el riesgo de interponerse en la cola/delay/tope diario sin la cautela debida).
 
-## Fase 4 — MejoraCRM embebe a los dos
+## Fase 4 — MejoraCRM embebe a los dos ✅ (2026-08-15, status; ver pendiente de auto-Interacción abajo)
 
-- [ ] Nueva página `/contactos` en MejoraCRM: `<iframe>` a la URL pública de MejoraContactos.
-- [ ] Nueva página `/whatsapp-campanas` en MejoraCRM (distinta de la ya existente `/whatsapp-link`): panel que habla con el bridge de MejoraWS igual que Fase 3.
-- [ ] Entradas nuevas en `AppSidebar.tsx` para ambas páginas (con roles correspondientes — a definir con Pablo si son solo-admin o todos).
-- [ ] Bridge de MejoraWS → Interacción del CRM: cuando llega un evento de respuesta/envío por el stream de eventos (Fase 1), crear automáticamente una `Interaction` vía el hook `useInteractions` existente (o una función Supabase equivalente) — esto es lo que cierra el "hoy los mensajes de WhatsApp no dejan rastro en el CRM" del brief original.
+- [x] ~~Nueva página `/contactos` en MejoraCRM~~ — `<iframe>` a `https://pabloeckert.github.io/MejoraContactos/`, cero acoplamiento de código.
+- [x] ~~Nueva página `/whatsapp-campanas`~~ — panel de estado de MejoraWS vía su bridge, mismo patrón que el panel de MejoraContactos (Fase 3). `src/lib/mejoraws-bridge.ts` es una copia deliberada del cliente (no un paquete compartido — cada producto de la suite sigue siendo independiente).
+- [x] ~~Entradas nuevas en `AppSidebar.tsx`~~ — roles `["admin", "supervisor"]`, mismo patrón que "Link WhatsApp" ya existente (decisión autónoma, ver `DECISIONES.md`).
+- [x] ~~Verificación end-to-end~~ — typecheck, build, 138/138 tests, lint limpios; ambas páginas confirmadas en navegador real (iframe cargando la URL correcta, panel cayendo a "no está corriendo" cuando el bridge no responde — comportamiento esperado, no un bug). Commit `2d605b60` en `main` de MejoraCRM.
+- [ ] **Pendiente, no bloqueante:** Bridge de MejoraWS → Interacción del CRM automática (cuando llega un evento de respuesta/envío por `GET /events`, crear una `Interaction` vía Supabase/hook existente) — esto es lo que cierra el "hoy los mensajes de WhatsApp no dejan rastro en el CRM" del brief original de Lovable. Requiere decidir cómo autenticar esa escritura desde el navegador contra Supabase (el CRM ya tiene sesión de usuario logueado, así que probablemente reusa esa sesión en vez de necesitar algo nuevo) — se deja para una sesión con más espacio para pensarlo bien, no es una tarea de 5 minutos como el resto de esta fase.
 
 ## Fase 5 — Pulido y empaquetado
 
@@ -57,7 +58,6 @@ Lista viva. Se tacha (no se borra) lo completado, se agrega lo nuevo. Es lo prim
 
 ## Próximo paso real (según esta sesión, 2026-08-15)
 
-Dos caminos válidos para la siguiente sesión, ninguno bloquea al otro:
-1. **Fase 1b** — `POST /send` en el bridge de MejoraWS (interponerse con cuidado en la cola/delay/tope diario existente), lo que habilita el checkbox diferido de Fase 3 ("enviar por WhatsApp" desde `ContactsTable.tsx`).
-2. **Fase 4** — MejoraCRM embebe a MejoraContactos (iframe, más simple) y a MejoraWS (mismo patrón de bridge que Fase 3, reusable casi 1:1 ya que la lógica de `mejoraws-bridge.ts` no depende de nada específico de MejoraContactos).
-- [ ] Confirmar si `/contactos` y `/whatsapp-campanas` en el CRM son visibles para todos los roles o solo admin/supervisor.
+Fases 1 a 4 completas en los tres repos. Lo que sigue, ninguno bloquea al otro:
+1. **Fase 1b** — `POST /send` en el bridge de MejoraWS (interponerse con cuidado en la cola/delay/tope diario existente), lo que habilita el checkbox diferido de Fase 3 ("enviar por WhatsApp" desde `ContactsTable.tsx`) y el auto-Interacción pendiente de Fase 4.
+2. **Fase 5** — pulido y empaquetado (ver sección de arriba): KPI de campañas en el dashboard, README de los 3 repos con diagrama de la topología.

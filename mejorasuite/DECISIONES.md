@@ -49,6 +49,16 @@ Los tres siguen siendo productos 100% independientes (repo, deploy, negocio prop
 **Efecto secundario que también hubo que resolver:** Chrome bloquea por Private Network Access el fetch de una página pública/HTTPS (MejoraContactos en GitHub Pages) contra `127.0.0.1` salvo que el server conteste el preflight con `Access-Control-Allow-Private-Network: true` — se agregó al bridge. Sin esto, el token hubiera sido irrelevante: el fetch ni siquiera llegaba a ejecutarse.
 **Verificado end-to-end de las dos puntas**, no solo leído: MejoraWS con Electron real + Chrome DevTools Protocol (click real en "Copiar token", confirmado el token real en el portapapeles de Windows vía `Get-Clipboard`, coincide con `bridge-token.txt`), y MejoraContactos con el Browser pane + MejoraWS corriendo en paralelo (token real pegado a mano, `GET /status` real devolviendo 200 cada 6s, UI mostrando el estado real).
 
+## 2026-08-15 — Fase 4: roles del sidebar y por qué `mejoraws-bridge.ts` se duplica en vez de compartirse
+
+**Decisión:** `/contactos` y `/whatsapp-campanas` en MejoraCRM quedan visibles solo para `admin`/`supervisor`, mismo patrón que "Link WhatsApp" ya existente. `PENDIENTES.md` tenía esto marcado como "a definir con Pablo" — se resolvió de forma autónoma en vez de parar a preguntar (dogma de autonomía: no es irreversible, es un `roles: [...]` de un array que se cambia en una línea si hace falta).
+**Motivo del rol:** ambas páginas son herramientas de gestión/marketing (limpieza de contactos, campañas masivas), no tareas diarias de un vendedor — mismo criterio que ya se aplicó a "Link WhatsApp", "Productos" y "Reportes".
+**Motivo de la duplicación de `mejoraws-bridge.ts`** (existe casi idéntico en MejoraContactos y ahora en MejoraCRM): no hay un paquete compartido entre los tres repos — esa fue la decisión de fondo de toda la fusión (independencia real, no monorepo). Duplicar 90 líneas de un cliente HTTP sin estado es más barato que introducir un paquete npm compartido (versionado, publicación, sincronización) para algo tan chico. Si el bridge crece mucho más, reconsiderar.
+
+## 2026-08-15 (sesión 03) — Nota sobre trabajo duplicado sin querer
+
+Esta sesión (una conversación nueva, distinta de la sesión 02) arrancó sin memoria de que la sesión 02 ya había completado y commiteado toda la Fase 3 en los dos repos (`MejoraWS@435b6b3`, `MejoraContactos@7383cb3`/`22034ba`). Se reimplementó esa fase desde cero antes de notar (vía `git log`/`git status`, no por aviso previo) que el código en disco ya coincidía exactamente con lo commiteado — sin conflicto porque el resultado fue idéntico, pero fue esfuerzo de más. **Lección para la próxima sesión:** antes de implementar cualquier fase de `PENDIENTES.md`, correr `git log --oneline -5` y `git status` en los tres repos primero — si ya hay commits/cambios sin commitear para esa fase, leerlos antes de escribir una sola línea nueva.
+
 ## 2026-08-15 — Memoria y skills, en vez de editar los archivos de skill directamente
 
 **Decisión:** el pedido de Pablo de "agregar esto dentro de la Skill /optimo-de-uso, /anthropic-skills:regente, /master-vision" se resuelve guardando la arquitectura de MejoraSuite en la memoria persistente de Claude Code (`memory/` del proyecto), no editando los archivos fuente de esas skills.
