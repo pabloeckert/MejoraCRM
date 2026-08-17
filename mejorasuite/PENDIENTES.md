@@ -53,13 +53,26 @@ Se resolvió con Claude guiando a Pablo paso a paso (capturas de pantalla de VS 
 - [x] CI de cada repo sigue siendo independiente — confirmado, no se creó nada nuevo (era una decisión ya tomada, no una tarea pendiente).
 - [ ] **KPI nuevo en el dashboard** (enviados/respondidos/tasa de respuesta por carpeta de campaña) — sigue sin poder construirse todavía, pero ya no por Fase 1b (✅): depende de que existan Interacciones generadas automáticamente desde eventos de WhatsApp (el pendiente no bloqueante que quedó abierto en Fase 4, auto-Interacción — ese sí sigue sin hacer, necesita decidir cómo autenticar esa escritura contra Supabase desde el navegador).
 
+## Fase 6 — Limpieza de los 3 repos + repo sede MejoraSuite ✅ (2026-08-17)
+
+Pablo pidió analizar los tres repos, limpiarlos/optimizarlos "a tu criterio", y crear un **cuarto repo nuevo** (local + remoto) que sea una sede independiente que llame a los otros tres sin fusionar código — dejando el criterio de qué limpiar y cómo construir la sede a decisión autónoma de Claude.
+
+- [x] ~~Re-auditar seguridad del código nuevo de las Fases 1-5~~ — sin hallazgos nuevos.
+- [x] ~~Limpiar MejoraContactos~~ — 2 bugs reales encontrados y corregidos (no eran solo estilo): el Blog completo estaba roto en producción (slugs de `BLOG_POSTS` desalineados de las claves reales de `ARTICLES`, todo post daba 404), y `validateContactBatch` pasaba su callback directo a `.map()` corrompiendo el segundo argumento posicional por el índice del array. También un bug de UI real en `ProcessingPanel.tsx` (un `setStageConfig(prev => ...)` funcional contra un setter de `useReducer` que no soporta updaters funcionales — el cambio de proveedor de IA no se guardaba). Commit `7eb3372` en `main`, auto-deploy a GitHub Pages disparado.
+- [x] ~~Limpiar MejoraWS~~ — verificado limpio, sin cambios (deps todas en uso, sin archivos basura más allá del ya ignorado `mejora-contacto.zip`).
+- [x] ~~Limpiar MejoraCRM~~ — quitadas 2 dependencias sin uso (`@dnd-kit/modifiers`, `react-is`, verificado que `recharts`/`pretty-format` ya las traen transitivamente antes de tocar nada). Commit `093944a7`.
+- [x] ~~Crear MejoraSuite~~ — repo nuevo en `C:\Github\Negocio\MejoraSuite`, app Electron mínima sin bundler (HTML/CSS/JS planos), 3 tiles que abren MejoraCRM y MejoraContactos con `shell.openExternal()` y MejoraWS con el protocolo `mejoraws://` ya registrado en Fase 3. Ping de estado sin token contra `GET http://127.0.0.1:4180/status` del bridge de MejoraWS. Paleta y tipografías de marca copiadas localmente (`public/brand/`, `public/fonts/`). Verificado: `npm install` real, descarga del binario de Electron, `npx electron .` levanta sin errores de arranque (los dos únicos mensajes en stdout son ruido de GPU/network service del sandbox, no errores de la app). Commit inicial `b811fc4`, repo remoto `https://github.com/pabloeckert/MejoraSuite` (privado, mismo namespace `pabloeckert` que los otros tres — el README de MejoraCRM menciona una org "MejoraContinua" que no existe como remoto real, es aspiracional).
+
+**MejoraSuite pasa a ser el cuarto repo de la fusión** — no reemplaza a MejoraCRM como rector de la *arquitectura* (este archivo y `DECISIONES.md` siguen viviendo acá), pero es el punto de entrada de escritorio para un usuario que quiere los tres productos sin recordar tres URLs/apps distintas.
+
 ## Bloqueado / requiere a Pablo
 
 - [ ] Rotar `service_role` key de Supabase de MejoraCRM (Dashboard → Project Settings → API) — pendiente desde el hallazgo de seguridad, no depende de esta fusión pero sigue abierto.
 - [x] ~~Confirmar puerto y esquema de auth mínima del bridge local de MejoraWS~~ — resuelto de forma autónoma (dogma de autonomía, no era irreversible ni requería a Pablo): puerto `4180` ya elegido en Fase 1 se mantuvo; auth resuelta con copy-paste manual del token (ver Fase 3 arriba) en vez de intentar que la web lea el archivo del disco.
 
-## Próximo paso real (según esta sesión, 2026-08-15)
+## Próximo paso real (según esta sesión, 2026-08-17)
 
-Fases 1 a 4 completas en los tres repos. Lo que sigue, ninguno bloquea al otro:
-1. **Fase 1b** — `POST /send` en el bridge de MejoraWS (interponerse con cuidado en la cola/delay/tope diario existente), lo que habilita el checkbox diferido de Fase 3 ("enviar por WhatsApp" desde `ContactsTable.tsx`) y el auto-Interacción pendiente de Fase 4.
-2. **Fase 5** — pulido y empaquetado (ver sección de arriba): KPI de campañas en el dashboard, README de los 3 repos con diagrama de la topología.
+Fases 1 a 6 completas en los cuatro repos. Lo que sigue, ninguno bloquea al otro:
+1. **Ícono real del instalador de MejoraSuite** — hoy usa el isotipo PNG como ícono de ventana, pero electron-builder para Windows quiere un `.ico` dedicado; no se generó todavía.
+2. **KPI de campañas en el dashboard de MejoraCRM** (enviados/respondidos/tasa de respuesta) — sigue esperando el auto-Interacción pendiente de Fase 4 (eventos de WhatsApp → Interacción automática vía Supabase).
+3. **Botón "enviar por WhatsApp" en MejoraContactos** (`ContactsTable.tsx`/`ExportPanel.tsx`) — desbloqueado desde Fase 1b, no construido: falta decidir a qué carpeta de MejoraWS caen esos envíos (decisión de producto).

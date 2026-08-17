@@ -21,6 +21,7 @@ MejoraCRM  ──embebe──▶  MejoraContactos   (iframe, /contactos)
 | **MejoraCRM** (acá) | CRM interno, rector de la suite | privado |
 | **[MejoraContactos](https://github.com/pabloeckert/MejoraContactos)** | SaaS público de limpieza/dedup de contactos, embebido en `/contactos` | [pabloeckert/MejoraContactos](https://github.com/pabloeckert/MejoraContactos) |
 | **[MejoraWS](https://github.com/pabloeckert/MejoraWS)** | App de escritorio para campañas de WhatsApp, estado embebido en `/whatsapp-campanas` vía un bridge local | [pabloeckert/MejoraWS](https://github.com/pabloeckert/MejoraWS) |
+| **[MejoraSuite](https://github.com/pabloeckert/MejoraSuite)** | Sede de escritorio (Electron) que lanza los tres productos sin fusionar su código — no embebe ni es embebida, es un cuarto repo aparte | [pabloeckert/MejoraSuite](https://github.com/pabloeckert/MejoraSuite) |
 
 Arquitectura completa, decisiones y estado vivo de la fusión: [`mejorasuite/`](./mejorasuite/) (`ESPECIFICACION.md`, `PENDIENTES.md`, `DECISIONES.md`).
 
