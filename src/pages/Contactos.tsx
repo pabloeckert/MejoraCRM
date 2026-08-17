@@ -24,6 +24,12 @@ export default function Contactos() {
         </a>
       </div>
       <div className="flex-1 min-h-[70vh] rounded-lg border border-border/50 overflow-hidden shadow-sm">
+        {/* allow-scripts + allow-same-origin juntos técnicamente le permiten a
+            un iframe sacarse su propio sandbox — pero acá el contenido es
+            MejoraContactos, el propio producto de Pablo, no un tercero. Sin
+            allow-same-origin, MejoraContactos no podría usar su localStorage/
+            IndexedDB (ahí guarda el token cifrado del bridge y los contactos
+            procesados) y quedaría roto. Ver mejorasuite/DECISIONES.md. */}
         <iframe
           src={MEJORACONTACTOS_URL}
           title="MejoraContactos"
