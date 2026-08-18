@@ -9,8 +9,9 @@ import {
 } from "recharts";
 import {
   TrendingUp, DollarSign, Target, Users, Clock, Award,
-  Download, Filter, ArrowRight, Percent, BarChart3, MessageCircle,
+  Download, Filter, ArrowRight, Percent, BarChart3,
 } from "lucide-react";
+import { WhatsAppStatsCard } from "@/components/reports/WhatsAppStatsCard";
 import { format, subMonths, startOfMonth } from "date-fns";
 import { es } from "date-fns/locale";
 import { useDashboardData } from "@/hooks/useDashboard";
@@ -277,45 +278,7 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
       </div>
 
       {/* WhatsApp */}
-      {waStats.total > 0 && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 text-primary" /> WhatsApp
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="grid grid-cols-2 gap-3 content-start">
-                <div className="p-3 rounded-lg bg-muted/30 text-center">
-                  <p className="text-lg font-bold">{waStats.total}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Respuestas detectadas</p>
-                </div>
-                <div className="p-3 rounded-lg bg-muted/30 text-center">
-                  <p className="text-lg font-bold">{waStats.automaticas}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Automáticas</p>
-                </div>
-              </div>
-              <div className="lg:col-span-2 h-40">
-                {waStats.porSemana.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={waStats.porSemana}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="semana" fontSize={10} tickFormatter={(v) => format(new Date(v), "d MMM", { locale: es })} />
-                      <YAxis allowDecimals={false} fontSize={10} />
-                      <RTooltip labelFormatter={(v) => `Semana del ${format(new Date(v), "d MMM", { locale: es })}`} />
-                      <Bar dataKey="cantidad" fill={BRAND.primary} radius={[4, 4, 0, 0]} name="Respuestas" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin datos</div>}
-              </div>
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-3">
-              Solo respuestas de WhatsApp detectadas automáticamente — no hay forma de contar mensajes enviados todavía.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <WhatsAppStatsCard stats={waStats} />
 
       {/* Province breakdown */}
       {provinceData.length > 0 && (

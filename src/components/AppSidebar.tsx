@@ -1,4 +1,4 @@
-import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3, MessageCircle } from "lucide-react";
+import { LayoutGrid, Users, MessageSquare, Package, LogOut, Settings, Search, BarChart3, MessageCircle, Sparkles } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +27,7 @@ const items = [
   { title: "Campañas WhatsApp", url: "/whatsapp-campanas", icon: MessageCircle, roles: ["admin", "supervisor"] },
   { title: "Contactos", url: "/contactos", icon: Users, roles: ["admin", "supervisor"] },
   { title: "Configuración", url: "/settings", icon: Settings, roles: ["admin", "supervisor"] },
+  { title: "Modo demostración", url: "/demo", icon: Sparkles },
 ];
 
 export function AppSidebar() {
