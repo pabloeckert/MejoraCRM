@@ -1,17 +1,25 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, CheckCircle2, XCircle, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth, DEMO_MODE } from "@/contexts/AuthContext";
+import { useAllClients } from "@/hooks/useClients";
+import { addDemoInteraction } from "@/hooks/useInteractions";
+import { samePhone } from "@/lib/calculations";
 import {
   getBridgeStatus,
   loadBridgeToken,
   saveBridgeToken,
   clearBridgeToken,
+  subscribeToBridgeMessages,
   MEJORAWS_PROTOCOL_URL,
   type BridgeStatus,
+  type BridgeMessageEvent,
 } from "@/lib/mejoraws-bridge";
 
 const POLL_MS = 6000;
@@ -20,14 +28,27 @@ const POLL_MS = 6000;
  * Fase 4 de MejoraSuite: MejoraWS embebido dentro del CRM — mismo patrón
  * que el panel equivalente en MejoraContactos (src/components/MejoraWsPanel.tsx
  * de ese repo). MejoraWS sigue siendo su propia app de escritorio; esto es
- * solo un panel de estado + acceso rápido, sin envío todavía (Fase 1b del
- * bridge sigue sin construir a propósito). Ver mejorasuite/ESPECIFICACION.md.
+ * solo un panel de estado + acceso rápido. Ver mejorasuite/ESPECIFICACION.md.
+ *
+ * Fase 6: además de mostrar estado, cuando la conexión con MejoraWS está
+ * activa esta página escucha GET /events (SSE) y, si llega una respuesta de
+ * WhatsApp de un teléfono que coincide con un cliente del CRM, crea una
+ * Interacción automática (result "seguimiento", medium "whatsapp") — así el
+ * mensaje deja rastro sin que el vendedor tenga que cargarlo a mano. Límite
+ * conocido y aceptado: solo funciona mientras esta pestaña está abierta y
+ * logueada, no hay listener en segundo plano (no hay backend propio para
+ * eso — ver mejorasuite/PENDIENTES.md, Fase 4/5).
  */
 export default function WhatsAppCampanas() {
   const [token, setToken] = useState<string | null>(null);
   const [tokenInput, setTokenInput] = useState("");
   const [status, setStatus] = useState<BridgeStatus | null>(null);
   const [checking, setChecking] = useState(false);
+  const { user } = useAuth();
+  const { data: clients = [] } = useAllClients();
+  const queryClient = useQueryClient();
+  const clientsRef = useRef(clients);
+  clientsRef.current = clients;
 
   useEffect(() => {
     loadBridgeToken().then(setToken);
@@ -46,6 +67,45 @@ export default function WhatsAppCampanas() {
     const interval = setInterval(() => checkStatus(token), POLL_MS);
     return () => clearInterval(interval);
   }, [token, checkStatus]);
+
+  const handleIncomingMessage = useCallback(
+    async (evt: BridgeMessageEvent) => {
+      const client = clientsRef.current.find((c) => samePhone(c.whatsapp, evt.phone));
+      if (!client) return; // respuesta de un número que no está cargado como cliente — no hay a qué asociarla
+
+      const notePreview = evt.text.length > 200 ? `${evt.text.slice(0, 200)}…` : evt.text;
+      const payload = {
+        client_id: client.id,
+        user_id: user?.id,
+        medium: "whatsapp",
+        result: "seguimiento" as const,
+        followup_scenario: "independiente" as const,
+        notes: `Respondió por WhatsApp: "${notePreview}"`,
+      };
+
+      try {
+        if (DEMO_MODE) {
+          addDemoInteraction(payload);
+        } else {
+          const { error } = await supabase.from("interactions").insert(payload);
+          if (error) throw error;
+        }
+        queryClient.invalidateQueries({ queryKey: ["interactions"] });
+        queryClient.invalidateQueries({ queryKey: ["interactions-infinite"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
+        toast.success(`Interacción automática creada para ${client.name} (respondió por WhatsApp)`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "No se pudo registrar la respuesta de WhatsApp");
+      }
+    },
+    [user?.id, queryClient]
+  );
+
+  useEffect(() => {
+    if (!token || !status?.connected) return;
+    const unsubscribe = subscribeToBridgeMessages(token, handleIncomingMessage);
+    return unsubscribe;
+  }, [token, status?.connected, handleIncomingMessage]);
 
   const handleSaveToken = async () => {
     if (!tokenInput.trim()) return;

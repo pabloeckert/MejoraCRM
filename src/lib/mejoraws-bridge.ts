@@ -101,5 +101,69 @@ export async function getBridgeStatus(token: string): Promise<BridgeStatus | nul
   }
 }
 
+export interface BridgeMessageEvent {
+  phone: string;
+  text: string;
+  recibidoEn: string;
+}
+
+/**
+ * Suscribe a GET /events (SSE) del bridge. No se puede usar `EventSource`
+ * nativo porque el bridge exige el header `X-Bridge-Token` en todas las
+ * rutas (incluida /events) y esa API del browser no permite mandar headers
+ * custom — por eso se parsea el stream a mano con `fetch` + `ReadableStream`.
+ * Devuelve una función `unsubscribe()` para cortar la conexión.
+ */
+export function subscribeToBridgeMessages(
+  token: string,
+  onMessage: (evt: BridgeMessageEvent) => void
+): () => void {
+  const controller = new AbortController();
+
+  (async () => {
+    try {
+      const res = await fetch(`${BRIDGE_URL}/events`, {
+        headers: { "X-Bridge-Token": token },
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) return;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const frames = buffer.split("\n\n");
+        buffer = frames.pop() ?? "";
+
+        for (const frame of frames) {
+          let eventType = "message";
+          let dataLine = "";
+          for (const line of frame.split("\n")) {
+            if (line.startsWith("event:")) eventType = line.slice(6).trim();
+            if (line.startsWith("data:")) dataLine += line.slice(5).trim();
+          }
+          if (eventType === "message" && dataLine) {
+            try {
+              onMessage(JSON.parse(dataLine) as BridgeMessageEvent);
+            } catch {
+              // frame corrupto o parcial, se ignora — el próximo frame sigue el flujo normal
+            }
+          }
+        }
+      }
+    } catch {
+      // conexión cortada (MejoraWS se cerró, o se llamó unsubscribe) — no reintenta acá,
+      // el polling de /status ya cubre notar que MejoraWS dejó de responder
+    }
+  })();
+
+  return () => controller.abort();
+}
+
 export const MEJORAWS_PROTOCOL_URL = "mejoraws://open";
 export const MEJORACONTACTOS_URL = "https://pabloeckert.github.io/MejoraContactos/";

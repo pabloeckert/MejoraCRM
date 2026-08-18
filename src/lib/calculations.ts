@@ -76,6 +76,23 @@ export function isValidWhatsapp(value: string): boolean {
   return /^\+?\d[\d\s\-()]{6,20}$/.test(value);
 }
 
+/** Deja solo los dígitos de un teléfono. */
+export function phoneDigits(value: string | null | undefined): string {
+  return (value ?? "").replace(/\D/g, "");
+}
+
+/**
+ * Compara dos teléfonos por los últimos 8 dígitos — no por igualdad
+ * estricta — porque el CRM y el JID crudo de WhatsApp pueden traer
+ * prefijos de país o el "9" de Argentina de forma inconsistente.
+ */
+export function samePhone(a: string | null | undefined, b: string | null | undefined): boolean {
+  const da = phoneDigits(a);
+  const db = phoneDigits(b);
+  if (da.length < 8 || db.length < 8) return false;
+  return da.slice(-8) === db.slice(-8);
+}
+
 /**
  * Calculate seller ranking from interactions + profile map.
  */

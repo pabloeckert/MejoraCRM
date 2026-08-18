@@ -5,6 +5,8 @@ import {
   getOverdueFollowups,
   isValidWhatsapp,
   calculateSellerRanking,
+  phoneDigits,
+  samePhone,
   type InteractionSummary,
 } from "@/lib/calculations";
 
@@ -153,6 +155,36 @@ describe("isValidWhatsapp", () => {
     expect(isValidWhatsapp("abc")).toBe(false);
     expect(isValidWhatsapp("123")).toBe(false);
     expect(isValidWhatsapp("+")).toBe(false);
+  });
+});
+
+// ── phoneDigits / samePhone ─────────────────────────────────────
+// Usado por WhatsAppCampanas.tsx para matchear la respuesta entrante de un
+// evento del bridge de MejoraWS contra el teléfono guardado del cliente.
+
+describe("phoneDigits", () => {
+  it("deja solo dígitos", () => {
+    expect(phoneDigits("+54 9 376 400-0000")).toBe("5493764000000");
+    expect(phoneDigits(null)).toBe("");
+    expect(phoneDigits(undefined)).toBe("");
+    expect(phoneDigits("")).toBe("");
+  });
+});
+
+describe("samePhone", () => {
+  it("matchea aunque difiera el prefijo de país/el 9 de Argentina", () => {
+    expect(samePhone("+54 9 3764 000000", "5493764000000")).toBe(true);
+    expect(samePhone("3764000000", "543764000000")).toBe(true);
+  });
+
+  it("no matchea números distintos", () => {
+    expect(samePhone("3764000000", "3764000001")).toBe(false);
+  });
+
+  it("no matchea si alguno es demasiado corto (evita falsos positivos)", () => {
+    expect(samePhone("123", "0000000123")).toBe(false);
+    expect(samePhone(null, "3764000000")).toBe(false);
+    expect(samePhone(undefined, undefined)).toBe(false);
   });
 });
 
