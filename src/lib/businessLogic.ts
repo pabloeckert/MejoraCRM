@@ -274,3 +274,35 @@ export function getAvgSalesCycle(interactions: Interaction[]): number {
 
   return Math.round(totalDays / ventaWithQuote.length);
 }
+
+export interface WhatsAppStats {
+  total: number;
+  automaticas: number;
+  manuales: number;
+  porSemana: Array<{ semana: string; cantidad: number }>;
+}
+
+/**
+ * Estadísticas de interacciones por WhatsApp en el período. Solo cuenta
+ * respuestas ya registradas como Interacción — no hay forma de saber cuántos
+ * mensajes salientes se mandaron (el bridge de MejoraWS no emite ese evento,
+ * ver mejorasuite/PENDIENTES.md), así que no se calcula una "tasa de
+ * respuesta" con eso.
+ */
+export function getWhatsAppStats(interactions: Interaction[]): WhatsAppStats {
+  const wa = interactions.filter((i: any) => i.medium === "whatsapp");
+  const automaticas = wa.filter((i: any) => i.followup_scenario === "independiente" && i.result === "seguimiento");
+  const manuales = wa.length - automaticas.length;
+
+  const semanas = new Map<string, number>();
+  for (const i of wa) {
+    const semana = startOfWeek((i as any).interaction_date ? new Date((i as any).interaction_date) : new Date(), { weekStartsOn: 1 });
+    const key = semana.toISOString().slice(0, 10);
+    semanas.set(key, (semanas.get(key) || 0) + 1);
+  }
+  const porSemana = Array.from(semanas.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([semana, cantidad]) => ({ semana, cantidad }));
+
+  return { total: wa.length, automaticas: automaticas.length, manuales, porSemana };
+}

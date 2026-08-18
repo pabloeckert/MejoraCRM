@@ -9,6 +9,7 @@ import {
   getLossReasons,
   getSalesByProduct,
   getAvgSalesCycle,
+  getWhatsAppStats,
   type Period,
 } from "@/lib/businessLogic";
 import type { Interaction } from "@/lib/types";
@@ -213,5 +214,26 @@ describe("getAvgSalesCycle", () => {
   it("returns 0 when no linked sales", () => {
     const data = [makeInteraction({ result: "venta" })];
     expect(getAvgSalesCycle(data)).toBe(0);
+  });
+});
+
+describe("getWhatsAppStats", () => {
+  it("separates auto-generated interactions from manual ones", () => {
+    const data = [
+      makeInteraction({ id: "a1", medium: "whatsapp", result: "seguimiento", followup_scenario: "independiente", interaction_date: "2026-04-06" }),
+      makeInteraction({ id: "a2", medium: "whatsapp", result: "seguimiento", followup_scenario: "independiente", interaction_date: "2026-04-07" }),
+      makeInteraction({ id: "m1", medium: "whatsapp", result: "venta", followup_scenario: null, interaction_date: "2026-04-08" }),
+      makeInteraction({ id: "e1", medium: "email", result: "seguimiento", interaction_date: "2026-04-08" }),
+    ];
+    const stats = getWhatsAppStats(data);
+    expect(stats.total).toBe(3);
+    expect(stats.automaticas).toBe(2);
+    expect(stats.manuales).toBe(1);
+    expect(stats.porSemana.reduce((s, w) => s + w.cantidad, 0)).toBe(3);
+  });
+
+  it("returns zeros for a period with no WhatsApp interactions", () => {
+    const stats = getWhatsAppStats([makeInteraction({ medium: "email" })]);
+    expect(stats).toEqual({ total: 0, automaticas: 0, manuales: 0, porSemana: [] });
   });
 });
