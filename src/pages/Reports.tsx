@@ -12,6 +12,7 @@ import {
   Download, Filter, ArrowRight, Percent, BarChart3,
 } from "lucide-react";
 import { WhatsAppStatsCard } from "@/components/reports/WhatsAppStatsCard";
+import { AskCrmPanel } from "@/components/reports/AskCrmPanel";
 import { format, subMonths, startOfMonth } from "date-fns";
 import { es } from "date-fns/locale";
 import { useDashboardData } from "@/hooks/useDashboard";
@@ -276,6 +277,16 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
           </CardContent>
         </Card>
       </div>
+
+      {/* Preguntale a tu CRM */}
+      <AskCrmPanel
+        periodLabel={periodLabel}
+        kpis={kpis}
+        avgCycle={avgCycle}
+        resultData={resultData}
+        topProducts={topProducts}
+        waStats={waStats}
+      />
 
       {/* WhatsApp */}
       <WhatsAppStatsCard stats={waStats} />
