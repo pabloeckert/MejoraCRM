@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,6 +151,7 @@ export function InteractionForm({
   initialClientId, onClientChange, onResultChange,
 }: InteractionFormProps) {
   const { user } = useAuth();
+  const demoMode = useDemoMode();
   const queryClient = useQueryClient();
   const isEditing = !!interaction;
   const { isConnected: calendarConnected, createEvent } = useGoogleCalendar();
@@ -249,7 +250,7 @@ export function InteractionForm({
 
   const createMutation = useMutation({
     mutationFn: async (data: InteractionFormData) => {
-      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+      if (demoMode) {
         addDemoInteraction(data as any);
         return;
       }

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_MODE } from "@/contexts/AuthContext";
+import { useDemoMode } from "@/contexts/AuthContext";
 import { DEMO_CLIENTS as INITIAL_DEMO_CLIENTS } from "@/demo/demoData";
 import type { Client } from "@/lib/types";
 
@@ -26,10 +26,11 @@ export const addDemoClient = (c: Partial<Client>) => {
  * Returns: { data (flat array), fetchNextPage, hasNextPage, isFetchingNextPage, ... }
  */
 export function useClientsInfinite() {
+  const demoMode = useDemoMode();
   return useInfiniteQuery<Client[]>({
-    queryKey: ["clients-infinite", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["clients-infinite", demoMode ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
+      if (demoMode) return [...MEMORY_DEMO_CLIENTS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
@@ -41,7 +42,7 @@ export function useClientsInfinite() {
       return (data as Client[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
-      if (DEMO_MODE) return undefined; // No pagination in demo
+      if (demoMode) return undefined; // No pagination in demo
       if (lastPage.length < PAGE_SIZE) return undefined; // No more pages
       return allPages.length; // Next page index
     },
@@ -60,9 +61,10 @@ export function flattenClientPages(data: { pages: Client[][] } | undefined): Cli
 
 export function useDeactivateClient() {
   const queryClient = useQueryClient();
+  const demoMode = useDemoMode();
   return useMutation({
     mutationFn: async (id: string) => {
-      if (DEMO_MODE) {
+      if (demoMode) {
         MEMORY_DEMO_CLIENTS = MEMORY_DEMO_CLIENTS.map(c => 
           c.id === id ? { ...c, status: "inactivo" } : c
         );
@@ -86,10 +88,11 @@ export { useClientsPaginated, useAllClients, useClientsMinimal };
 
 function useClientsPaginated() {
   // Legacy — prefer useClientsInfinite
+  const demoMode = useDemoMode();
   return useInfiniteQuery<Client[]>({
-    queryKey: ["clients-infinite", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["clients-infinite", demoMode ? "demo" : "live"],
     queryFn: async ({ pageParam = 0 }) => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
+      if (demoMode) return [...MEMORY_DEMO_CLIENTS];
       const from = (pageParam as number) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase.from("clients").select("*").order("name").range(from, to);
@@ -97,7 +100,7 @@ function useClientsPaginated() {
       return (data as Client[]) ?? [];
     },
     getNextPageParam: (lastPage, allPages) => {
-      if (DEMO_MODE) return undefined;
+      if (demoMode) return undefined;
       if (lastPage.length < PAGE_SIZE) return undefined;
       return allPages.length;
     },
@@ -108,10 +111,11 @@ function useClientsPaginated() {
 import { useQuery } from "@tanstack/react-query";
 
 function useAllClients() {
+  const demoMode = useDemoMode();
   return useQuery<Client[]>({
-    queryKey: ["clients", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["clients", demoMode ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return [...MEMORY_DEMO_CLIENTS];
+      if (demoMode) return [...MEMORY_DEMO_CLIENTS];
       const { data, error } = await supabase.from("clients").select("*").order("name");
       if (error) throw error;
       return (data as Client[]) ?? [];
@@ -120,10 +124,11 @@ function useAllClients() {
 }
 
 function useClientsMinimal() {
+  const demoMode = useDemoMode();
   return useQuery<{ id: string; name: string }[]>({
-    queryKey: ["clients-min", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["clients-min", demoMode ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) return MEMORY_DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
+      if (demoMode) return MEMORY_DEMO_CLIENTS.map((c) => ({ id: c.id, name: c.name }));
       const { data, error } = await supabase.from("clients").select("id, name").order("name");
       if (error) throw error;
       return (data as { id: string; name: string }[]) ?? [];

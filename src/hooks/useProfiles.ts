@@ -1,14 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_MODE } from "@/contexts/AuthContext";
+import { useDemoMode } from "@/contexts/AuthContext";
 import { MEMORY_DEMO_PROFILES, setDemoTarget } from "@/demo/demoData";
 import type { ProfileWithTarget } from "@/lib/types";
 
 export function useProfiles() {
+  const demoMode = useDemoMode();
   return useQuery<ProfileWithTarget[]>({
-    queryKey: ["profiles", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["profiles", demoMode ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) {
+      if (demoMode) {
         return MEMORY_DEMO_PROFILES.map((p) => ({
           user_id: p.user_id,
           full_name: p.full_name,
@@ -27,6 +28,7 @@ export function useProfiles() {
 
 export function useUpdateTarget() {
   const qc = useQueryClient();
+  const demoMode = useDemoMode();
   return useMutation({
     mutationFn: async ({
       user_id,
@@ -35,7 +37,7 @@ export function useUpdateTarget() {
       user_id: string;
       monthly_target: number | null;
     }) => {
-      if (DEMO_MODE) {
+      if (demoMode) {
         setDemoTarget(user_id, monthly_target);
         return;
       }

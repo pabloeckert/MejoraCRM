@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
 import { DemoRoleToggle } from "@/components/DemoRoleToggle";
+import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { BottomNav } from "@/components/BottomNav";
 import { useLocation } from "react-router-dom";
 
@@ -32,6 +33,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <span className="ml-3 text-sm font-medium text-muted-foreground">{title}</span>
             </div>
             <div className="flex items-center gap-2">
+              <DemoModeToggle />
               <DemoRoleToggle />
               <NotificationsPanel />
             </div>

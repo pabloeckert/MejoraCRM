@@ -7,7 +7,7 @@ import { MessageCircle, CheckCircle2, XCircle, ExternalLink, Trash2 } from "luci
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth, DEMO_MODE } from "@/contexts/AuthContext";
+import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { useAllClients } from "@/hooks/useClients";
 import { addDemoInteraction } from "@/hooks/useInteractions";
 import { samePhone } from "@/lib/calculations";
@@ -45,6 +45,7 @@ export default function WhatsAppCampanas() {
   const [status, setStatus] = useState<BridgeStatus | null>(null);
   const [checking, setChecking] = useState(false);
   const { user } = useAuth();
+  const demoMode = useDemoMode();
   const { data: clients = [] } = useAllClients();
   const queryClient = useQueryClient();
   const clientsRef = useRef(clients);
@@ -84,7 +85,7 @@ export default function WhatsAppCampanas() {
       };
 
       try {
-        if (DEMO_MODE) {
+        if (demoMode) {
           addDemoInteraction(payload);
         } else {
           const { error } = await supabase.from("interactions").insert(payload);
@@ -98,7 +99,7 @@ export default function WhatsAppCampanas() {
         toast.error(e instanceof Error ? e.message : "No se pudo registrar la respuesta de WhatsApp");
       }
     },
-    [user?.id, queryClient]
+    [user?.id, queryClient, demoMode]
   );
 
   useEffect(() => {

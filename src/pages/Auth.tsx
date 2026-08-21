@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import logoImg from "@/assets/logo.png";
 import mcLogoImg from "@/assets/branding/MC_Logo.png";
+import { DemoModeToggle } from "@/components/DemoModeToggle";
 
 const BRAND_BULLETS = [
   "Clientes y prospectos centralizados",
@@ -66,18 +67,21 @@ export default function Auth() {
           </div>
 
           {/* Heading */}
-          <div>
-            <h1
-              className="text-2xl font-bold text-foreground"
-              style={{ fontFamily: "'League Spartan', sans-serif" }}
-            >
-              {isLogin ? "Iniciá sesión" : "Creá tu cuenta"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isLogin
-                ? "Ingresá tus credenciales para continuar"
-                : "Completá tus datos para registrarte"}
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1
+                className="text-2xl font-bold text-foreground"
+                style={{ fontFamily: "'League Spartan', sans-serif" }}
+              >
+                {isLogin ? "Iniciá sesión" : "Creá tu cuenta"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isLogin
+                  ? "Ingresá tus credenciales para continuar"
+                  : "Completá tus datos para registrarte"}
+              </p>
+            </div>
+            <DemoModeToggle />
           </div>
 
           {/* Form */}

@@ -2,7 +2,7 @@
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
 
 export default function Clients() {
   const { user, role } = useAuth();
+  const demoMode = useDemoMode();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,7 +61,7 @@ export default function Clients() {
 
   const upsertMutation = useMutation({
     mutationFn: async (c: ClientInsert & { id?: string }) => {
-      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+      if (demoMode) {
         // En modo demo, simulamos éxito y agregamos al almacén en memoria
         addDemoClient(c);
         return;
@@ -89,7 +90,7 @@ export default function Clients() {
 
   const importMutation = useMutation({
     mutationFn: async (items: ImportPreviewItem[]) => {
-      if (import.meta.env.VITE_DEMO_MODE !== "false") return;
+      if (demoMode) return;
       const toInsert = items
         .filter((i) => !i.isDuplicate)
         .map(({ isDuplicate, ...rest }) => rest);

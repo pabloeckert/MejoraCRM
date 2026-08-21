@@ -8,6 +8,7 @@ import { WhatsAppTemplates } from "./WhatsAppTemplates";
 
 import type { Database } from "@/integrations/supabase/types";
 import { MEMORY_DEMO_INTERACTIONS } from "@/hooks/useInteractions";
+import { useDemoMode } from "@/contexts/AuthContext";
 
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -25,11 +26,12 @@ function fmtMoney(i: any) {
 
 export function ClientDetailDialog({ client, onClose }: ClientDetailDialogProps) {
   const { isConnected: calendarConnected, createEvent } = useGoogleCalendar();
+  const demoMode = useDemoMode();
   const { data: interactions = [] } = useQuery({
-    queryKey: ["client-interactions", client?.id],
+    queryKey: ["client-interactions", client?.id, demoMode ? "demo" : "live"],
     enabled: !!client,
     queryFn: async () => {
-      if (import.meta.env.VITE_DEMO_MODE !== "false") {
+      if (demoMode) {
         return MEMORY_DEMO_INTERACTIONS.filter(i => i.client_id === client!.id);
       }
       const { data } = await supabase

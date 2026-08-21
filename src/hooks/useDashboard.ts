@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_MODE } from "@/contexts/AuthContext";
+import { useDemoMode } from "@/contexts/AuthContext";
 import { DEMO_INTERACTIONS, DEMO_CLIENTS, DEMO_PROFILES } from "@/demo/demoData";
 import type { DashboardData } from "@/lib/types";
 
@@ -9,10 +9,11 @@ import type { DashboardData } from "@/lib/types";
  * In demo mode, returns mock data instead.
  */
 export function useDashboardData() {
+  const demoMode = useDemoMode();
   return useQuery<DashboardData>({
-    queryKey: ["dashboard-data", DEMO_MODE ? "demo" : "live"],
+    queryKey: ["dashboard-data", demoMode ? "demo" : "live"],
     queryFn: async () => {
-      if (DEMO_MODE) {
+      if (demoMode) {
         return {
           interactions: DEMO_INTERACTIONS as any,
           clients: DEMO_CLIENTS as any,

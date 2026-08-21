@@ -14,7 +14,7 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 
-vi.mock("@/contexts/AuthContext", () => ({ DEMO_MODE: true }));
+vi.mock("@/contexts/AuthContext", () => ({ useDemoMode: () => true }));
 
 import { DEMO_PRODUCTS } from "@/demo/demoData";
 

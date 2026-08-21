@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth, DEMO_MODE } from "@/contexts/AuthContext";
+import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { DEMO_ORG_ID } from "@/demo/demoData";
 
 export interface Organization {
@@ -17,11 +17,12 @@ let MEMORY_DEMO_ORG: Organization = {
 
 export function useOrganization() {
   const { organizationId } = useAuth();
+  const demoMode = useDemoMode();
 
   return useQuery<Organization | null>({
     queryKey: ["organization", organizationId ?? "demo"],
     queryFn: async () => {
-      if (DEMO_MODE) return { ...MEMORY_DEMO_ORG };
+      if (demoMode) return { ...MEMORY_DEMO_ORG };
       if (!organizationId) return null;
       const { data, error } = await supabase
         .from("organizations" as never)
@@ -38,10 +39,11 @@ export function useOrganization() {
 export function useUpdateOrganization() {
   const queryClient = useQueryClient();
   const { organizationId } = useAuth();
+  const demoMode = useDemoMode();
 
   return useMutation({
     mutationFn: async (name: string) => {
-      if (DEMO_MODE) {
+      if (demoMode) {
         MEMORY_DEMO_ORG = { ...MEMORY_DEMO_ORG, name };
         return;
       }
