@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Search, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
-import { useProducts } from "@/hooks/useProducts";
+import { useProducts, addDemoProduct, updateDemoProduct } from "@/hooks/useProducts";
 import { UNITS } from "@/lib/constants";
 import { ProductFormDialog } from "@/components/products/ProductFormDialog";
 import { ProductImportDialog, type ProductImportItem } from "@/components/products/ProductImportDialog";
@@ -22,6 +22,7 @@ type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
 
 export default function Products() {
   const { role } = useAuth();
+  const demoMode = useDemoMode();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
@@ -37,6 +38,13 @@ export default function Products() {
 
   const upsertMutation = useMutation({
     mutationFn: async (p: ProductInsert & { id?: string }) => {
+      if (demoMode) {
+        if (p.id) {
+          updateDemoProduct(p.id, p);
+          return { ...p };
+        }
+        return addDemoProduct(p);
+      }
       if (p.id) {
         const { id, ...rest } = p;
         const { error } = await supabase.from("products").update(rest).eq("id", id);
@@ -49,16 +57,17 @@ export default function Products() {
       }
     },
     onMutate: async (p) => {
-      await queryClient.cancelQueries({ queryKey: ["products"] });
-      const snapshot = queryClient.getQueryData<Product[]>(["products", "live"]);
-      queryClient.setQueryData<Product[]>(["products", "live"], (old = []) => {
+      const key = ["products", demoMode ? "demo" : "live"];
+      await queryClient.cancelQueries({ queryKey: key });
+      const snapshot = queryClient.getQueryData<Product[]>(key);
+      queryClient.setQueryData<Product[]>(key, (old = []) => {
         if (p.id) return old.map((item) => (item.id === p.id ? { ...item, ...p } : item));
         return [...old, { ...p, id: "optimistic-" + Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as Product];
       });
-      return { snapshot };
+      return { snapshot, key };
     },
     onError: (_err, _vars, context) => {
-      if (context?.snapshot) queryClient.setQueryData(["products", "live"], context.snapshot);
+      if (context?.snapshot) queryClient.setQueryData(context.key, context.snapshot);
       toast.error(_err instanceof Error ? _err.message : "Error al guardar");
     },
     onSuccess: () => {
@@ -78,6 +87,10 @@ export default function Products() {
         .filter((i) => !i.isDuplicate)
         .map(({ isDuplicate, ...rest }) => rest);
       if (toInsert.length === 0) return;
+      if (demoMode) {
+        toInsert.forEach((item) => addDemoProduct(item));
+        return;
+      }
       const { error } = await supabase.from("products").insert(toInsert);
       if (error) throw error;
     },
