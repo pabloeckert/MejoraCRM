@@ -1,0 +1,6 @@
+[submodule "MejoraContactos"]
+	path = MejoraContactos
+	url = https://github.com/pabloeckert/MejoraContactos.git
+[submodule "MejoraWS"]
+	path = MejoraWS
+	url = https://github.com/pabloeckert/MejoraWS.git
