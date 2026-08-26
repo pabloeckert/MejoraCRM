@@ -134,6 +134,18 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
         </div>
       </div>
 
+      {clients.length === 0 && (
+        <div className="flex items-center justify-between flex-wrap gap-3 p-4 rounded-xl border border-primary/30 bg-primary/5">
+          <div>
+            <p className="text-sm font-bold">Todavía no cargaste ningún cliente</p>
+            <p className="text-xs text-muted-foreground">Empezá agregando tu primer cliente o prospecto para ver acá tus ventas y seguimientos.</p>
+          </div>
+          <Button size="sm" className="h-9" onClick={() => navigate("/clients")}>
+            Cargar mi primer cliente
+          </Button>
+        </div>
+      )}
+
       {/* BLOQUE 1: Resultados Directos */}
       <div>
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">

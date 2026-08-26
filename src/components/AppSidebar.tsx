@@ -83,7 +83,7 @@ export function AppSidebar() {
                         aria-label={item.title}
                         className={`transition-all duration-200 rounded-lg ${
                           isActive
-                            ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                             : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                         }`}
                         activeClassName=""

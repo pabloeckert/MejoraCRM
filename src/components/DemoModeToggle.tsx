@@ -29,7 +29,7 @@ export function DemoModeToggle() {
             />
           </label>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+        <TooltipContent side="left" className="max-w-[220px] text-xs">
           {demoMode
             ? "Estás viendo datos ficticios de ejemplo. Apagalo para usar tus datos reales."
             : "Estás usando tus datos reales. Prendelo para explorar el sistema con datos de ejemplo, sin tocar nada real."}
