@@ -103,9 +103,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${ventasColor}`}>${totalVentas.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{ventas.length} este mes</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-muted">
-                  <ShoppingCart className={`h-5 w-5 ${ventasColor}`} />
-                </div>
+                <ShoppingCart className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -118,9 +116,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${presupColor}`}>${totalPresup.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{presupuestos.length} presupuestos</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-muted">
-                  <FileText className={`h-5 w-5 ${presupColor}`} />
-                </div>
+                <FileText className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -133,9 +129,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${perdidoColor}`}>${totalPerdido.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{noInteresado.length} rechazos</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-muted">
-                  <AlertCircle className={`h-5 w-5 ${perdidoColor}`} />
-                </div>
+                <AlertCircle className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -163,9 +157,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                         />
                       </div>
                     </div>
-                    <div className="p-2.5 rounded-xl shrink-0 bg-muted">
-                      <Target className={`h-5 w-5 ${color}`} />
-                    </div>
+                    <Target className="h-5 w-5 text-muted-foreground shrink-0" />
                   </div>
                   {over && (
                     <p className="text-[10px] text-success font-semibold mt-2">¡Meta superada este mes!</p>
