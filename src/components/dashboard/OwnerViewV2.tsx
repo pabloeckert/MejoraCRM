@@ -163,7 +163,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                     <TrendBadge value={trendVentas.percent} />
                   </div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-success/10"><DollarSign className="h-5 w-5 text-success" /></div>
+                <div className="p-2.5 rounded-xl bg-muted"><DollarSign className="h-5 w-5 text-success" /></div>
               </div>
             </CardContent>
           </Card>
@@ -179,7 +179,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                     <TrendBadge value={trendPresup.percent} />
                   </div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-warning/10"><FileText className="h-5 w-5 text-warning" /></div>
+                <div className="p-2.5 rounded-xl bg-muted"><FileText className="h-5 w-5 text-warning" /></div>
               </div>
             </CardContent>
           </Card>
@@ -195,7 +195,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                     <TrendBadge value={trendPerdido.percent} />
                   </div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-destructive/10"><AlertCircle className="h-5 w-5 text-destructive" /></div>
+                <div className="p-2.5 rounded-xl bg-muted"><AlertCircle className="h-5 w-5 text-destructive" /></div>
               </div>
             </CardContent>
           </Card>
@@ -208,7 +208,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                   <p className="text-2xl font-bold tracking-tight text-accent">{kpis.tasaConversion}%</p>
                   <p className="text-xs text-muted-foreground">{kpis.cantidadVentas} de {kpis.cantidadPresupuestos}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-accent/20"><TrendingUp className="h-5 w-5 text-accent" /></div>
+                <div className="p-2.5 rounded-xl bg-muted"><TrendingUp className="h-5 w-5 text-accent" /></div>
               </div>
             </CardContent>
           </Card>
@@ -327,7 +327,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           <Card className="border-border/50 hover:shadow-sm transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-destructive/10"><Clock className="h-4 w-4 text-destructive" /></div>
+                <div className="p-2 rounded-lg bg-muted"><Clock className="h-4 w-4 text-destructive" /></div>
                 <div><p className="text-lg font-bold">{overdue.length}</p><p className="text-xs text-muted-foreground">Seg. vencidos</p></div>
               </div>
             </CardContent>
@@ -335,7 +335,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           <Card className="border-border/50 hover:shadow-sm transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10"><UserPlus className="h-4 w-4 text-primary" /></div>
+                <div className="p-2 rounded-lg bg-muted"><UserPlus className="h-4 w-4 text-primary" /></div>
                 <div><p className="text-lg font-bold">{contactosNuevos}</p><p className="text-xs text-muted-foreground">Contactos nuevos</p></div>
               </div>
             </CardContent>
@@ -343,7 +343,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           <Card className="border-border/50 hover:shadow-sm transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-success/10"><UserCheck className="h-4 w-4 text-success" /></div>
+                <div className="p-2 rounded-lg bg-muted"><UserCheck className="h-4 w-4 text-success" /></div>
                 <div><p className="text-lg font-bold">{clientesAtendidos}</p><p className="text-xs text-muted-foreground">Contactos atendidos</p></div>
               </div>
             </CardContent>
@@ -351,7 +351,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           <Card className="border-border/50 hover:shadow-sm transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-accent/20"><Users className="h-4 w-4 text-accent" /></div>
+                <div className="p-2 rounded-lg bg-muted"><Users className="h-4 w-4 text-accent" /></div>
                 <div><p className="text-lg font-bold">{contactosSinSeguimiento}</p><p className="text-xs text-muted-foreground">Sin seguimiento</p></div>
               </div>
             </CardContent>
@@ -359,7 +359,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           <Card className={`border-border/50 hover:shadow-sm transition-shadow ${clientesInactivosCount > 0 ? "border-l-2 border-l-amber-400" : ""}`}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10"><UserX className="h-4 w-4 text-amber-600" /></div>
+                <div className="p-2 rounded-lg bg-muted"><UserX className="h-4 w-4 text-amber-600" /></div>
                 <div><p className="text-lg font-bold">{clientesInactivosCount}</p><p className="text-xs text-muted-foreground">Activos fríos 30d+</p></div>
               </div>
             </CardContent>

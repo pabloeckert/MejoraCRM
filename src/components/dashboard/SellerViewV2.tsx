@@ -68,11 +68,8 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
 
   // Color helpers for ventas section
   const ventasColor = ventas.length > 0 ? "text-success" : "text-muted-foreground";
-  const ventasBg = ventas.length > 0 ? "bg-success/10" : "bg-muted";
   const presupColor = presupuestos.length > 0 ? "text-warning" : "text-muted-foreground";
-  const presupBg = presupuestos.length > 0 ? "bg-warning/10" : "bg-muted";
   const perdidoColor = noInteresado.length > 0 ? "text-destructive" : "text-muted-foreground";
-  const perdidoBg = noInteresado.length > 0 ? "bg-destructive/10" : "bg-muted";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -106,7 +103,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${ventasColor}`}>${totalVentas.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{ventas.length} este mes</p>
                 </div>
-                <div className={`p-2.5 rounded-xl ${ventasBg}`}>
+                <div className="p-2.5 rounded-xl bg-muted">
                   <ShoppingCart className={`h-5 w-5 ${ventasColor}`} />
                 </div>
               </div>
@@ -121,7 +118,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${presupColor}`}>${totalPresup.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{presupuestos.length} presupuestos</p>
                 </div>
-                <div className={`p-2.5 rounded-xl ${presupBg}`}>
+                <div className="p-2.5 rounded-xl bg-muted">
                   <FileText className={`h-5 w-5 ${presupColor}`} />
                 </div>
               </div>
@@ -136,7 +133,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                   <p className={`text-2xl font-bold tracking-tight ${perdidoColor}`}>${totalPerdido.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{noInteresado.length} rechazos</p>
                 </div>
-                <div className={`p-2.5 rounded-xl ${perdidoBg}`}>
+                <div className="p-2.5 rounded-xl bg-muted">
                   <AlertCircle className={`h-5 w-5 ${perdidoColor}`} />
                 </div>
               </div>
@@ -166,7 +163,7 @@ export function SellerViewV2({ interactions, sellerName, monthlyTarget, navigate
                         />
                       </div>
                     </div>
-                    <div className={`p-2.5 rounded-xl shrink-0 ${bg}`}>
+                    <div className="p-2.5 rounded-xl shrink-0 bg-muted">
                       <Target className={`h-5 w-5 ${color}`} />
                     </div>
                   </div>
