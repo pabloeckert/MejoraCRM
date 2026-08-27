@@ -237,9 +237,9 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
           : null;
 
         const STAGE_CFG = {
-          presupuesto:   { label: "Presupuestos",   bar: "bg-amber-400",    text: "text-amber-700",  bg: "bg-amber-50",  Icon: FileText   },
-          seguimiento:   { label: "En seguimiento", bar: "bg-primary",      text: "text-primary",    bg: "bg-primary/5", Icon: Clock      },
-          sin_respuesta: { label: "Sin respuesta",  bar: "bg-muted-foreground/40", text: "text-muted-foreground", bg: "bg-muted/20", Icon: AlertCircle },
+          presupuesto:   { label: "Presupuestos",   bar: "bg-amber-400",    text: "text-amber-700",  Icon: FileText   },
+          seguimiento:   { label: "En seguimiento", bar: "bg-primary",      text: "text-primary",    Icon: Clock      },
+          sin_respuesta: { label: "Sin respuesta",  bar: "bg-muted-foreground/40", text: "text-muted-foreground", Icon: AlertCircle },
         } as const;
 
         return (
@@ -256,9 +256,7 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
                     <div key={result} className="space-y-1.5">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className={`p-1.5 rounded-md ${cfg.bg}`}>
-                            <cfg.Icon className={`h-3.5 w-3.5 ${cfg.text}`} />
-                          </div>
+                          <cfg.Icon className={`h-3.5 w-3.5 ${cfg.text}`} />
                           <span className="text-sm font-medium">{cfg.label}</span>
                           <Badge variant="secondary" className="text-xs tabular-nums">{items.length}</Badge>
                           {avgAging > 0 && (

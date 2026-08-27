@@ -122,12 +122,12 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
   };
 
   const kpiCards = [
-    { label: "Ventas logradas", value: `$${kpis.ventasLogradas.toLocaleString()}`, sub: `${kpis.cantidadVentas} ventas`, icon: DollarSign, color: "text-success", bg: "bg-success/10" },
-    { label: "Ventas en curso", value: `$${kpis.ventasEnCurso.toLocaleString()}`, sub: `${kpis.cantidadPresupuestos} presupuestos`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Win rate", value: `${kpis.winRate}%`, sub: `${kpis.cantidadVentas} de ${kpis.cantidadVentas + kpis.cantidadNoInteresado}`, icon: Target, color: "text-accent", bg: "bg-accent/20" },
-    { label: "Ciclo promedio", value: avgCycle > 0 ? `${avgCycle} días` : "N/A", sub: "presupuesto → venta", icon: Clock, color: "text-muted-foreground", bg: "bg-muted" },
-    { label: "Éxito de ventas", value: `${kpis.tasaConversion}%`, sub: `${kpis.cantidadVentas}/${kpis.cantidadPresupuestos} presupuestos`, icon: Percent, color: "text-warning", bg: "bg-warning/10" },
-    { label: "Revenue perdido", value: `$${kpis.ventasNoConcretadas.toLocaleString()}`, sub: `${kpis.cantidadNoInteresado} rechazos`, icon: Award, color: "text-destructive", bg: "bg-destructive/10" },
+    { label: "Ventas logradas", value: `$${kpis.ventasLogradas.toLocaleString()}`, sub: `${kpis.cantidadVentas} ventas`, icon: DollarSign, color: "text-success" },
+    { label: "Ventas en curso", value: `$${kpis.ventasEnCurso.toLocaleString()}`, sub: `${kpis.cantidadPresupuestos} presupuestos`, icon: TrendingUp, color: "text-primary" },
+    { label: "Win rate", value: `${kpis.winRate}%`, sub: `${kpis.cantidadVentas} de ${kpis.cantidadVentas + kpis.cantidadNoInteresado}`, icon: Target, color: "text-accent" },
+    { label: "Ciclo promedio", value: avgCycle > 0 ? `${avgCycle} días` : "N/A", sub: "presupuesto → venta", icon: Clock, color: "text-muted-foreground" },
+    { label: "Éxito de ventas", value: `${kpis.tasaConversion}%`, sub: `${kpis.cantidadVentas}/${kpis.cantidadPresupuestos} presupuestos`, icon: Percent, color: "text-warning" },
+    { label: "Revenue perdido", value: `$${kpis.ventasNoConcretadas.toLocaleString()}`, sub: `${kpis.cantidadNoInteresado} rechazos`, icon: Award, color: "text-destructive" },
   ];
 
   return (
@@ -165,10 +165,8 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
         {kpiCards.map((kpi, i) => (
           <Card key={kpi.label} className={`animate-slide-up stagger-${i + 1} opacity-0 border-border/50`}>
             <CardContent className="p-4 text-center">
-              <div className={`mx-auto w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center mb-2`}>
-                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
-              </div>
-              <p className="text-lg font-bold">{kpi.value}</p>
+              <kpi.icon className="h-4 w-4 mx-auto mb-2 text-muted-foreground" />
+              <p className={`text-lg font-bold ${kpi.color}`}>{kpi.value}</p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{kpi.label}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">{kpi.sub}</p>
             </CardContent>
