@@ -343,6 +343,13 @@ export function InteractionForm({
   const RESULTS = Constants.public.Enums.interaction_result as readonly Result[];
   const MEDIUMS = Constants.public.Enums.interaction_medium;
 
+  // Navegación rápida por sección — el form sigue siendo un único bloque
+  // (un paso, sin perder progreso al ir y volver), esto es solo un atajo de
+  // scroll para no tener que leer todo de arriba abajo cada vez.
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) closeAndReset(); else onOpenChange(v); }}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -350,11 +357,28 @@ export function InteractionForm({
           <DialogTitle>{isEditing ? "Editar interacción" : "Registrar interacción"}</DialogTitle>
         </DialogHeader>
 
+        <div className="flex gap-1.5 flex-wrap pb-1 -mt-1 sticky top-0 bg-background z-10">
+          {!isEditing && (
+            <button type="button" onClick={() => scrollToSection("ia-cliente")} className="text-[11px] px-2 py-1 rounded-full border border-border/60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors">
+              Cliente
+            </button>
+          )}
+          <button type="button" onClick={() => scrollToSection("ia-resultado")} className="text-[11px] px-2 py-1 rounded-full border border-border/60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors">
+            Resultado
+          </button>
+          <button type="button" onClick={() => scrollToSection("ia-detalles")} className="text-[11px] px-2 py-1 rounded-full border border-border/60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors">
+            Detalles
+          </button>
+          <button type="button" onClick={() => scrollToSection("ia-medio")} className="text-[11px] px-2 py-1 rounded-full border border-border/60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors">
+            Medio de contacto
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit((data) => createMutation.mutate(data))} className="space-y-5 py-1">
 
           {/* ── Cliente ───────────────────────────────────────── */}
           {!isEditing && (
-            <div className="space-y-1.5">
+            <div id="ia-cliente" className="space-y-1.5">
               <Label>
                 ¿A quién contactaste? <span className="text-destructive">*</span>
               </Label>
@@ -368,7 +392,7 @@ export function InteractionForm({
           )}
 
           {/* ── Resultado ─────────────────────────────────────── */}
-          <div className="space-y-1.5">
+          <div id="ia-resultado" className="space-y-1.5">
             <Label>
               {selectedClient ? `¿Qué pasó con ${selectedClient.name}?` : "¿Qué pasó?"}{" "}
               <span className="text-destructive">*</span>
@@ -400,6 +424,7 @@ export function InteractionForm({
           </div>
 
           {/* ── Detalles condicionales ────────────────────────── */}
+          <div id="ia-detalles" />
           {resultValue === "presupuesto" && (
             <div className="space-y-3 p-3 rounded-lg border border-primary/15 bg-primary/[0.03]">
               <Label className="text-xs font-semibold text-primary uppercase tracking-wide">Presupuesto</Label>
@@ -599,7 +624,7 @@ export function InteractionForm({
           <div className="border-t border-border/50" />
 
           {/* ── Medio de contacto ─────────────────────────────── */}
-          <div className="space-y-1.5">
+          <div id="ia-medio" className="space-y-1.5">
             <Label>
               ¿Cómo lo contactaste? <span className="text-destructive">*</span>
             </Label>

@@ -6,6 +6,8 @@ import { DemoRoleToggle } from "@/components/DemoRoleToggle";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { BottomNav } from "@/components/BottomNav";
 import { useLocation } from "react-router-dom";
+import { useDemoMode } from "@/contexts/AuthContext";
+import { Sparkles } from "lucide-react";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Vista General",
@@ -21,6 +23,7 @@ const PAGE_TITLES: Record<string, string> = {
 export function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const title = PAGE_TITLES[location.pathname] || "";
+  const demoMode = useDemoMode();
 
   return (
     <SidebarProvider>
@@ -38,6 +41,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <NotificationsPanel />
             </div>
           </header>
+          {demoMode && (
+            <div
+              className="h-7 flex items-center justify-center gap-1.5 shrink-0 sticky top-14 z-10 text-[11px] font-medium"
+              style={{ background: "rgba(247, 204, 19, 0.18)", borderBottom: "1px solid rgba(247, 204, 19, 0.5)", color: "#8a6d00" }}
+            >
+              <Sparkles className="h-3 w-3" />
+              Estás viendo datos de ejemplo — no es tu información real
+            </div>
+          )}
           <main className="flex-1 p-4 pb-20 md:p-6 overflow-auto">
             {children}
           </main>

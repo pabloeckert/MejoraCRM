@@ -44,6 +44,10 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
   const [period, setPeriod] = useState<Period>(
     () => (localStorage.getItem(PERIOD_KEY) as Period) ?? "mes"
   );
+  // Colapsado por defecto: es la sección más densa (4 gráficos analíticos) y
+  // la menos urgente de un vistazo — lo accionable (ventas, pipeline,
+  // ranking, vencidos) ya está arriba sin scroll extra.
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const handlePeriodChange = useCallback((p: Period) => {
     localStorage.setItem(PERIOD_KEY, p);
     setPeriod(p);
@@ -454,12 +458,22 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
         )}
       </div>
 
-      {/* BLOQUE 3: Análisis y Estrategia */}
+      {/* BLOQUE 3: Análisis y Estrategia — colapsado por defecto */}
       <div>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" /> Análisis y estrategia
-        </h2>
+        <button
+          type="button"
+          onClick={() => setShowAnalysis((v) => !v)}
+          className="w-full flex items-center justify-between mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
+          aria-expanded={showAnalysis}
+        >
+          <span className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" /> Análisis y estrategia
+          </span>
+          <span className="normal-case text-xs font-normal text-primary">{showAnalysis ? "Ocultar ▲" : "Ver detalle ▼"}</span>
+        </button>
 
+        {showAnalysis && (
+        <>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <Card className="border-border/50">
             <CardContent className="p-4 text-center">
@@ -534,6 +548,8 @@ export function OwnerViewV2({ interactions, clients, profiles, targetMap, naviga
             ) : <div className="flex items-center justify-center h-full text-sm text-muted-foreground">Sin datos en el período</div>}
           </CardContent>
         </Card>
+        </>
+        )}
       </div>
     </div>
   );
