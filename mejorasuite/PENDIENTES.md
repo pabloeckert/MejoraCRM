@@ -71,7 +71,7 @@ Pablo pidió analizar los tres repos, limpiarlos/optimizarlos "a tu criterio", y
 Pablo pidió (a) borrar todos los datos reales de las 3 herramientas y dejarlas en blanco, y (b) que el modo demostración deje de ser una constante fija de build y pase a ser un **toggle real**: uno maestro en la pantalla inicial de MejoraSuite, y uno propio en cada herramienta — activo por default, cargando datos ficticios en el momento. Confirmado con Pablo antes de borrar nada real (ver `AskUserQuestion` de esa sesión): sí, vaciar la producción real de MejoraCRM; sí, borrar los 45 contactos y campañas reales de MejoraWS.
 
 - [x] ~~Backup + vaciado de MejoraWS~~ — `data.backup-20260821-*.json` en el `userData` real, luego `contactos=[]`/`carpetas=[]` en `data.json`. El bootstrap existente de `app.whenReady()` ya crea "Mi primera carpeta" vacía si no hay ninguna, así que no queda en un estado roto.
-- [ ] **MejoraCRM — base de producción real (Supabase) sigue sin vaciar.** No hay credenciales reales en este entorno (`.env` local solo tiene placeholders, las reales viven en Vercel). Pablo tiene que correr esto a mano en el SQL Editor de Supabase (Dashboard → su proyecto → SQL Editor) — vacía clientes/interacciones/productos pero deja `organizations`/`profiles`/auth intactos para que Sindy y los vendedores sigan pudiendo loguearse:
+- [x] ~~MejoraCRM — base de producción real (Supabase) sigue sin vaciar~~ — resuelto 2026-08-26. Pablo corrió el `truncate` a mano en el SQL Editor del proyecto MejoraCRM (el primer intento falló porque el selector de proyecto de Supabase estaba en MejoraContactos, no en MejoraCRM — quedó documentado para no repetir el error). Verificado en real (`crm.mejoraok.com`, toggle demo apagado): sistema en blanco.
   ```sql
   truncate table interaction_lines cascade;
   truncate table interactions cascade;
@@ -86,8 +86,8 @@ Pablo pidió (a) borrar todos los datos reales de las 3 herramientas y dejarlas 
 
 ## Bloqueado / requiere a Pablo
 
-- [ ] Rotar `service_role` key de Supabase de MejoraCRM (Dashboard → Project Settings → API) — pendiente desde el hallazgo de seguridad, no depende de esta fusión pero sigue abierto.
-- [ ] **Vaciar la base de producción real de MejoraCRM** — ver el SQL en Fase 8 arriba. No se puede hacer desde acá por falta de credenciales reales.
+- [ ] Rotar `service_role` key de Supabase de MejoraCRM (Dashboard → Project Settings → API) — pendiente desde el hallazgo de seguridad, no depende de esta fusión pero sigue abierto. **Avance 2026-08-26:** el proyecto ya migró al sistema nuevo de API keys de Supabase (Publishable/Secret en vez de legacy anon/service_role JWT). Pablo ya generó la `Publishable key` nueva y la cargó en Vercel (`VITE_SUPABASE_PUBLISHABLE_KEY`, tipo **Config** — no Secret, porque un valor `VITE_` se expone igual en el browser y Vercel no deja guardar como Secret algo con prefijo público) y redeployó — build limpio, login verificado en real. Nota para la sesión que retome esto: la variable vieja (tipo Secret) no se pudo convertir in-place a Config, hubo que borrarla y crearla de nuevo — si hace falta tocar otras env vars `VITE_*` marcadas como Secret por error, mismo camino. Falta el último paso, irreversible: en Supabase → API Keys → pestaña "Legacy anon, service_role API keys" → **Disable legacy API keys** (mata la `service_role` filtrada junto con la `anon` vieja, ya sin uso).
+- [x] ~~Vaciar la base de producción real de MejoraCRM~~ — ver Fase 8 arriba, resuelto 2026-08-26.
 - [x] ~~Confirmar puerto y esquema de auth mínima del bridge local de MejoraWS~~ — resuelto de forma autónoma (dogma de autonomía, no era irreversible ni requería a Pablo): puerto `4180` ya elegido en Fase 1 se mantuvo; auth resuelta con copy-paste manual del token (ver Fase 3 arriba) en vez de intentar que la web lea el archivo del disco.
 
 ## Fase 7 — Cierre de fusión, KPI, modo demo y consultas en lenguaje natural (2026-08-18, en curso)
