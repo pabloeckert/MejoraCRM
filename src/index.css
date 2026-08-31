@@ -33,94 +33,76 @@
 
 @layer base {
   :root {
+    /* Tipografia — mismos nombres de variable que MejoraSM, apuntando a las
+       fuentes locales que ya carga este repo (no al @import de Google Fonts
+       de SM: los woff2 locales de acá son mas livianos). */
+    --font-display: "Bw Modelica", "League Spartan", sans-serif;
+    --font-heading-alt: "League Spartan", sans-serif;
+    --font-body: "Bw Modelica", "League Spartan", sans-serif;
+
     /* MC — Blanco Puro */
     --background: 0 0% 100%;
     --foreground: 0 0% 17%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    --card-foreground: 0 0% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover-foreground: 0 0% 17%;
 
-    /* Primary: Azul MC 2026 #1A3D84 */
-    --primary: 220 65% 31%;
+    /* Primary: Azul MC 2026 #1A3D84 — paridad con MejoraSM */
+    --primary: 220 67% 31%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 30% 94%;
-    --secondary-foreground: 237 96% 18%;
+    /* Secondary: Rojo MC 2026 #E1061E — paridad con MejoraSM (antes gris) */
+    --secondary: 353 95% 45%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Muted: Gris Plomo */
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 40%;
+    /* Muted: paridad con MejoraSM */
+    --muted: 210 11% 96%;
+    --muted-foreground: 220 9% 46%;
 
     /* Accent: Amarillo MC 2026 #F7CC13 */
-    --accent: 47 94% 52%;
-    --accent-foreground: 0 0% 5%;
+    --accent: 49 93% 52%;
+    --accent-foreground: 0 0% 17%;
 
-    /* Destructive: Rojo MC 2026 #E1061E */
-    --destructive: 350 97% 46%;
+    /* Destructive: mismo rojo que --secondary, paridad con MejoraSM */
+    --destructive: 353 95% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 20% 88%;
-    --input: 214 20% 88%;
-    --ring: 220 65% 31%;
+    --border: 225 10% 92%;
+    --input: 225 10% 92%;
+    --ring: 220 61% 42%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
-    /* Sidebar: Azul MC 2026 #1A3D84 */
+    /* Sidebar: se mantiene el azul solido actual a proposito -- el layout
+       nuevo de sidebar (blanco, patron MejoraSM) es la Fase 3, todavia sin
+       hacer. Cambiar estos tokens ahora sin ese layout dejaria el sidebar
+       actual visualmente roto (texto claro sobre fondo claro). */
     --sidebar-background: 220 65% 31%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 89% 52%;
     --sidebar-primary-foreground: 0 0% 5%;
-    /* Ítem activo: azul medio */
     --sidebar-accent: 214 67% 28%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 237 80% 24%;
     --sidebar-ring: 45 89% 52%;
 
-    /* Indicadores */
-    --success: 122 44% 34%;
+    /* Indicadores — paridad con MejoraSM */
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-    --warning: 28 89% 54%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 44 89% 52%;
+    --warning-foreground: 230 97% 18%;
+    --info: 215 65% 33%;
+    --info-foreground: 0 0% 100%;
 
-    --brand-navy: 220 65% 31%;
+    --brand-navy: 220 67% 31%;
     --brand-blue: 214 67% 33%;
-    --brand-gold: 47 94% 52%;
-    --brand-red: 350 97% 46%;
-    --brand-gray: 0 0% 40%;
-    --brand-black: 0 0% 5%;
-  }
-
-  .dark {
-    --background: 237 40% 7%;
-    --foreground: 0 0% 92%;
-    --card: 237 35% 11%;
-    --card-foreground: 0 0% 92%;
-    --popover: 237 35% 11%;
-    --popover-foreground: 0 0% 92%;
-    --primary: 220 55% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 237 30% 16%;
-    --secondary-foreground: 0 0% 92%;
-    --muted: 237 30% 16%;
-    --muted-foreground: 0 0% 55%;
-    --accent: 47 94% 55%;
-    --accent-foreground: 0 0% 5%;
-    --destructive: 350 80% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 237 25% 20%;
-    --input: 237 25% 20%;
-    --ring: 220 55% 55%;
-    --sidebar-background: 220 55% 12%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 45 89% 55%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 214 50% 20%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 237 40% 16%;
-    --sidebar-ring: 45 89% 55%;
+    --brand-gold: 49 93% 52%;
+    --brand-red: 353 95% 45%;
+    --brand-gray: 220 9% 46%;
+    --brand-black: 0 0% 17%;
   }
 }
 
@@ -130,7 +112,10 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Bw Modelica', 'Inter', sans-serif;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 
