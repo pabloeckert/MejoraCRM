@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Copy, ExternalLink, Check } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 /**
  * WhatsApp Link Generator
@@ -47,12 +48,10 @@ export default function WhatsAppLink() {
 
   return (
     <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-xl font-bold">Link de WhatsApp</h1>
-        <p className="text-sm text-muted-foreground">
-          Generá un link para que tus clientes te contacten directamente por WhatsApp
-        </p>
-      </div>
+      <PageHeader
+        title="Link de WhatsApp"
+        subtitle="Generá un link para que tus clientes te contacten directamente por WhatsApp"
+      />
 
       <Card className="border-border/50">
         <CardHeader>

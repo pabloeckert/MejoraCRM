@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -124,10 +125,7 @@ export default function WhatsAppCampanas() {
 
   return (
     <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-xl font-bold">Campañas de WhatsApp</h1>
-        <p className="text-sm text-muted-foreground">Estado en vivo de MejoraWS, sin salir del CRM</p>
-      </div>
+      <PageHeader title="Campañas de WhatsApp" subtitle="Estado en vivo de MejoraWS, sin salir del CRM" />
 
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
