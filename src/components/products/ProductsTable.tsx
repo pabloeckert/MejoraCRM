@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { EmptyState } from "@/components/EmptyState";
 import { CURRENCY_SYMBOLS } from "@/lib/constants";
 import { Package, Pencil, Plus } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
@@ -60,17 +61,17 @@ export function ProductsTable({ products, search, onEdit, onNew }: ProductsTable
             ))}
             {products.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
-                  <Package className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium text-muted-foreground">Sin productos encontrados</p>
-                  <p className="text-xs text-muted-foreground mt-1 mb-4">
-                    {search ? "Probá con otro término de búsqueda" : "Creá tu primer producto para empezar"}
-                  </p>
-                  {!search && (
-                    <Button size="sm" onClick={onNew}>
-                      <Plus className="h-4 w-4 mr-1" /> Nuevo producto
-                    </Button>
-                  )}
+                <TableCell colSpan={6}>
+                  <EmptyState
+                    icon={Package}
+                    title="Sin productos encontrados"
+                    description={search ? "Probá con otro término de búsqueda" : "Creá tu primer producto para empezar"}
+                    action={!search && (
+                      <Button size="sm" onClick={onNew}>
+                        <Plus className="h-4 w-4 mr-1" /> Nuevo producto
+                      </Button>
+                    )}
+                  />
                 </TableCell>
               </TableRow>
             )}

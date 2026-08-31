@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, MessageCircle, AlertCircle, RefreshCw, List, LayoutGrid } from "lucide-react";
@@ -115,37 +116,38 @@ export default function Interactions() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Interacciones</h1>
-          <p className="text-sm text-muted-foreground">
+      <PageHeader
+        title="Interacciones"
+        subtitle={
+          <>
             {filtered.length} registros
             {overdueCount > 0 && <span className="text-destructive ml-2 font-medium">• {overdueCount} seguimientos vencidos</span>}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* View toggle */}
-          <div className="flex border border-border rounded-lg overflow-hidden">
-            <button
-              className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
-              onClick={() => handleViewMode("list")}
-              title="Vista lista"
-            >
-              <List className="h-4 w-4" />
-            </button>
-            <button
-              className={`p-2 transition-colors ${viewMode === "kanban" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
-              onClick={() => handleViewMode("kanban")}
-              title="Vista pipeline"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-          </div>
-          <Button onClick={() => setDialogOpen(true)} className="h-9">
-            <Plus className="h-4 w-4 mr-1" /> Nueva interacción
-          </Button>
-        </div>
-      </div>
+          </>
+        }
+        actions={
+          <>
+            <div className="flex border border-border rounded-lg overflow-hidden">
+              <button
+                className={`p-2 transition-colors ${viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
+                onClick={() => handleViewMode("list")}
+                title="Vista lista"
+              >
+                <List className="h-4 w-4" />
+              </button>
+              <button
+                className={`p-2 transition-colors ${viewMode === "kanban" ? "bg-primary text-primary-foreground" : "hover:bg-muted/60"}`}
+                onClick={() => handleViewMode("kanban")}
+                title="Vista pipeline"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
+            <Button onClick={() => setDialogOpen(true)} className="h-9">
+              <Plus className="h-4 w-4 mr-1" /> Nueva interacción
+            </Button>
+          </>
+        }
+      />
 
       {/* Filters row */}
       <div className="flex flex-col sm:flex-row gap-3">

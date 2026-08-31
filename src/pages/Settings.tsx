@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -79,10 +80,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
-      <div>
-        <h1 className="text-xl font-bold">Configuración</h1>
-        <p className="text-sm text-muted-foreground">Ajustes generales del sistema</p>
-      </div>
+      <PageHeader title="Configuración" subtitle="Ajustes generales del sistema" />
 
       {/* Tipo de cambio */}
       <Card className="border-border/50">

@@ -13,7 +13,7 @@ interface KPICardProps {
   index?: number;
 }
 
-export const KPICard = memo(function KPICard({ label, value, sub, icon: Icon, onClick, index = 0 }: KPICardProps) {
+export const KPICard = memo(function KPICard({ label, value, sub, icon: Icon, color, bg, onClick, index = 0 }: KPICardProps) {
   return (
     <Card
       className={`animate-slide-up stagger-${index + 1} opacity-0 cursor-pointer hover:shadow-md transition-all duration-200 group border-border/50`}
@@ -26,7 +26,9 @@ export const KPICard = memo(function KPICard({ label, value, sub, icon: Icon, on
             <p className="text-2xl font-bold tracking-tight">{value}</p>
             <p className="text-xs text-muted-foreground">{sub}</p>
           </div>
-          <Icon className="h-5 w-5 text-muted-foreground" />
+          <div className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${bg}`}>
+            <Icon className={`h-4 w-4 ${color}`} />
+          </div>
         </div>
       </CardContent>
     </Card>

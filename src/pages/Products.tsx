@@ -5,6 +5,7 @@ import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -210,27 +211,26 @@ export default function Products() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Productos</h1>
-          <p className="text-sm text-muted-foreground">{products.length} productos en catálogo</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-9" onClick={handleDownloadTemplate}>
-            <Download className="h-4 w-4 mr-1" /> Plantilla
-          </Button>
-          <label>
-            <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
-              <span><Upload className="h-4 w-4 mr-1" /> Importar</span>
+      <PageHeader
+        title="Productos"
+        subtitle={`${products.length} productos en catálogo`}
+        actions={
+          <>
+            <Button variant="outline" size="sm" className="h-9" onClick={handleDownloadTemplate}>
+              <Download className="h-4 w-4 mr-1" /> Plantilla
             </Button>
-            <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
-          </label>
-          <Button onClick={openNew} className="h-9">
-            <Plus className="h-4 w-4 mr-1" /> Nuevo producto
-          </Button>
-        </div>
-      </div>
+            <label>
+              <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
+                <span><Upload className="h-4 w-4 mr-1" /> Importar</span>
+              </Button>
+              <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+            </label>
+            <Button onClick={openNew} className="h-9">
+              <Plus className="h-4 w-4 mr-1" /> Nuevo producto
+            </Button>
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

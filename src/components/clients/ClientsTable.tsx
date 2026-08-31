@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { EmptyState } from "@/components/EmptyState";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/constants";
-import { Eye, Pencil, UserX } from "lucide-react";
+import { Eye, Pencil, UserX, Users, Plus } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
@@ -15,9 +16,11 @@ interface ClientsTableProps {
   onEdit: (client: Client) => void;
   onDeactivate?: (client: Client) => void;
   canDeactivate?: boolean;
+  search?: string;
+  onNew?: () => void;
 }
 
-export const ClientsTable = memo(function ClientsTable({ clients, onView, onEdit, onDeactivate, canDeactivate = false }: ClientsTableProps) {
+export const ClientsTable = memo(function ClientsTable({ clients, onView, onEdit, onDeactivate, canDeactivate = false, search, onNew }: ClientsTableProps) {
   return (
     <Card className="border-border/50 overflow-hidden">
       <CardContent className="p-0">
@@ -82,8 +85,17 @@ export const ClientsTable = memo(function ClientsTable({ clients, onView, onEdit
             ))}
             {clients.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                  Sin clientes encontrados
+                <TableCell colSpan={5}>
+                  <EmptyState
+                    icon={Users}
+                    title="Sin clientes encontrados"
+                    description={search ? "Probá con otro término de búsqueda" : "Cargá tu primer cliente para empezar"}
+                    action={!search && onNew && (
+                      <Button size="sm" onClick={onNew}>
+                        <Plus className="h-4 w-4 mr-1" /> Nuevo cliente
+                      </Button>
+                    )}
+                  />
                 </TableCell>
               </TableRow>
             )}

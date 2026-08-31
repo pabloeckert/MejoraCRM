@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useDemoMode } from "@/contexts/AuthContext";
 import { parseCSV, findHeader, getField } from "@/lib/csvParser";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Upload, Download, FileSpreadsheet, AlertCircle, RefreshCw } from "lucide-react";
@@ -285,39 +286,38 @@ export default function Clients() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Clientes</h1>
-          <p className="text-sm text-muted-foreground">{clients.length} registros</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-9" onClick={handleExportCSV}>
-            <Download className="h-4 w-4 mr-1" />CSV
-          </Button>
-          <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
-            <Download className="h-4 w-4 mr-1" />PDF
-          </Button>
-          <Button variant="outline" size="sm" className="h-9" onClick={() => exportClientsExcel(filtered)}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" />Excel
-          </Button>
-          <label>
-            <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
-              <span><Upload className="h-4 w-4 mr-1" />Importar</span>
+      <PageHeader
+        title="Clientes"
+        subtitle={`${clients.length} registros`}
+        actions={
+          <>
+            <Button variant="outline" size="sm" className="h-9" onClick={handleExportCSV}>
+              <Download className="h-4 w-4 mr-1" />CSV
             </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.xlsx"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </label>
-          <Button onClick={openNew} className="h-9">
-            <Plus className="h-4 w-4 mr-1" />Nuevo cliente
-          </Button>
-        </div>
-      </div>
+            <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
+              <Download className="h-4 w-4 mr-1" />PDF
+            </Button>
+            <Button variant="outline" size="sm" className="h-9" onClick={() => exportClientsExcel(filtered)}>
+              <FileSpreadsheet className="h-4 w-4 mr-1" />Excel
+            </Button>
+            <label>
+              <Button variant="outline" size="sm" className="h-9 cursor-pointer" asChild>
+                <span><Upload className="h-4 w-4 mr-1" />Importar</span>
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.xlsx"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </label>
+            <Button onClick={openNew} className="h-9">
+              <Plus className="h-4 w-4 mr-1" />Nuevo cliente
+            </Button>
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -360,6 +360,8 @@ export default function Clients() {
         onEdit={openEdit}
         onDeactivate={(c) => deactivateMutation.mutate(c.id)}
         canDeactivate={role === "admin"}
+        search={search}
+        onNew={openNew}
       />
 
       <InfiniteScrollTrigger

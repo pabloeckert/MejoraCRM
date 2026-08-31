@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer,
@@ -132,33 +133,33 @@ ${lossData.length > 0 ? `<div class="section"><h2>Motivos de pérdida</h2><table
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl font-bold">Reportes</h1>
-          <p className="text-sm text-muted-foreground">Análisis de {periodLabel}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <SelectTrigger className="w-36 h-9">
-              <Filter className="h-3.5 w-3.5 mr-1" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mes">Este mes</SelectItem>
-              <SelectItem value="trimestre">Trimestre</SelectItem>
-              <SelectItem value="semestre">Semestre</SelectItem>
-              <SelectItem value="año">Año</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
-            <Download className="h-4 w-4 mr-1" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" className="h-9" onClick={() => exportInteractionsExcel(interactions)}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" /> Excel
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Reportes"
+        subtitle={`Análisis de ${periodLabel}`}
+        align="start"
+        actions={
+          <>
+            <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
+              <SelectTrigger className="w-36 h-9">
+                <Filter className="h-3.5 w-3.5 mr-1" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mes">Este mes</SelectItem>
+                <SelectItem value="trimestre">Trimestre</SelectItem>
+                <SelectItem value="semestre">Semestre</SelectItem>
+                <SelectItem value="año">Año</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" className="h-9" onClick={handleExportPDF}>
+              <Download className="h-4 w-4 mr-1" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" className="h-9" onClick={() => exportInteractionsExcel(interactions)}>
+              <FileSpreadsheet className="h-4 w-4 mr-1" /> Excel
+            </Button>
+          </>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">

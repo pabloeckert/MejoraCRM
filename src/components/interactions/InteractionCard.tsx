@@ -47,7 +47,7 @@ export function InteractionCard({ interaction: i, index, onNavigate, onEdit, onD
   const isRedAging = hoursAging >= AGING_THRESHOLDS.RED_HOURS;
   const agingClass = isRedAging
     ? "text-destructive border-destructive/40"
-    : "text-amber-600 border-amber-400/40";
+    : "text-warning border-warning/40";
   const agingLabel = daysAging >= 1 ? `${daysAging}d` : `${hoursAging}h`;
   const agingTooltip = isRedAging
     ? `Sin actividad hace ${agingLabel}. Acción urgente — este negocio está en riesgo de perderse.`
