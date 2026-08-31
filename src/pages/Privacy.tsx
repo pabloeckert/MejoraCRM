@@ -13,7 +13,7 @@ export default function Privacy() {
           </Link>
         </Button>
 
-        <article className="prose prose-sm dark:prose-invert max-w-none">
+        <article className="prose prose-sm max-w-none">
           <h1>Política de Privacidad</h1>
           <p className="text-muted-foreground">
             Última actualización: 25 de abril de 2026

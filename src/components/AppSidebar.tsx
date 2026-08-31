@@ -3,7 +3,6 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import logoImg from "@/assets/branding/MC_Logo.png";
 import {
   Sidebar,
@@ -107,7 +106,6 @@ export function AppSidebar() {
           </div>
         )}
         <div className="flex items-center gap-1">
-          <ThemeToggle />
           {user && (
             <Button
               variant="ghost"
