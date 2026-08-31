@@ -76,18 +76,18 @@
 
     --radius: 0.75rem;
 
-    /* Sidebar: se mantiene el azul solido actual a proposito -- el layout
-       nuevo de sidebar (blanco, patron MejoraSM) es la Fase 3, todavia sin
-       hacer. Cambiar estos tokens ahora sin ese layout dejaria el sidebar
-       actual visualmente roto (texto claro sobre fondo claro). */
-    --sidebar-background: 220 65% 31%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 45 89% 52%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 214 67% 28%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 237 80% 24%;
-    --sidebar-ring: 45 89% 52%;
+    /* Sidebar: blanco, patron MejoraSM (Fase 3). --sidebar-accent-foreground
+       NO copia el blanco de SM -- blanco sobre el celeste de --sidebar-accent
+       no cumple contraste. Usa el mismo azul que --sidebar-primary, que ya
+       era el color del icono activo. */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 17%;
+    --sidebar-primary: 220 67% 31%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 43% 93%;
+    --sidebar-accent-foreground: 220 67% 31%;
+    --sidebar-border: 225 10% 92%;
+    --sidebar-ring: 220 61% 42%;
 
     /* Indicadores — paridad con MejoraSM */
     --success: 142 71% 45%;

@@ -42,10 +42,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </header>
           {demoMode && (
-            <div
-              className="h-7 flex items-center justify-center gap-1.5 shrink-0 sticky top-14 z-10 text-[11px] font-medium"
-              style={{ background: "rgba(247, 204, 19, 0.18)", borderBottom: "1px solid rgba(247, 204, 19, 0.5)", color: "#8a6d00" }}
-            >
+            <div className="h-7 flex items-center justify-center gap-1.5 shrink-0 sticky top-14 z-10 text-[11px] font-medium bg-accent/15 border-b border-accent/50 text-warning-foreground">
               <Sparkles className="h-3 w-3" />
               Estás viendo datos de ejemplo — no es tu información real
             </div>
