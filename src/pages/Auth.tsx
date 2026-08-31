@@ -71,7 +71,7 @@ export default function Auth() {
             <div>
               <h1
                 className="text-2xl font-bold text-foreground"
-                style={{ fontFamily: "'League Spartan', sans-serif" }}
+                style={{ fontFamily: "var(--font-heading-alt)" }}
               >
                 {isLogin ? "Iniciá sesión" : "Creá tu cuenta"}
               </h1>
@@ -219,7 +219,7 @@ export default function Auth() {
           <div>
             <p
               className="text-3xl font-bold tracking-wide"
-              style={{ fontFamily: "'League Spartan', sans-serif" }}
+              style={{ fontFamily: "var(--font-heading-alt)" }}
             >
               Mejora CRM
             </p>
