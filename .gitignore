@@ -30,3 +30,5 @@ Thumbs.db
 
 # Vercel
 .vercel/
+
+.claude/settings.local.json
