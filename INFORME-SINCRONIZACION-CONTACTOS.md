@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Proyecto** | Integración del ecosistema Mejora Continua — Fase 2: sincronización de identidad de contactos |
-| **Fecha del informe** | 2026-09-16 |
+| **Fecha del informe** | 2026-09-16 (v1.0) · **actualizado 2026-09-16 (v1.1)** — se agregan §11 Visión UX/UI y §12 Estructura final del proyecto |
 | **Autor** | Claude (Sonnet 5), a pedido de Pablo Eckert |
 | **Repos afectados** | `MejoraCRM` (este repo) + `MejoraContactos` |
-| **Estado general** | 🟡 **Construido y verificado localmente. Cero componentes activados en producción todavía.** |
-| **Commiteado** | No — pendiente de tu revisión antes de push, mismo criterio que las entregas anteriores |
+| **Estado general** | 🟢 **Código commiteado y pusheado a `main` en ambos repos, CI en verde.** 🟡 Cero componentes activados en producción todavía (ver §7). |
+| **Commits** | MejoraCRM `ac805986` · MejoraContactos `f866156` |
 | **Bloqueante conocido** | 🔴 Rotación de `service_role` key de Supabase de MejoraCRM sigue pendiente (ver Registro de Riesgos, R1) |
 
 ---
@@ -200,6 +200,122 @@ Señalado ya en el diagnóstico previo (`src/integrations/supabase/types.ts` no 
 
 ---
 
-## 10. Firma
+## 11. Visión de UX/UI — la experiencia más simple posible, con el resultado más potente
 
-Documento generado íntegramente por Claude (Sonnet 5) el 2026-09-16, sin commitear a git — a la espera de tu revisión y de que me confirmes si hago el push, igual que las entregas anteriores.
+**Esto es una sección de VISIÓN, no de implementación.** Lo construido en §4 es deliberadamente invisible en la interfaz — ningún vendedor ve un campo `persona_id` ni un botón de "sincronizar" en ningún lado hoy, a propósito. Esta sección documenta el criterio de diseño que ya se aplicó, más lo que falta construir para que el sistema no solo funcione, sino que se sienta simple, rápido y confiable para quien lo usa todos los días — el vendedor que carga un cliente, y vos como dueño del negocio mirando que todo funcione.
+
+### 11.1 — Principio rector: cero fricción nueva para quien carga datos
+
+La regla de diseño más importante de toda esta integración: **un vendedor que carga un cliente en MejoraCRM hoy hace exactamente los mismos clics que hacía ayer.** No hay un campo nuevo en `ClientFormDialog`, no hay un botón de "sincronizar ahora", no hay un modal de confirmación. Ya está así en el código actual (§4) — `pushContactoBestEffort` corre en segundo plano, sin que el formulario cambie en una sola línea visual. Esto no es un accidente: es la decisión de UX más importante de esta fase, y cualquier cambio futuro tiene que defenderla antes de agregar un campo o un paso nuevo al flujo de carga.
+
+### 11.2 — Lo que falta para que la potencia del sistema se note (sin agregar fricción)
+
+Hoy la sincronización es invisible **hacia adentro** (no molesta) pero también invisible **hacia afuera** (no se ve que está pasando nada bueno). La visión para la próxima fase es hacerla visible solo cuando aporta valor, nunca como una obligación:
+
+| Propuesta | Dónde | Para quién | Por qué vale la pena |
+|---|---|---|---|
+| **Badge de estado de sync** — un punto de color chico (verde=sincronizado, gris=pendiente, sin ícono=nunca sincronizado porque vino de import CSV) | `ClientsTable.tsx`, al lado del nombre | Todos los usuarios | Responde en un vistazo "¿este dato es confiable en todo el ecosistema o solo vive acá?" sin abrir nada ni leer texto. |
+| **"Visto en otras herramientas"** — en `ClientDetailDialog.tsx`, si `persona_id` existe, una línea chica: *"Este contacto también está en MejoraContactos"* | `ClientDetailDialog.tsx` | Todos los usuarios | Transparencia sin ruido — una sola línea de texto secundario, no un panel nuevo. |
+| **Alerta de posible duplicado al cargar un cliente nuevo** — aprovechar que `motor-contactos` ya tiene un motor de dedup fuzzy con IA (scoring por teléfono/email/nombre, ver `ESQUEMA-CONTACTO-COMPARTIDO.md`) para, en el momento de guardar un cliente nuevo en `ClientFormDialog`, preguntarle a `contactos-api` (un GET liviano, ya autenticado) si ese teléfono/email ya existe en otro lado | `ClientFormDialog.tsx`, un toast no bloqueante *"Ya existe un contacto similar — ¿es la misma persona?"* con un link, nunca un bloqueo del guardado | Vendedores | Es la pieza de mayor potencia posible para el menor esfuerzo de UX: el usuario sigue tipeando igual, pero recibe gratis la inteligencia de deduplicación que hoy solo tiene `motor-contactos`. Resuelve directamente el hueco §9.1 desde el lado de la experiencia, aunque no desde el lado del dato (el contacto se sigue creando aparte; esto es una alerta, no una fusión automática). |
+| **Panel "Salud de sincronización"** — un card chico en `Settings.tsx` o `Reports.tsx`, visible solo para `admin`/`supervisor` (nunca para `vendedor`, no es información que necesite para vender), con: último pull exitoso, cantidad de pushes fallidos en las últimas 24hs, botón "sincronizar ahora" (dispara `pull-contactos` manualmente) | `Settings.tsx` | Admin/supervisor (vos) | Es el "obsesivo y detallista" aplicado a la interfaz: te deja auditar sin tener que entrar a Supabase Dashboard ni a los Logs de Edge Functions — la data ya está en `contactos_sync_log`, solo falta una tabla chica que la lea. |
+| **Indicador de origen en el import CSV** — cuando se sube un CSV (`ClientImportDialog.tsx`), aclarar en el texto de ayuda que esos contactos NO se sincronizan automáticamente (ver hueco §9.2) hasta que se resuelva | `ClientImportDialog.tsx` | Vendedores/admin que importan en lote | Evita la falsa expectativa de "esto ya está en MejoraContactos" cuando todavía no lo está — mejor UX es la que no promete de más. |
+
+### 11.3 — Por qué esta secuencia y no otra
+
+El orden de la tabla de arriba **es** la priorización: el badge de estado (11.2, fila 1) es el cambio de menor esfuerzo y mayor claridad inmediata — una consulta de campo, un punto de color. La alerta de duplicados (fila 3) es la pieza más potente pero también la más cara (requiere una llamada de red en el momento de tipear, manejo de estados de carga, decidir el copy exacto del toast) — se construye después de tener el badge simple funcionando y validado en uso real. El panel de salud (fila 4) es la capa "obsesiva" pensada para vos, no para el equipo de ventas — no compite en prioridad con nada que toque el flujo de un vendedor.
+
+### 11.4 — Calidad y rendimiento: lo que ya se cuidó, y lo que se va a cuidar
+
+- **Ya cuidado (implementado):** ninguna llamada de sincronización bloquea una mutación del usuario — `pushContactoBestEffort` es fire-and-forget (§4); `pull-contactos` corre server-side por cron, nunca en el navegador de nadie.
+- **A cuidar cuando se construya 11.2:** la futura alerta de duplicados necesita debounce (no preguntar en cada tecla, solo al perder foco del campo teléfono/email) y un timeout corto (si `contactos-api` tarda, el formulario tiene que dejar guardar igual — la alerta es una mejora, nunca un bloqueo, mismo principio de fail-soft que ya rige todo el resto del sistema).
+- **Métrica de éxito propuesta:** no es "cuántos contactos se sincronizaron" (eso es una métrica de sistema, no de experiencia) — es **"cuántas veces un vendedor vio la alerta de duplicado y la aceptó"** vs. **"cuántas veces la ignoró"**. Esa proporción dice si la función realmente ahorra trabajo o solo genera ruido, y debería vivir en el mismo panel de salud de la fila 4.
+
+---
+
+## 12. Estructura final del proyecto — cómo se ve el ecosistema terminado
+
+Esto es el estado objetivo: los dos repos tal como quedan hoy (Fase 2, ya pusheada) más lo que agregaría la Fase 3 de UX (§11), marcado explícitamente como `(fase 3, no construido)` para que no se confunda con lo que ya existe.
+
+### 12.1 — MejoraContactos (relevante a esta integración)
+
+```
+MejoraContactos/
+├── ESQUEMA-CONTACTO-COMPARTIDO.md          # diagnóstico + decisiones + historial, vivo
+├── motor-contactos/                        # motor Python de ingesta/dedup — sin cambios en esta fase
+│   └── src/motor/
+│       ├── dedup/persona_id.py             # regla de supervivencia del persona_id
+│       ├── dedup/merge_engine.py           # fusión/separación, ahora persona_id-aware
+│       ├── export.py                       # + obtener_contactos_por_persona()
+│       ├── supabase_sync.py                # push local → contactos_finales (best-effort)
+│       └── api.py                          # API Flask local, + persona_id/updated_at
+└── supabase/
+    ├── migrations/
+    │   ├── 20260914_contactos_finales.sql          # tabla base (Fase 1)
+    │   └── 20260916_contactos_finales_two_way.sql  # +origen, +puede_escribir, +sync_log (Fase 2)
+    └── functions/
+        └── contactos-api/index.ts          # GET (lectura) + POST (escritura, Fase 2)
+```
+
+### 12.2 — MejoraCRM (relevante a esta integración)
+
+```
+MejoraCRM/
+├── INFORME-SINCRONIZACION-CONTACTOS.md     # este documento
+├── MIGRACION-CONTACTOS-CRM.md              # diagnóstico previo
+├── .github/workflows/
+│   ├── ci.yml                              # existente, sin cambios
+│   └── sync-contactos.yml                  # cron pull-contactos cada 15 min (Fase 2)
+├── src/
+│   ├── hooks/useClients.ts                 # + pushContactoBestEffort()
+│   ├── pages/
+│   │   ├── Clients.tsx                     # dispara push tras alta/edición
+│   │   └── Settings.tsx                    # (fase 3, no construido) + panel "Salud de sincronización"
+│   └── components/clients/
+│       ├── ClientFormDialog.tsx            # (fase 3, no construido) + alerta de posible duplicado
+│       ├── ClientDetailDialog.tsx          # (fase 3, no construido) + línea "visto en MejoraContactos"
+│       ├── ClientsTable.tsx                # (fase 3, no construido) + badge de estado de sync
+│       └── ClientImportDialog.tsx          # (fase 3, no construido) + aclaración de que el CSV no sincroniza
+└── supabase/
+    ├── migrations/20260916000001_contactos_sync.sql   # +persona_id, +origen, +contactos_synced_at, +sync_log
+    └── functions/
+        ├── push-contacto/index.ts          # CRM → Contactos (Fase 2)
+        └── pull-contactos/index.ts         # Contactos → CRM (Fase 2)
+```
+
+### 12.3 — El ecosistema completo, de punta a punta
+
+```
+                         ┌─────────────────────────┐
+                         │      MejoraContactos      │
+                         │  (fuente de verdad de     │
+                         │   identidad: persona_id)   │
+                         └────────────┬───────────────┘
+                                      │ contactos-api
+                                      │ (GET + POST, por API key)
+                    ┌─────────────────┼─────────────────┐
+                    │                                     │
+                    ▼                                     ▼
+         ┌───────────────────┐                 ┌──────────────────────┐
+         │      MejoraCRM      │                 │       MejoraWS         │
+         │  clients.persona_id │                 │  (futuro, no          │
+         │  push + pull ya      │                 │   construido todavía   │
+         │  construidos (Fase 2)│                 │   — mismo patrón de    │
+         └───────────────────┘                 │   API key que MejoraCRM)│
+                                                 └──────────────────────┘
+                    ▲
+                    │ shell.openExternal() / mejoraws://
+                    │
+         ┌───────────────────┐
+         │     MejoraSuite      │   launcher de escritorio, lanza los 3 —
+         │  (sin cambios en      │   no toca código ni storage de ninguno
+         │   esta fase)          │   directamente
+         └───────────────────┘
+```
+
+**Resultado final buscado, en una frase:** un vendedor carga un cliente en MejoraCRM sin pensar en ningún sistema externo; ese contacto queda disponible para WhatsApp y para el motor de limpieza de datos de Pablo sin que nadie tenga que exportar un CSV nunca más; y si el mismo contacto ya existía en otro lado, el sistema lo avisa en el momento justo, con la menor cantidad de clics posible, sin bloquear a nadie.
+
+---
+
+## 13. Firma
+
+Documento generado íntegramente por Claude (Sonnet 5). v1.0 el 2026-09-16 (commiteada en `ac805986`); v1.1 el mismo día, agregando §11-12 a pedido explícito de un informe con foco en UX/UI y la estructura final del proyecto.
