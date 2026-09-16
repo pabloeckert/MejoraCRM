@@ -7,6 +7,23 @@ import type { Client } from "@/lib/types";
 
 const PAGE_SIZE = 50;
 
+/**
+ * Empuja un cliente hacia contactos_finales (MejoraContactos) vía la Edge
+ * Function push-contacto. Best-effort a propósito: nunca lanza, nunca
+ * bloquea al caller -- si contactos-api todavía no está configurada
+ * (caso normal hoy) o la red falla, queda logueado del lado del backend
+ * (contactos_sync_log) y el alta/edición del cliente en MejoraCRM igual
+ * se considera exitosa. Ver INFORME-SINCRONIZACION-CONTACTOS.md.
+ */
+export function pushContactoBestEffort(clientId: string): void {
+  supabase.functions
+    .invoke("push-contacto", { body: { client_id: clientId } })
+    .then(({ error }) => {
+      if (error) console.warn("[push-contacto] sincronización con MejoraContactos falló (no bloqueante):", error);
+    })
+    .catch((e) => console.warn("[push-contacto] sincronización con MejoraContactos falló (no bloqueante):", e));
+}
+
 // In-memory store for demo mode to support "create and see" during session
 let MEMORY_DEMO_CLIENTS = [...INITIAL_DEMO_CLIENTS] as Client[];
 

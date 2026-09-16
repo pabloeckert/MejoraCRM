@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { ListSkeleton } from "@/components/skeletons";
 import { InfiniteScrollTrigger } from "@/components/InfiniteScrollTrigger";
-import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient, useAllClients } from "@/hooks/useClients";
+import { useClientsInfinite, flattenClientPages, useDeactivateClient, addDemoClient, useAllClients, pushContactoBestEffort } from "@/hooks/useClients";
 import { exportClientsExcel } from "@/lib/excelExport";
 import { STATUS_LABELS, PROVINCIAS, BRAND } from "@/lib/constants";
 import { ClientFormDialog } from "@/components/clients/ClientFormDialog";
@@ -70,9 +70,11 @@ export default function Clients() {
         const { id, ...rest } = c;
         const { error } = await supabase.from("clients").update(rest).eq("id", id);
         if (error) throw error;
+        pushContactoBestEffort(id);
       } else {
-        const { error } = await supabase.from("clients").insert(c);
+        const { data, error } = await supabase.from("clients").insert(c).select("id").single();
         if (error) throw error;
+        pushContactoBestEffort(data.id);
       }
     },
     onSuccess: () => {
